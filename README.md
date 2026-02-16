@@ -1,4 +1,4 @@
-# Muslim Launcher
+# 🌙 Muslim Launcher
 
 > **Building the Future of 🕌 Islamic Digital Life**  
 > Reclaiming Muslim attention with faith-centered technology — from daily apps to intelligent boundaries
@@ -221,17 +221,10 @@ Together: Complete Islamic phone experience
 
 ### Install
 
-**From Play Store** (Coming Q3 2026)
+**From Play Store**
 
 ```
 Search "Muslim Launcher" → Install → Set as default launcher
-```
-
-**Direct APK** (Current)
-
-```
-Download: https://flagodna.com/muslim-launcher.apk
-Install → Home button → Choose "Muslim Launcher" → Always
 ```
 
 ### First Setup
@@ -283,7 +276,7 @@ Want your app featured in Muslim Launcher's curated app drawer?
 - ❌ Addictive design patterns
 - ❌ Deceptive practices
 
-[Submit Your App](https://github.com/Flagodna-Developer/muslim-launcher/issues/new?template=app_submission.md)
+[Submit Your App](https://github.com/Sadaqahcode/muslim-launcher/issues/new?template=app_submission.md)
 
 ### Contribute Code
 
@@ -323,8 +316,7 @@ Muslim Launcher is free and open source, built for the Ummah.
 
 If you want to support development:
 
-- [Open Collective](https://opencollective.com/flagodna-developer)
-- [Sociabuzz](https://sociabuzz.com/flagodna/tribe)
+- [Sociabuzz](https://sociabuzz.com/sadaqahcode/tribe)
 
 Or contribute code, report bugs, spread the word.
 
@@ -332,10 +324,10 @@ Or contribute code, report bugs, spread the word.
 
 ## 📞 Contact
 
-- 🌐 Website: https://flagodna.com
-- 💬 Discord: https://discord.gg/3hz6snMqbs
-- 📧 Email: info@flagodna.com
-- 🐛 Issues: [GitHub](https://github.com/Flagodna-Developer/muslim-launcher/issues)
+- 📬 **Email:** sadaqahcode@proton.me
+- 💬 **Discord:** https://discord.gg/bPuuyhY5
+- 🌐 **Website:** https://flagodna.com
+- 🐛 **Issues:** [GitHub](https://github.com/Sadaqahcode/muslim-launcher/issues)
 
 ---
 
@@ -362,11 +354,17 @@ Muslim Launcher is the first step in building a phone experience that:
 
 ---
 
-**Bismillah.**
+## 🌙 About Sadaqah Code
 
-_FlagoDNA Team_  
-_Mlampah Ing Tresno (Walk with Love)_
+**Sadaqah Code** is an Islamic open-source initiative dedicated to building high-quality, free, and accessible digital tools for Muslims worldwide.
+
+We believe that code can be a form of worship when it serves the community. Our mission is to provide transparent, ad-free, and community-owned software that upholds Islamic values.
+
+> **Note:** Sadaqah Code was founded and is maintained by the **[FlagoDNA](https://flagodna.com)** team. While FlagoDNA leads the technical development, Sadaqah Code represents the spirit of community ownership and open-source contribution.
 
 ---
 
-**Status**: Early Development
+**Bismillah.**
+
+_Sadaqah Code Team_  
+_Technology for the Ummah_
