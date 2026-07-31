@@ -240,16 +240,6 @@ Search "Muslim Launcher" → Install → Set as default launcher
 
 ## 🗺️ Roadmap
 
-### Current Status (v0.3 Alpha)
-
-- [x] Basic launcher functionality (open apps)
-- [x] Prayer time widget
-- [x] Hijri calendar display
-- [x] App drawer with search
-- [ ] App categorization system
-- [ ] Focus mode integration
-- [ ] Muslim Services binding
-
 [Full Roadmap](/docs/ROADMAP.md)
 
 ---
@@ -325,7 +315,6 @@ Or contribute code, report bugs, spread the word.
 ## 📞 Contact
 
 - 📬 **Email:** sadaqahcode@proton.me
-- 💬 **Discord:** https://discord.gg/bPuuyhY5
 - 🌐 **Website:** https://flagodna.com
 - 🐛 **Issues:** [GitHub](https://github.com/Sadaqahcode/muslim-launcher/issues)
 
@@ -338,17 +327,6 @@ GPL-3.0 - Free to use and modify. See [LICENSE](LICENSE)
 ---
 
 ## 🌟 The Vision
-
-**Today:** A launcher that respects Islamic values  
-**Tomorrow:** A complete digital ecosystem where technology serves faith
-
-Muslim Launcher is the first step in building a phone experience that:
-
-- Helps you pray on time
-- Reduces phone addiction
-- Promotes beneficial activities
-- Respects your privacy
-- Aligns with Islamic values
 
 **Join us in building the future of Islamic digital life.**
 
