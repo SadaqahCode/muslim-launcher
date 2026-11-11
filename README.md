@@ -1,7 +1,11 @@
-# 🌙 Muslim Launcher
+# Muslim Launcher
 
-> **Building the Future of 🕌 Islamic Digital Life**  
-> Reclaiming Muslim attention with faith-centered technology — from daily apps to intelligent boundaries
+> **Most launchers are built to keep you engaged.  
+> Muslim Launcher is built to keep you aware.**
+
+Muslim Launcher replaces the front door of your phone with one anchored in
+prayer, intention, and muhasabah — no ads, no analytics, no infinite feeds,
+no autopilot. The phone is an _amanah_. This launcher treats it that way.
 
 [![Version](https://img.shields.io/badge/version-0.3.0--alpha-blue.svg)]()
 [![License](https://img.shields.io/badge/license-GPL--3.0-green.svg)](LICENSE)
@@ -9,326 +13,201 @@
 
 ---
 
-## 🕌 What is Muslim Launcher?
+## Why this exists
 
-Muslim Launcher reimagines your Android home screen from an Islamic perspective.
+The launcher is not neutral infrastructure. It is the **front door of the
+attention economy** — designed by companies whose business model is to
+capture, measure, and monetize engagement. The average Muslim's phone
+reflects that: hours on social feeds and short video, while the Quran app
+sits unopened on page three of the drawer.
 
-Instead of endless app icons designed to grab your attention, Muslim Launcher creates a **digital boundary** — a home screen that helps you stay focused on what matters: Salah, beneficial activities, and reducing phone addiction.
+The Islamic apps exist. The problem is that they are _peripheral_. The phone's
+default state is distraction, and deen is something you visit occasionally.
 
-### The Core Concept
+> The phone has become a mall. The masjid is a small shop in the corner.
 
-**Traditional launchers:**
+**Muslim Launcher exists to change the default** — to make the phone's
+environment prayer-anchored, intentional, and aware, rather than a place you
+walk through on autopilot.
 
-- App grids optimized for "engagement"
-- No concept of prayer times or Islamic values
-- Every app equally accessible (no priorities)
-- Designed to maximize screen time
+**The enemy is not a competitor. It is a design philosophy:**
+engagement-driven design — infinite feeds, notification pulses, streaks,
+recommendation engines, vanity metrics — whose purpose is to maximize
+time-in-app and extract attention as a resource.
 
-**Muslim Launcher:**
-
-- Home screen organized around **Salah times**
-- **Digital boundaries** - apps are categorized (beneficial, neutral, time-wasting)
-- **Focus-first design** - minimal distractions, intentional access
-- **Islamic calendar** as primary (Hijri date prominent)
-- Integration with **Muslim Services** for automatic focus modes
-
-### What Makes It Different
-
-This is not just a launcher with Islamic wallpapers. This is a **fundamental rethinking** of what a phone home screen should be for a Muslim.
+We fight it by **refusing to become it**, not by decorating it.
 
 ---
 
-## ✨ Core Features
+## What it is
 
-### 🕌 Prayer-Centered Interface
+A custom Android launcher that:
 
-- **Prayer time countdown** prominently displayed
-- **Next prayer widget** always visible
-- **Auto-focus mode** 5 minutes before each Salah (integrates with Muslim Services)
-- **Hijri calendar** displayed alongside Gregorian
-- **Islamic date awareness** (Ramadan, Jumah, special days highlighted)
+- Puts **prayer times and the Hijri date** at the visual center of the home
+  screen — not as a widget you add, but as the structure of the environment.
+- Lets you **categorize apps by intention and heart-risk**, not by productivity
+  scores:
+  - `Deen` — Quran, prayer, learning, zakat
+  - `Dunya — necessary` — work, banking, family, maps
+  - `Dunya — optional` — shopping, news, entertainment
+  - `Fitnah risk` — social feeds, dating, short-video, gossip
+- Replaces the silent tap with a **niyyah modal** — a short pause that shows
+  facts, asks what you are opening the app _for_, and lets you decide.
+- Measures usage **in the rhythm of prayer** — "since Asr," not "since midnight."
+- Offers gentle, dismissible **post-salah prompts** — one line, no nagging.
+- Runs **fully offline**, with **no ads, no analytics, no tracking, no telemetry.**
 
-### 🚧 Digital Boundaries
-
-**App Categorization:**
-Apps are organized into three categories:
-
-1. **Beneficial** (Green) - Quran, Hadith, educational apps, work tools
-2. **Neutral** (Gray) - Utilities, phone, messages, camera
-3. **Time-Wasting** (Red) - Social media, games, entertainment
-
-**How it works:**
-
-- User categorizes apps (or uses community suggestions)
-- Beneficial apps: Always easily accessible
-- Neutral apps: Normal access
-- Time-wasting apps: **Intentional friction**
-  - Extra tap to open ("Are you sure?")
-  - Shows usage stats before opening
-  - Can be blocked during focus modes
-
-### 🧘 Focus Mode Integration
-
-Powered by Muslim Services (if installed):
-
-- **Prayer Mode** - Only essential apps accessible during Salah window
-- **Ramadan Mode** - Time-wasting apps hidden during fasting hours
-- **Night Guard** - Entertainment blocked after bedtime
-- **Work Mode** - Social media hidden during work hours
-
-If Muslim Services is not installed, basic time-based blocking available.
-
-### 📱 Minimalist Design
-
-**No infinite scroll. No feed. No notifications on home screen.**
-
-- Clean, distraction-free interface
-- Essential apps in quick access
-- Everything else: one intentional swipe away
-- No widgets pulling attention (except prayer time)
-- Dark mode optimized for night use
-
-### 🌍 Community App Curation
-
-**Halal App Directory** (Future):
-
-- Developers can submit apps for inclusion
-- Requirements:
-  - ✅ No ads (or ethical ads only)
-  - ✅ No analytics/tracking
-  - ✅ Privacy-respecting
-  - ✅ Beneficial for Muslims
-- Community votes on submissions
-- Curated list shown in launcher's app drawer
+**The friction is not a block. It is a mirror.** The goal is awareness, not
+restriction.
 
 ---
 
-## 🎯 The Philosophy
+## What it is _not_
 
-### Digital Boundary Concept
-
-Your phone should have **boundaries** like your life does.
-
-Just as you wouldn't let a stranger interrupt your prayer, your phone shouldn't either. Muslim Launcher creates **digital boundaries** that align technology with Islamic values:
-
-1. **Time boundaries** - Prayer times are sacred, phone respects that
-2. **Attention boundaries** - Beneficial apps easy, wasteful apps have friction
-3. **Content boundaries** - Halal apps promoted, haram apps discouraged
-4. **Privacy boundaries** - No tracking, no data mining
-
-### What Phone Should Be
-
-**Not:** An endless stream of notifications and distractions  
-**But:** A tool that serves your goals and values
-
-**Not:** Designed to maximize your screen time  
-**But:** Designed to help you use your time wisely
-
-**Not:** Controlled by algorithms optimizing for engagement  
-**But:** Controlled by you, aligned with your faith
+- ❌ Not an Islamic-themed launcher. The values are in the **structure**, not the wallpaper.
+- ❌ Not a screen-time tracker. Time is not the problem — what fills it is.
+- ❌ Not a productivity tool. The goal is _barakah_ and presence, not output.
+- ❌ Not a parental control app. It does not scold, shame, or force.
+- ❌ Not a fatwa engine. It offers reminders, cites sources, and never claims
+  religious authority.
+- ❌ Not a platform or an ecosystem. It is one app, on your phone, for you.
 
 ---
 
-## 🔧 How It Works
+## Principles
 
-### Integration with Muslim Services
+These are the constraints behind every design decision. The full version lives
+in [`DEVELOPER_CONTRACT.md`](./DEVELOPER_CONTRACT.md) — read that before
+contributing.
 
-Muslim Launcher works standalone, but reaches full potential with Muslim Services:
-
-```
-Muslim Launcher (UI)
-    ↓
-Muslim Services (Background Logic)
-    ↓
-Together: Complete Islamic phone experience
-```
-
-**Launcher provides:**
-
-- Islamic home screen interface
-- App categorization UI
-- Quick access to beneficial apps
-- Prayer time display
-
-**Services provides:**
-
-- Prayer time calculations
-- Automatic focus mode triggers
-- Notification filtering
-- App usage tracking
-
-**Together:**
-
-- Auto-block time-wasting apps during prayer
-- Show usage insights on home screen
-- Seamless Ramadan mode
-- Complete digital boundary system
-
-### App Categorization System
-
-**How apps are categorized:**
-
-1. **Auto-categorization** (default):
-
-   - Quran/Islamic apps → Beneficial
-   - Social media/games → Time-wasting
-   - Everything else → Neutral
-
-2. **User customization**:
-
-   - Long-press any app
-   - Choose category
-   - Set custom rules
-
-3. **Community suggestions** (future):
-   - See how other users categorized apps
-   - Vote on community categories
-   - Share your categorization
-
-### Focus Mode Behavior
-
-**When focus mode is active:**
-
-- **Time-wasting apps:**
-
-  - Hidden from home screen
-  - Require extra steps to open
-  - Show "Are you sure?" prompt
-  - Display usage stats ("You used this 2h today")
-
-- **Beneficial apps:**
-
-  - Remain fully accessible
-  - Promoted on home screen
-
-- **Emergency:**
-  - Phone calls always work
-  - Whitelisted contacts can reach you
-  - Emergency apps (hospital, bank) accessible
+| Principle                                      | In practice                                                            |
+| :--------------------------------------------- | :--------------------------------------------------------------------- |
+| **Amanah** — the phone is a trust              | No feature whose success metric is "time in app."                      |
+| **Muhasabah** — account before being accounted | The modal is a mirror, not a judge.                                    |
+| **Niyyah** — intention precedes action         | The friction is naming your intention.                                 |
+| **Wasatiyyah** — moderation, not asceticism    | We never push zero usage. We never shame.                              |
+| **Sadd al-dhara'i** — block the means          | Apps are tagged by _heart-risk_, honestly, not declared haram.         |
+| **Rhythm of salah**                            | The day is anchored to prayer, not the clock.                          |
+| **No extraction**                              | Offline-first. No ads. No analytics. No third-party SDKs that collect. |
 
 ---
 
-## 📥 Installation
+## What we refuse to ship
 
-> [!NOTE]
-> Currently in early alpha. Launcher is functional but missing many planned features.
+This list is the immune system of the project. It does not negotiate.
 
-### Requirements
+- Ads, of any kind, ever.
+- Analytics, telemetry, or crash reporting that phones home.
+- Infinite scroll, feeds, "for you" recommendations, or algorithmic content.
+- Streaks, points, badges, leaderboards, or any gamification.
+- Notifications designed to pull you back into the app.
+- Dark patterns — fake urgency, guilt-tripping, forced onboarding.
+- Fatwas, declarations of haram, or claims to religious authority.
+- A runtime dependency on a second "services" app.
+- Any certification or authentication ecosystem that makes us a gatekeeper.
 
-- Android 8.0+
-- ~10MB storage
-- Optional: Muslim Services for full features
+If a future contributor proposes any of the above, this list is the answer.
 
-### Install
+---
 
-**From Play Store**
+## Status
 
-```
-Search "Muslim Launcher" → Install → Set as default launcher
+**Pre-alpha.** After an initial build and a long pause, the project is being
+rebuilt around a sharper thesis and a tighter scope.
+
+**The MVP is a single launcher app.** No companion install. No background
+services app. No ecosystem. The launcher must be fully functional on its own,
+offline, with only the launcher role granted.
+
+The "Muslim Services" background engine — once part of the architecture — is
+**deferred** until there is a proven, standalone reason for it. If it ever
+returns, it will be a **build-time library**, not a runtime gate.
+
+---
+
+## Roadmap
+
+The project grows in phases. Each phase is validated before the next begins.
+
+- **Phase 0 — Validate.** Talk to 10 Muslims. Show the modal. Ask: _aware or judged?_
+- **Phase 1 — Smallest shippable launcher.** Prayer-anchored home, drawer,
+  categorization, niyyah modal. Nothing else.
+- **Phase 2 — Prayer-rhythm intelligence.** Prayer-interval stats, post-salah
+  prompts, salah-window DND, weekly muhasabah view.
+- **Phase 3 — Shared library (only if justified).** Extract prayer / Hijri /
+  Islamic data into a Gradle module for reuse by other apps.
+- **Phase 4 — Ecosystem (only if traction proves demand).** A directory, not a
+  certification system. An open protocol, not a gatekeeper.
+
+No phase is skipped for speed.
+
+---
+
+## Tech stack
+
+- **Kotlin** + **Jetpack Compose** — modern native Android UI.
+- **Room** — local storage for settings, app categories, cached stats.
+- **WorkManager** + **AlarmManager** — reliable prayer notifications.
+- **Local prayer-time calculation** and **local Hijri conversion** — no network.
+- **Fully offline-first.** No backend. No account. No cloud.
+
+Optional permissions (DND access, usage stats, notification listener) are
+requested **only when a feature needs them**, explained in plain language, and
+fully declinable without breaking the app.
+
+---
+
+## Build & run
+
+```bash
+git clone https://github.com/SadaqahCode/muslim-launcher.git
+cd muslim-launcher
+./gradlew assembleDebug
 ```
 
-### First Setup
-
-1. Set Muslim Launcher as default
-2. Grant notification permission
-3. Configure prayer times (or it syncs from Muslim Services)
-4. Choose calculation method
-5. Categorize your apps (or use defaults)
-6. Done!
+Or open the project in Android Studio (latest stable), sync Gradle, and run on
+a physical device (a launcher needs a real device to behave correctly — an
+emulator will not exercise the launcher role properly).
 
 ---
 
-## 🗺️ Roadmap
+## Contributing
 
-[Full Roadmap](/docs/ROADMAP.md)
+1. Read [`DEVELOPER_CONTRACT.md`](./DEVELOPER_CONTRACT.md) **before** opening a PR.
+2. Every PR must state which of the seven tests it passes and how.
+3. No new dependency without justification — every dependency is a potential
+   data leak and a maintenance burden.
+4. No scope creep. If it's outside the current phase, it will be deferred.
+5. If you disagree with the contract, open an issue. The contract can change —
+   but only through explicit, documented reasoning.
 
----
+**The one question for every contribution:**
 
-## 🤝 For Developers & Contributors
+> Does this make the default state of the phone more Islamic, more intentional,
+> more prayer-anchored — without guilt, without restriction, and without
+> becoming the thing we are fighting?
 
-### Submit Your App to Halal Directory
-
-Want your app featured in Muslim Launcher's curated app drawer?
-
-**Requirements:**
-
-- ✅ No ads (or ethical, minimal ads)
-- ✅ No analytics/tracking (or privacy-respecting only)
-- ✅ Privacy policy clear and honest
-- ✅ Beneficial for Muslims (educational, Islamic, productivity)
-- ✅ Open source (preferred but not required)
-
-**Prohibited:**
-
-- ❌ Tracking/surveillance
-- ❌ Data mining for ads
-- ❌ Haram content
-- ❌ Addictive design patterns
-- ❌ Deceptive practices
-
-[Submit Your App](https://github.com/Sadaqahcode/muslim-launcher/issues/new?template=app_submission.md)
-
-### Contribute Code
-
-Muslim Launcher is open source and welcomes contributors:
-
-- Fix bugs
-- Add features
-- Improve UI/UX
-- Optimize performance
-- Write documentation
-
-[Contributing Guide](/docs/CONTRIBUTING.md)
+If yes, it belongs. If not, it doesn't.
 
 ---
 
-## 🔐 Privacy
+## License
 
-Muslim Launcher respects your privacy:
-
-- **No tracking** - We don't know what apps you use
-- **No analytics** - No data sent to servers
-- **Local storage** - All data stays on your phone
-- **No account required** - No cloud, no login
-- **Open source** - Code is auditable
-
-**Permissions:**
-
-- Launcher permission (required to function as launcher)
-- Notification access (optional, for prayer reminders)
-- Usage stats (optional, for app categorization insights)
+_To be decided before the first public release._ The intent is a permissive or
+copyleft open-source license that keeps the app free of ads and analytics in
+all future forks. A license that permits extraction of user data would
+contradict the project's reason to exist.
 
 ---
 
-## 💰 Support
+## Contact
 
-Muslim Launcher is free and open source, built for the Ummah.
-
-If you want to support development:
-
-- [Sociabuzz](https://sociabuzz.com/sadaqahcode/tribe)
-
-Or contribute code, report bugs, spread the word.
+- **GitHub:** [SadaqahCode](https://github.com/SadaqahCode)
+- **Issues:** please open an issue for bugs, proposals, or disagreement with the contract.
 
 ---
 
-## 📞 Contact
-
-- 📬 **Email:** sadaqahcode@proton.me
-- 🌐 **Website:** https://flagodna.com
-- 🐛 **Issues:** [GitHub](https://github.com/Sadaqahcode/muslim-launcher/issues)
-
----
-
-## 📜 License
-
-GPL-3.0 - Free to use and modify. See [LICENSE](LICENSE)
-
----
-
-## 🌟 The Vision
-
-**Join us in building the future of Islamic digital life.**
+> **The phone is an _amanah_. This launcher treats it that way.**
 
 ---
 
@@ -346,3 +225,7 @@ We believe that code can be a form of worship when it serves the community. Our 
 
 _Sadaqah Code Team_  
 _Technology for the Ummah_
+
+```
+
+```
