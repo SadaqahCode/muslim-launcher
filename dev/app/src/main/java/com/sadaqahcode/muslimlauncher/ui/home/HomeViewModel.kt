@@ -310,6 +310,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
         return resolve?.activityInfo?.packageName == app.packageName
     }
 
+
     fun isDeviceAdminActive(): Boolean {
         val ctx = getApplication<Application>()
         val component = ComponentName(ctx, LauncherDeviceAdminReceiver::class.java)

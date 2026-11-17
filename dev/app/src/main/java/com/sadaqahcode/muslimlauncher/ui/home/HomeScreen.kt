@@ -1,5 +1,7 @@
 package com.sadaqahcode.muslimlauncher.ui.home
 
+import android.content.Intent
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.Spring
@@ -23,6 +25,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -65,7 +68,9 @@ import com.sadaqahcode.muslimlauncher.ui.tools.ToolsPage
 import com.sadaqahcode.muslimlauncher.ui.tools.ToolsPageViewModel
 import com.sadaqahcode.muslimlauncher.ui.widgets.WidgetPage
 import com.sadaqahcode.muslimlauncher.ui.widgets.WidgetPageViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val WIDGET_PAGE = 0
 private const val HOME_PAGE = 1
@@ -95,6 +100,7 @@ fun HomeScreen(
     val userSettings by viewModel.settings.collectAsStateWithLifecycle()
     val wallpaperIsDark by viewModel.wallpaperIsDark.collectAsStateWithLifecycle()
 
+    var hasShownDefaultPrompt by remember { mutableStateOf(false) }
     val showDialog by viewModel.showAccessibilityDialog.collectAsState()
     val dialogKind by viewModel.dialogKind.collectAsState()
     val shadeEnabled by viewModel.shadeAccessibilityEnabled.collectAsState()
@@ -147,6 +153,31 @@ fun HomeScreen(
             if (viewModel.selectedApp.value != null) viewModel.dismissMenu()
             if (pagerState.currentPage != HOME_PAGE) pagerState.scrollToPage(HOME_PAGE)
         }
+    }
+
+    LaunchedEffect(pagerState.currentPage, drawerVisible, selectedApp) {
+        // Only on Home, not in drawer, widget, tools, or menu
+        if (pagerState.currentPage != HOME_PAGE) return@LaunchedEffect
+        if (drawerVisible) return@LaunchedEffect
+        if (selectedApp != null) return@LaunchedEffect
+        if (viewModel.isDefaultLauncher()) return@LaunchedEffect
+
+        delay(400.milliseconds)
+        // Don't stack if already showing
+        if (snackbarHostState.currentSnackbarData != null) return@LaunchedEffect
+
+        snackbarHostState.showLauncherSnackbar(
+            message = "Set Muslim Launcher as your default home?",
+            actionLabel = "Set default",
+            onAction = {
+                context.startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
+            }
+        )
+    }
+
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        viewModel.refreshAccessibilityState()
+        viewModel.refreshWorkProfileState()
     }
 
     BackHandler(enabled = true) {

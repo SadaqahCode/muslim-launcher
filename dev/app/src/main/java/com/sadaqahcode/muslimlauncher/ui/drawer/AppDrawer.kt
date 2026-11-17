@@ -164,26 +164,6 @@ fun AppDrawer(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                                 ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(48.dp)
-                                            .clickable(
-                                                onClickLabel = "Close all apps",
-                                                onClick = onClose,
-                                            ),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .width(40.dp)
-                                                .height(4.dp)
-                                                .background(
-                                                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.7f),
-                                                    shape = CircleShape,
-                                                )
-                                        )
-                                    }
-
                                     Row(
                                         modifier = Modifier
                                             .weight(1f)

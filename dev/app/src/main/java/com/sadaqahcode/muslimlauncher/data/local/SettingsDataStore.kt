@@ -72,8 +72,8 @@ class SettingsDataStore(private val context: Context) {
 
             wallpaperMode = p.enumOr(Keys.wallpaperMode, WallpaperMode.Gradient),
             wallpaperColor = p[Keys.wallpaperColor] ?: "#FFF5F1EA",
-            wallpaperGradientStart = p[Keys.wallpaperGradientStart] ?: "#FF00C9FF",
-            wallpaperGradientEnd = p[Keys.wallpaperGradientEnd] ?: "#FF92FE9D",
+            wallpaperGradientStart = p[Keys.wallpaperGradientStart] ?: "#FF0A1428",
+            wallpaperGradientEnd = p[Keys.wallpaperGradientEnd] ?: "#FF1F5FA8",
             wallpaperImageUri = p[Keys.wallpaperImageUri]?.takeIf { it.isNotBlank() },
             wallpaperBlurEnabled = p[Keys.wallpaperBlurEnabled] ?: false,
             wallpaperBlurRadius = (p[Keys.wallpaperBlurRadius] ?: 20).coerceIn(1, 50),
