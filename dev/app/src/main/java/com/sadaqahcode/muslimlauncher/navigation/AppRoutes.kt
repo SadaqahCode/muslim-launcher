@@ -1,4 +1,6 @@
 package com.sadaqahcode.muslimlauncher.navigation
 
-class AppRoutes {
+object AppRoutes {
+    const val HOME = "home"
+    const val SETTINGS = "settings"
 }

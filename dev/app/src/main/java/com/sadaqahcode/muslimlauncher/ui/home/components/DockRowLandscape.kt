@@ -1,11 +1,14 @@
 package com.sadaqahcode.muslimlauncher.ui.home.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,47 +17,44 @@ import com.sadaqahcode.muslimlauncher.domain.model.LauncherApp
 import com.sadaqahcode.muslimlauncher.domain.model.UserSettings
 import com.sadaqahcode.muslimlauncher.ui.components.DockIcon
 
-
 @Composable
-internal fun DockRowHorizontal(
+internal fun DockRowLandscape(
     apps: List<LauncherApp>,
     slots: Int,
     settings: UserSettings,
     onLaunch: (LauncherApp) -> Unit,
     onAppLongClick: (LauncherApp) -> Unit,
 ) {
-    val scrollable = apps.size > slots
-
-    LazyRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (scrollable) {
-            Arrangement.spacedBy(20.dp)
-        } else {
-            Arrangement.SpaceEvenly
-        },
-        verticalAlignment = Alignment.CenterVertically,
-        contentPadding = PaddingValues(horizontal = DockGutter, vertical = 8.dp),
+    BoxWithConstraints(
+        modifier = Modifier
+            .width(72.dp)
+            .fillMaxHeight()
+            .padding(horizontal = 8.dp),
     ) {
-        if (scrollable) {
-            items(apps, key = { it.packageName }) { app ->
-                DockIcon(
-                    app = app,
-                    onClick = { onLaunch(app) },
-                    onLongClick = { onAppLongClick(app) },
-                    settings = settings,
-                )
-            }
-        } else {
-            itemsIndexed(
-                items = List(slots) { apps.getOrNull(it) },
-                key = { index, app -> app?.packageName ?: "slot_$index" },
-            ) { _, app ->
-                DockIcon(
-                    app = app,
-                    onClick = { app?.let { onLaunch(it) } },
-                    onLongClick = { app?.let { onAppLongClick(it) } },
-                    settings = settings,
-                )
+        val itemHeight = maxHeight / slots
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            repeat(slots) { i ->
+                val app = apps.getOrNull(i)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(itemHeight),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    DockIcon(
+                        app = app,
+                        onClick = { app?.let { onLaunch(it) } },
+                        onLongClick = { app?.let { onAppLongClick(it) } },
+                        settings = settings,
+                    )
+                }
             }
         }
     }

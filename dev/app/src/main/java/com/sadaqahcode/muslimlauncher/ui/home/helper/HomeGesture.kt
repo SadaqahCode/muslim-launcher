@@ -10,10 +10,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
-import com.flagodna.debugprint.debugPrint
 import kotlin.math.abs
-
-private const val TAG = "ShadeSwipe"
 
 @Composable
 internal fun Modifier.shadeSwipeGesture(
@@ -28,24 +25,36 @@ internal fun Modifier.shadeSwipeGesture(
         threshold.toPx()
     }
 
-    return this.pointerInput(thresholdPx) {
-        debugPrint.d("$TAG: pointerInput coroutine launched")
-
+    return pointerInput(thresholdPx) {
         val touchSlop = viewConfiguration.touchSlop
 
         awaitEachGesture {
             var downAccum = 0f
             var upAccum = 0f
             var horizontalAccum = 0f
-
             var lifted = false
-            var eventCount = 0
+            var cancelled = false
+
+            val firstDown = awaitPointerEvent(
+                PointerEventPass.Initial
+            ).changes.firstOrNull() ?: return@awaitEachGesture
+
+            val pointerId = firstDown.id
 
             while (true) {
-                val event = awaitPointerEvent(PointerEventPass.Initial)
-                eventCount++
+                val event = awaitPointerEvent(
+                    PointerEventPass.Initial
+                )
 
-                val change = event.changes.firstOrNull() ?: break
+                // Ignore multi-touch gestures.
+                if (event.changes.count { it.pressed } > 1) {
+                    cancelled = true
+                    break
+                }
+
+                val change = event.changes.firstOrNull {
+                    it.id == pointerId
+                } ?: break
 
                 if (!change.pressed) {
                     lifted = true
@@ -63,32 +72,20 @@ internal fun Modifier.shadeSwipeGesture(
                 horizontalAccum += abs(delta.x)
             }
 
-            if (lifted) {
-                val gatingOk = currentGating()
+            if (!lifted || cancelled) {
+                return@awaitEachGesture
+            }
 
-                val verticalAccum = downAccum + upAccum
-                val verticalDominant = downAccum > horizontalAccum
-                val reached = downAccum >= thresholdPx
+            val verticalAccum = downAccum + upAccum
 
-                val fire = gatingOk &&
-                        verticalDominant &&
-                        reached &&
+            val isDownSwipe =
+                downAccum >= thresholdPx &&
+                        downAccum > horizontalAccum &&
+                        downAccum > upAccum &&
                         verticalAccum > touchSlop
 
-                debugPrint.d(
-                    "$TAG: end events=$eventCount " +
-                            "down=${downAccum.toInt()}px " +
-                            "up=${upAccum.toInt()}px " +
-                            "horiz=${horizontalAccum.toInt()}px " +
-                            "thresh=${thresholdPx.toInt()}px " +
-                            "gatingOk=$gatingOk " +
-                            "vDom=$verticalDominant " +
-                            "reached=$reached fire=$fire"
-                )
-
-                if (fire) {
-                    currentOnSwipe(downAccum)
-                }
+            if (isDownSwipe && currentGating()) {
+                currentOnSwipe(downAccum)
             }
         }
     }

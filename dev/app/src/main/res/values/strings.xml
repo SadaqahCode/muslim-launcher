@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Muslim Launcher</string>
+    <string name="accessibility_shade_description">Fallback to open notification panel when swipe down fails on some devices. Does not read screen content.</string>
+    <string name="accessibility_shade_summary">Swipe down for notifications (fallback)</string>
+    <string name="accessibility_lock_description">Locks screen on double tap. Does not read screen content.</string>
+    <string name="accessibility_lock_summary">Double tap to lock</string>
 </resources>

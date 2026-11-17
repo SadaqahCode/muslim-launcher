@@ -1,4 +1,134 @@
 package com.sadaqahcode.muslimlauncher.ui.settings
 
-class SettingsViewModel {
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.sadaqahcode.muslimlauncher.data.local.SettingsDataStore
+import com.sadaqahcode.muslimlauncher.domain.model.AppIconShape
+import com.sadaqahcode.muslimlauncher.domain.model.AppIconSize
+import com.sadaqahcode.muslimlauncher.domain.model.AppItemLayout
+import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
+import com.sadaqahcode.muslimlauncher.domain.model.ColorSource
+import com.sadaqahcode.muslimlauncher.domain.model.DarkMode
+import com.sadaqahcode.muslimlauncher.domain.model.DrawerLayout
+import com.sadaqahcode.muslimlauncher.domain.model.UserSettings
+import com.sadaqahcode.muslimlauncher.domain.model.WallpaperMode
+import com.sadaqahcode.muslimlauncher.domain.model.WallpaperTextMode
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+class SettingsViewModel(app: Application) : AndroidViewModel(app) {
+
+    private val ds = SettingsDataStore(app)
+
+    val settings: StateFlow<UserSettings> = ds.settings
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UserSettings())
+
+    private val _wallpaperApplyCount = MutableStateFlow(0)
+
+    val wallpaperApplying: StateFlow<Boolean> = _wallpaperApplyCount
+        .map { it > 0 }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    // Settings setters
+    fun setIconSize(v: AppIconSize) = viewModelScope.launch { ds.setIconSize(v) }
+    fun setTextSize(v: AppTextSize) = viewModelScope.launch { ds.setTextSize(v) }
+    fun setItemLayout(v: AppItemLayout) = viewModelScope.launch { ds.setItemLayout(v) }
+    fun setIconShape(v: AppIconShape) = viewModelScope.launch { ds.setIconShape(v) }
+    fun setDrawerLayout(v: DrawerLayout) = viewModelScope.launch { ds.setDrawerLayout(v) }
+    fun setHomeColumns(v: Int) = viewModelScope.launch { ds.setHomeColumns(v) }
+    fun setDrawerColumns(v: Int) = viewModelScope.launch { ds.setDrawerColumns(v) }
+    fun setDockSlots(v: Int) = viewModelScope.launch { ds.setDockSlots(v) }
+    fun setDarkMode(v: DarkMode) = viewModelScope.launch { ds.setDarkMode(v) }
+    fun setMaxPinned(v: Int) = viewModelScope.launch { ds.setMaxPinned(v) }
+
+    // Color source
+    fun setColorSource(v: ColorSource) = viewModelScope.launch {
+        ds.setColorSource(v)
+    }
+
+    fun setCustomSeedColor(hex: String) = viewModelScope.launch {
+        ds.setCustomSeedColor(hex)
+    }
+
+    fun setWallpaperTextMode(v: WallpaperTextMode) = viewModelScope.launch {
+        ds.setWallpaperTextMode(v)
+    }
+
+    fun setWallpaperMode(v: WallpaperMode) = viewModelScope.launch {
+        // System mode is a no-op for the system wallpaper (we just stop
+        // overlaying an app-level color/image), so it doesn't need the
+        // spinner. Color / Gradient / Image do write the system wallpaper.
+        if (v == WallpaperMode.System) {
+            ds.setWallpaperMode(v)
+            return@launch
+        }
+        runWallpaperApply {
+            ds.setWallpaperMode(v)
+            applyToSystemWallpaper(
+                getApplication(),
+                settings.value.copy(wallpaperMode = v),
+            )
+        }
+    }
+
+    fun setWallpaperColor(hex: String) = viewModelScope.launch {
+        runWallpaperApply {
+            ds.setWallpaperColor(hex)
+            applyToSystemWallpaper(
+                getApplication(),
+                settings.value.copy(wallpaperColor = hex),
+            )
+        }
+    }
+
+    fun setWallpaperGradient(start: String, end: String) = viewModelScope.launch {
+        runWallpaperApply {
+            ds.setWallpaperGradient(start, end)
+            applyToSystemWallpaper(
+                getApplication(),
+                settings.value.copy(
+                    wallpaperGradientStart = start,
+                    wallpaperGradientEnd = end,
+                ),
+            )
+        }
+    }
+
+    fun setWallpaperImageUri(uri: String?) = viewModelScope.launch {
+        ds.setWallpaperImageUri(uri)
+        if (uri != null) {
+            runWallpaperApply {
+                applyToSystemWallpaper(
+                    getApplication(),
+                    settings.value.copy(
+                        wallpaperImageUri = uri,
+                        wallpaperMode = WallpaperMode.Image,
+                    ),
+                )
+            }
+        }
+    }
+
+    fun setWallpaperBlurEnabled(v: Boolean) = viewModelScope.launch {
+        ds.setWallpaperBlurEnabled(v)
+    }
+
+    fun setWallpaperBlurRadius(v: Int) = viewModelScope.launch {
+        ds.setWallpaperBlurRadius(v)
+    }
+
+    private suspend fun runWallpaperApply(block: suspend () -> Unit) {
+        _wallpaperApplyCount.update { it + 1 }
+        try {
+            block()
+        } finally {
+            _wallpaperApplyCount.update { it - 1 }
+        }
+    }
 }

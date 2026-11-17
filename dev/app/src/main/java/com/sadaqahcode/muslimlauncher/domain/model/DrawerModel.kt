@@ -1,7 +1,12 @@
-package com.sadaqahcode.muslimlauncher.ui.drawer
+package com.sadaqahcode.muslimlauncher.domain.model
 
-import com.sadaqahcode.muslimlauncher.domain.model.AppCategory
-import com.sadaqahcode.muslimlauncher.domain.model.LauncherApp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Apps
+import androidx.compose.material.icons.outlined.Book
+import androidx.compose.material.icons.outlined.ShoppingBag
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.Work
+import androidx.compose.ui.graphics.vector.ImageVector
 
 internal val DrawerCategoryOrder = listOf(
     AppCategory.DEEN,
@@ -27,6 +32,15 @@ internal fun AppCategory.chipLabel(): String = when (this) {
     AppCategory.FITNAH_RISK -> "Fitnah risk"
 }
 
+internal val AllAppsIcon: ImageVector get() = Icons.Outlined.Apps
+
+internal val AppCategory.icon: ImageVector
+    get() = when (this) {
+        AppCategory.DEEN -> Icons.Outlined.Book
+        AppCategory.DUNYA_NECESSARY -> Icons.Outlined.Work
+        AppCategory.DUNYA_OPTIONAL -> Icons.Outlined.ShoppingBag
+        AppCategory.FITNAH_RISK -> Icons.Outlined.Visibility
+    }
 internal fun buildDrawerModel(
     apps: List<LauncherApp>,
     query: String,

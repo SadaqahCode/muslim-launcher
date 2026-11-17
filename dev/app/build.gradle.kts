@@ -1,40 +1,158 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ksp)
 }
 
-    android {
+// Read local.properties at build time
+val localProperties = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) load(FileInputStream(f))
+}
+
+android {
     namespace = "com.sadaqahcode.muslimlauncher"
-        compileSdk {
-            version = release(37)
+    compileSdk {
+        version = release(37)
+    }
+
+    defaultConfig {
+        applicationId = "com.sadaqahcode.muslimlauncher"
+        minSdk = 24
+        targetSdk = 37
+        versionCode = 261111
+        versionName = "0.4.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary = true
         }
+    }
 
-        defaultConfig {
-      applicationId = "com.sadaqahcode.muslimlauncher"
-    minSdk = 23
-    targetSdk = 37
-    versionCode = 1
-    versionName = "1.0"
-
-      testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    signingConfigs {
+        create("release") {
+            storeFile = file(localProperties.getProperty("RELEASE_STORE_FILE") as? String ?: "")
+            storePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD") as? String ?: ""
+            keyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS") as? String ?: ""
+            keyPassword = localProperties.getProperty("RELEASE_KEY_PASSWORD") as? String ?: ""
+        }
     }
 
     buildTypes {
-          release {
-              optimization {
-                  enable = true
-                  packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
-              }
-          }
-      }
-        compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_11
-            targetCompatibility = JavaVersion.VERSION_11
+        release {
+            buildConfigField("boolean", "DEBUG", "false")
+            // Enable minification (code shrinking and obfuscation)
+            isMinifyEnabled = true
+
+            // Enable resource shrinking (removes unused drawables, layouts, strings)
+            isShrinkResources = true
+
+            // Keep optimization configs if needed, but R8 handles this automatically now
+            optimization {
+                // R8 optimization is enabled by default when isMinifyEnabled = true
+            }
+
+            // Attach ProGuard rules file
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+
+            signingConfig = signingConfigs.getByName("release")
+        }
+        debug {
+            buildConfigField("boolean", "DEBUG", "true")
+
+            // for fcm
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
-  dependencies {
-      implementation(libs.androidx.core.ktx)
-      testImplementation(libs.junit)
-      androidTestImplementation(libs.androidx.espresso.core)
-      androidTestImplementation(libs.androidx.junit)
-  }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    configurations.all {
+        resolutionStrategy {
+            force("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.0")
+        }
+    }
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+}
+
+dependencies {
+    // ── Compose ────────────────────────────────────────────────────────────
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+
+    // ── Core / Lifecycle ───────────────────────────────────────────────────
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // ── Navigation ─────────────────────────────────────────────────────────
+    implementation(libs.androidx.navigation.compose)
+
+    // ── Persistence ────────────────────────────────────────────────────────
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.ui)
+    implementation(libs.material)
+    ksp(libs.androidx.room.compiler)
+
+    implementation(libs.androidx.datastore.preferences)
+
+    // ── Background work ────────────────────────────────────────────────────
+    implementation(libs.androidx.work.runtime.ktx)
+
+    // ── Date / time ────────────────────────────────────────────────────────
+    // kotlinx-datetime works on minSdk 23 without desugaring.
+    implementation(libs.kotlinx.datetime)
+
+    // ── Coroutines (explicit) ──────────────────────────────────────────────
+    implementation(libs.kotlinx.coroutines.android)
+
+    // scroller
+    implementation("com.github.nanihadesuka:LazyColumnScrollbar:2.2.0")
+
+    // logger
+    implementation("com.flagodna:debugprint:0.1.1")
+
+    // Coil
+    implementation("io.coil-kt.coil3:coil-compose:3.5.0")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.5.0")
+
+    // theme
+    implementation("com.materialkolor:material-color-utilities:6.0.0")
+    implementation("com.materialkolor:material-kolor-material3:6.0.0")
+
+    // ── Tests ──────────────────────────────────────────────────────────────
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.junit)
+
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+}
