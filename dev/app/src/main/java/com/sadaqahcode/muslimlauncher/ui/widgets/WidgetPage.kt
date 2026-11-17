@@ -97,6 +97,7 @@ fun WidgetPage(
     val emptyInteractionSource = remember { MutableInteractionSource() }
     val blockerInteractionSource = remember { MutableInteractionSource() }
     val listState = rememberLazyListState()
+    val textScale = userSettings.textSize
 
     val softScrollbarSettings = ScrollbarSettings.Default.copy(
         thumbThickness = 5.dp,
@@ -214,6 +215,7 @@ fun WidgetPage(
                     .fillMaxSize(),
             ) {
                 ReorderWidgetList(
+                    textScale = textScale,
                     placements = placements,
                     shortcuts = shortcuts,
                     viewModel = viewModel,
@@ -272,7 +274,7 @@ fun WidgetPage(
                 Column(Modifier.weight(1f)) {
                     Text(
                         text = "Widgets",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = textScale.scaled(MaterialTheme.typography.titleLarge),
                         fontWeight = FontWeight.Medium,
                         color = lc.scheme.onBackground,
                     )
@@ -280,7 +282,7 @@ fun WidgetPage(
                     if (countLine.isNotEmpty()) {
                         Text(
                             text = countLine,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = textScale.scaled(MaterialTheme.typography.bodySmall),
                             color = lc.scheme.onBackground.copy(alpha = 0.72f),
                         )
                     }
@@ -307,6 +309,7 @@ fun WidgetPage(
             if (placements.isEmpty() && shortcuts.isEmpty()) {
                 EmptyWidgetState(
                     modifier = Modifier.weight(1f),
+                    textScale = textScale,
                     lc= lc.scheme,
                     onAdd = viewModel::openPicker,
                 )
@@ -394,7 +397,7 @@ fun WidgetPage(
                         }
 
                         item(key = "add_row") {
-                            AddWidgetRow(onClick = viewModel::openPicker, lc = lc.scheme)
+                            AddWidgetRow(onClick = viewModel::openPicker, lc = lc.scheme, textScale = textScale)
                         }
                     }
                 }

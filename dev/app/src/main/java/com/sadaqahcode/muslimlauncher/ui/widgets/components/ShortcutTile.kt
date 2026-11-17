@@ -3,7 +3,6 @@ package com.sadaqahcode.muslimlauncher.ui.widgets.components
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,16 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import com.sadaqahcode.muslimlauncher.data.local.ShortcutEntity
 
-/**
- * A pinned shortcut. Renders as a small icon + label card.
- *
- * - Tap → launches the stored Intent.
- * - Long-press → [onLongClick] (enters inline edit mode, like widgets).
- * - [isEditing] draws the same 2dp primary border that WidgetRow uses, so
- *   the "this row is being edited" state is consistent between widget rows
- *   and shortcut rows.
- */
-@OptIn(ExperimentalFoundationApi::class)
+
 @Composable
 internal fun ShortcutTile(
     shortcut: ShortcutEntity,

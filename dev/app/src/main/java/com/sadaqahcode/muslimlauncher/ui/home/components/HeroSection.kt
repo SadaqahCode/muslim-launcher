@@ -21,6 +21,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
 import com.sadaqahcode.muslimlauncher.ui.home.PrayerHeroState
 import com.sadaqahcode.muslimlauncher.ui.theme.GlassEmphasis
 import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
@@ -30,6 +31,7 @@ import com.sadaqahcode.muslimlauncher.ui.theme.withHalo
 @Composable
 internal fun HeroSection(
     state: PrayerHeroState,
+    textScale: AppTextSize,
     modifier: Modifier = Modifier,
 ) {
     val lc = LocalLegibleColors.current
@@ -41,12 +43,12 @@ internal fun HeroSection(
     ) {
         Text(
             state.hijriDate,
-            style = MaterialTheme.typography.labelLarge.withHalo(lc.halo),
+            style = textScale.scaled(MaterialTheme.typography.labelLarge.withHalo(lc.halo)),
             color = c.onBackground,
         )
         Text(
             state.gregorianDate,
-            style = MaterialTheme.typography.bodySmall.withHalo(lc.halo),
+            style = textScale.scaled(MaterialTheme.typography.bodySmall.withHalo(lc.halo)),
             color = c.onBackground.copy(alpha = 0.72f),
         )
 
@@ -54,14 +56,14 @@ internal fun HeroSection(
 
         Text(
             "Next prayer",
-            style = MaterialTheme.typography.bodySmall.withHalo(lc.halo),
+            style = textScale.scaled(MaterialTheme.typography.bodySmall.withHalo(lc.halo)),
             color = c.onBackground.copy(alpha = 0.72f),
         )
         Text(
             state.nextPrayerName,
-            style = MaterialTheme.typography.displayMedium
+            style = textScale.scaled(MaterialTheme.typography.displayMedium
                 .copy(fontWeight = FontWeight(350))
-                .withHalo(lc.halo),
+                .withHalo(lc.halo)),
             color = c.onBackground,
         )
 
@@ -71,16 +73,16 @@ internal fun HeroSection(
         ) {
             Text(
                 state.nextPrayerTime,
-                style = MaterialTheme.typography.headlineSmall
+                style = textScale.scaled(MaterialTheme.typography.headlineSmall
                     .copy(fontFeatureSettings = "tnum")
-                    .withHalo(lc.halo),
+                    .withHalo(lc.halo)),
                 color = c.onBackground,
             )
             Text(
                 state.timeRemaining,
-                style = MaterialTheme.typography.titleMedium
+                style = textScale.scaled(MaterialTheme.typography.titleMedium
                     .copy(fontFeatureSettings = "tnum")
-                    .withHalo(lc.halo),
+                    .withHalo(lc.halo)),
                 color = c.primary,
                 modifier = Modifier.padding(bottom = 2.dp),
             )
@@ -90,7 +92,7 @@ internal fun HeroSection(
 
         Text(
             state.windowLine,
-            style = MaterialTheme.typography.bodySmall.withHalo(lc.halo),
+            style = textScale.scaled(MaterialTheme.typography.bodySmall.withHalo(lc.halo)),
             color = c.onBackground.copy(alpha = 0.72f),
         )
 
@@ -112,7 +114,7 @@ internal fun HeroSection(
                         index < startedBefore -> PrayerRowState.Started
                         else -> PrayerRowState.Upcoming
                     }
-                    PrayerTimeItem(name, time, rowState, Modifier.weight(1f))
+                    PrayerTimeItem(name, time, rowState, textScale, Modifier.weight(1f))
                 }
             }
         }
@@ -126,6 +128,7 @@ private fun PrayerTimeItem(
     name: String,
     time: String,
     rowState: PrayerRowState,
+    textScale: AppTextSize,
     modifier: Modifier = Modifier,
 ) {
     val colors = MaterialTheme.colorScheme
@@ -159,10 +162,10 @@ private fun PrayerTimeItem(
         } else {
             Spacer(Modifier.height(8.dp))
         }
-        Text(name, style = MaterialTheme.typography.labelSmall, color = color, fontWeight = weight)
+        Text(name, style = textScale.scaled(MaterialTheme.typography.labelSmall), color = color, fontWeight = weight)
         Text(
             time,
-            style = MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum"),
+            style = textScale.scaled(MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum")),
             color = color,
             fontWeight = weight,
         )

@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
 import com.sadaqahcode.muslimlauncher.ui.home.helper.doubleTapGesture
 import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.tools.components.ContextualBanner
@@ -62,6 +63,7 @@ enum class ToolId {
 @Composable
 fun ToolsPage(
     viewModel: ToolsPageViewModel,
+    textScale: AppTextSize,
     onOpenTool: (ToolId) -> Unit,
     onDoubleTapHome: () -> Unit,
     onBack: () -> Unit,
@@ -136,13 +138,13 @@ fun ToolsPage(
                 Column(Modifier.weight(1f)) {
                     Text(
                         text = "Tools",
-                        style = MaterialTheme.typography.titleLarge,
+                        style = textScale.scaled(MaterialTheme.typography.titleLarge),
                         fontWeight = FontWeight.Medium,
                         color = lc.scheme.onBackground,
                     )
                     Text(
                         text = "Daily Islamic essentials",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = textScale.scaled(MaterialTheme.typography.bodySmall),
                         color = lc.scheme.onBackground.copy(alpha = 0.72f),
                     )
                 }

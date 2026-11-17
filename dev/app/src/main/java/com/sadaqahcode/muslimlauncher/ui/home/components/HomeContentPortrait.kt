@@ -83,7 +83,10 @@ internal fun HomeContentPortrait(
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Column {
                             Spacer(Modifier.height(48.dp))
-                            HeroSection(state = heroState)
+                            HeroSection(
+                                state = heroState,
+                                textScale = settings.textSize
+                            )
                             Spacer(Modifier.height(32.dp))
                         }
                     }
@@ -92,7 +95,7 @@ internal fun HomeContentPortrait(
                         // intentionally empty
                     } else if (homeApps.isEmpty()) {
                         item(span = { GridItemSpan(maxLineSpan) }) {
-                            EmptyPinnedHint()
+                            EmptyPinnedHint(textScale = settings.textSize,)
                         }
                     } else {
                         items(homeApps, key = { it.packageName }) { app ->
@@ -129,7 +132,7 @@ internal fun HomeContentPortrait(
                 .padding(top = 4.dp, end = 8.dp)
                 .size(38.dp)
                 .background(
-                    color = lc.scheme.surfaceContainer.copy(alpha = 0.8f),
+                    color = lc.scheme.surfaceContainer.copy(alpha = 0.05f),
                     shape = CircleShape,
                 ),
             contentAlignment = Alignment.Center,
@@ -140,7 +143,7 @@ internal fun HomeContentPortrait(
                 Icon(
                     imageVector = Icons.Outlined.Palette,
                     contentDescription = "Theme settings",
-                    tint = lc.scheme.onBackground.copy(alpha = 0.6f),
+                    tint = lc.scheme.onBackground.copy(alpha = 0.75f),
                 )
             }
         }

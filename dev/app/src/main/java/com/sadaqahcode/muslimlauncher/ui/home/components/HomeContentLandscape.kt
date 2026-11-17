@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -22,7 +21,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Palette
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -76,14 +74,17 @@ internal fun HomeContentLandscape(
                 .padding(horizontal = ContentGutter, vertical = 12.dp),
         ) {
             Box(Modifier.fillMaxWidth()) {
-                HeroSection(state = heroState)
+                HeroSection(
+                    state = heroState,
+                    textScale = settings.textSize
+                )
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(top = 4.dp, end = 8.dp)
                         .size(38.dp)
                         .background(
-                            color = lc.scheme.surfaceContainer.copy(alpha = 0.8f),
+                            color = lc.scheme.surfaceContainer.copy(alpha = 0.05f),
                             shape = CircleShape,
                         ),
                     contentAlignment = Alignment.Center,
@@ -94,7 +95,7 @@ internal fun HomeContentLandscape(
                         Icon(
                             imageVector = Icons.Outlined.Palette,
                             contentDescription = "Theme settings",
-                            tint = lc.scheme.onBackground.copy(alpha = 0.6f),
+                            tint = lc.scheme.onBackground.copy(alpha = 0.75f),
                         )
                     }
                 }
@@ -120,7 +121,7 @@ internal fun HomeContentLandscape(
                     // intentionally empty
                 } else if (homeApps.isEmpty()) {
                     item(span = { GridItemSpan(maxLineSpan) }) {
-                        EmptyPinnedHint()
+                        EmptyPinnedHint(textScale = settings.textSize,)
                     }
                 } else {
                     items(homeApps, key = { it.packageName }) { app ->

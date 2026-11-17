@@ -12,10 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
 import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
 
 @Composable
-internal fun EmptyPinnedHint() {
+internal fun EmptyPinnedHint(textScale: AppTextSize) {
     val lc = LocalLegibleColors.current
 
     Column(
@@ -24,13 +25,13 @@ internal fun EmptyPinnedHint() {
     ) {
         Text(
             "Nothing pinned, on purpose.",
-            style = MaterialTheme.typography.titleMedium,
+            style = textScale.scaled(MaterialTheme.typography.titleMedium),
             color = lc.scheme.onBackground,
         )
         Spacer(Modifier.height(8.dp))
         Text(
             "Swipe up for all apps.\nPress and hold one to pin it.",
-            style = MaterialTheme.typography.bodySmall,
+            style = textScale.scaled(MaterialTheme.typography.bodySmall),
             color = lc.scheme.onSurfaceVariant,
             textAlign = TextAlign.Start,
         )

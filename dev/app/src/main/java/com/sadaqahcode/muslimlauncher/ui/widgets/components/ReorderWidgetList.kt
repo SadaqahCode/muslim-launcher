@@ -37,15 +37,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sadaqahcode.muslimlauncher.data.local.ShortcutEntity
 import com.sadaqahcode.muslimlauncher.data.local.WidgetEntity
+import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
 import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.widgets.WidgetPageViewModel
 import com.sadaqahcode.muslimlauncher.ui.widgets.WidgetPreset
 
 @Composable
 internal fun ReorderWidgetList(
+    textScale: AppTextSize,
     placements: List<WidgetEntity>,
     shortcuts: List<ShortcutEntity>,
     viewModel: WidgetPageViewModel,
@@ -85,14 +88,17 @@ internal fun ReorderWidgetList(
             Column(Modifier.weight(1f)) {
                 Text(
                     text = "Reorder",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = textScale.scaled(MaterialTheme.typography.titleLarge),
                     fontWeight = FontWeight.Medium,
                     color = lc.scheme.onBackground,
                 )
                 Text(
                     text = "Use arrows to reorder · tap trash to remove",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = textScale.scaled(MaterialTheme.typography.bodySmall),
                     color = lc.scheme.onBackground.copy(alpha = 0.72f),
+                    maxLines = 1,
+                    minLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             TextButton(

@@ -21,10 +21,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
 
 @Composable
 internal fun EmptyWidgetState(
     modifier: Modifier,
+    textScale: AppTextSize,
     lc: ColorScheme,
     onAdd: () -> Unit,
 ) {
@@ -37,13 +39,13 @@ internal fun EmptyWidgetState(
     ) {
         Text(
             "No widgets yet.",
-            style = MaterialTheme.typography.titleMedium,
+            style = textScale.scaled(MaterialTheme.typography.titleMedium),
             color = lc.onBackground,
         )
         Spacer(Modifier.height(6.dp))
         Text(
             "Add tasks, calendar, or others.",
-            style = MaterialTheme.typography.bodySmall,
+            style = textScale.scaled(MaterialTheme.typography.bodySmall),
             color = lc.onSurfaceVariant,
         )
         Spacer(Modifier.height(20.dp))
@@ -59,7 +61,12 @@ internal fun EmptyWidgetState(
                 contentColor = lc.onPrimaryContainer,
             ),
         ) {
-            Text("Add a widget", fontWeight = FontWeight.Medium)
+            Text(
+                text = "Add a widget",
+                style = textScale.scaled(MaterialTheme.typography.bodyMedium).copy(
+                    fontWeight = FontWeight.Medium
+                ),
+            )
         }
     }
 }
@@ -67,6 +74,7 @@ internal fun EmptyWidgetState(
 @Composable
 internal fun AddWidgetRow(
     onClick: () -> Unit,
+    textScale: AppTextSize,
     lc: ColorScheme
 ) {
     Row(
@@ -83,7 +91,12 @@ internal fun AddWidgetRow(
                 contentColor = lc.onPrimaryContainer,
             ),
         ) {
-            Text("+ Add widget", fontWeight = FontWeight.Medium)
+            Text(
+                text = "+ Add widget",
+                style = textScale.scaled(MaterialTheme.typography.bodyMedium).copy(
+                    fontWeight = FontWeight.Medium
+                ),
+            )
         }
     }
 }

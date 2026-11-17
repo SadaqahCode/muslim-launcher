@@ -46,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -107,6 +108,7 @@ internal fun WidgetPickerSheet(
     val pm = context.packageManager
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val listState = rememberLazyListState()
+    val textScale = settings.textSize
 
     LaunchedEffect(Unit) { sheetState.expand() }
 
@@ -159,6 +161,7 @@ internal fun WidgetPickerSheet(
         containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.94f),
         contentColor = MaterialTheme.colorScheme.onBackground,
         tonalElevation = 0.dp,
+        shape = RectangleShape,
         dragHandle = { BottomSheetDefaults.DragHandle() },
         contentWindowInsets = { WindowInsets.navigationBars },
     ) {
@@ -174,13 +177,13 @@ internal fun WidgetPickerSheet(
             ) {
                 Text(
                     "Add to widget page",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = textScale.scaled(MaterialTheme.typography.titleMedium),
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
                 )
                 Text(
                     "Pick an app to see what it offers.",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = textScale.scaled(MaterialTheme.typography.bodySmall),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 12.dp),
                 )
@@ -226,7 +229,7 @@ internal fun WidgetPickerSheet(
                             item(key = "empty") {
                                 Text(
                                     "Nothing available on this device.",
-                                    style = MaterialTheme.typography.bodyMedium,
+                                    style = textScale.scaled(MaterialTheme.typography.bodyMedium),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(vertical = 24.dp),
                                 )

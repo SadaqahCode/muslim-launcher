@@ -1,5 +1,6 @@
 package com.sadaqahcode.muslimlauncher.domain.model
 
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -15,6 +16,18 @@ enum class AppTextSize(val sp: TextUnit) {
     Small(11.sp),
     Medium(13.sp),
     Large(15.sp),
+    ExtraLarge(17.sp);
+
+    val scale: Float
+        get() = sp.value / Medium.sp.value
+
+    fun scaled(base: TextUnit): TextUnit {
+        return (base.value * scale).sp
+    }
+
+    fun scaled(style: TextStyle): TextStyle {
+        return style.copy(fontSize = scaled(style.fontSize))
+    }
 }
 
 enum class AppItemLayout {
@@ -60,6 +73,7 @@ enum class WallpaperTextMode {
     Light,
     Dark,
 }
+
 
 data class UserSettings(
     val iconSize: AppIconSize = AppIconSize.Medium,

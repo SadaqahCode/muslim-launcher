@@ -23,8 +23,8 @@ android {
         applicationId = "com.sadaqahcode.muslimlauncher"
         minSdk = 24
         targetSdk = 37
-        versionCode = 261111
-        versionName = "0.4.0"
+        versionCode = 261117
+        versionName = "0.4.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

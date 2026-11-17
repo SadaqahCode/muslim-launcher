@@ -25,7 +25,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -100,7 +99,6 @@ fun HomeScreen(
     val userSettings by viewModel.settings.collectAsStateWithLifecycle()
     val wallpaperIsDark by viewModel.wallpaperIsDark.collectAsStateWithLifecycle()
 
-    var hasShownDefaultPrompt by remember { mutableStateOf(false) }
     val showDialog by viewModel.showAccessibilityDialog.collectAsState()
     val dialogKind by viewModel.dialogKind.collectAsState()
     val shadeEnabled by viewModel.shadeAccessibilityEnabled.collectAsState()
@@ -201,7 +199,9 @@ fun HomeScreen(
                 available: Offset,
                 source: NestedScrollSource,
             ): Offset {
-                if (pagerState.currentPage != HOME_PAGE) return Offset.Zero
+                if (pagerState.currentPage != HOME_PAGE &&
+                    pagerState.currentPage != WIDGET_PAGE
+                ) return Offset.Zero
                 if (source == NestedScrollSource.UserInput &&
                     available.y < 0f &&
                     sheet.progress < 1f
@@ -216,7 +216,9 @@ fun HomeScreen(
                 consumed: Velocity,
                 available: Velocity,
             ): Velocity {
-                if (pagerState.currentPage != HOME_PAGE) return Velocity.Zero
+                if (pagerState.currentPage != HOME_PAGE &&
+                    pagerState.currentPage != WIDGET_PAGE
+                ) return Velocity.Zero
                 if (sheet.progress > 0f) {
                     sheet.settle(available.y)
                     return available
@@ -359,6 +361,7 @@ fun HomeScreen(
                                 }
                                 TOOLS_PAGE -> {
                                     ToolsPage(
+                                        textScale = userSettings.textSize,
                                         onBack = {
                                             scope.launch { pagerState.animateScrollToPage(HOME_PAGE) }
                                         },
