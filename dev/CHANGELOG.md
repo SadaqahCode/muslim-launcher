@@ -5,6 +5,7 @@
 - feat: text size - AppTextSize with scale, Medium = 1.0, scaled for TextUnit and TextStyle
 - feat: update ui ux - AppContextMenu
 - fix: drawer gesture - swipe up works on Home and Widget, disabled on Tools
+- feat: add border - DrawerChipsRow [PT2]
 
 ### 0.4.0 (2026-11-11)
 - feat: home - pinned apps, dock, wallpaper, prayer hero

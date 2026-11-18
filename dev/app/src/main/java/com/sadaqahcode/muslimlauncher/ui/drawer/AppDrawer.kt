@@ -313,7 +313,7 @@ fun AppDrawer(
                         )
                         if (!hideChrome) {
                             Column {
-                                Spacer(Modifier.height(12.dp))
+                                Spacer(Modifier.height(8.dp))
                                 DrawerChipsRow(
                                     chips = model.chips,
                                     selected = model.selected,
@@ -324,7 +324,7 @@ fun AppDrawer(
                         }
                     }
 
-                    Spacer(Modifier.height(if (useHorizontalHeader) 8.dp else 12.dp))
+                    Spacer(Modifier.height(if (useHorizontalHeader) 4.dp else 8.dp))
                 }
 
                 // Content

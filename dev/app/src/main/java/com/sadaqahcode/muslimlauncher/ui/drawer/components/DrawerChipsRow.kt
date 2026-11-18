@@ -1,5 +1,8 @@
 package com.sadaqahcode.muslimlauncher.ui.drawer.components
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -88,9 +92,6 @@ internal fun DrawerChipsRow(
                 Box(
                     modifier = Modifier.onGloballyPositioned { coords ->
                         if (index !in chipCenters && rowStartPx >= 0) {
-                            // Content X = where the chip would sit if scrollState were 0.
-                            // At layout time, scrollState may already be > 0 (e.g. when
-                            // recomposing after a scroll), so add it back.
                             val contentX = coords.positionInRoot().x.toInt() -
                                     rowStartPx + scrollState.value
                             chipCenters[index] = contentX + coords.size.width / 2
@@ -121,6 +122,13 @@ private fun CategoryChip(
     val colors = MaterialTheme.colorScheme
     val content = if (selected) colors.onSurface else colors.onSurfaceVariant
 
+    // One short fade. The ring is always present, just transparent when not selected.
+    val ring by animateColorAsState(
+        targetValue = if (selected) colors.onSurface.copy(alpha = 0.7f) else Color.Transparent,
+        animationSpec = tween(durationMillis = 150),
+        label = "chipRing",
+    )
+
     Box(
         modifier = Modifier
             .heightIn(min = 48.dp)
@@ -134,6 +142,7 @@ private fun CategoryChip(
                     shape = CircleShape,
                     emphasis = if (selected) GlassEmphasis.Selected else GlassEmphasis.Regular,
                 )
+                .border(width = 1.3.dp, color = ring, shape = CircleShape)
                 .padding(horizontal = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
