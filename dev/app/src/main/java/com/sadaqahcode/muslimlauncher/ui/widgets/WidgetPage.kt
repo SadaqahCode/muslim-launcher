@@ -99,6 +99,38 @@ fun WidgetPage(
     val listState = rememberLazyListState()
     val textScale = userSettings.textSize
 
+    // Draft hoisted from ReorderWidgetList, so swipe / back can save it
+    var latestDraftWidgetIds by remember { mutableStateOf<List<Int>?>(null) }
+    var latestDraftShortcutIds by remember { mutableStateOf<List<String>?>(null) }
+    var latestRemovedWidgetIds by remember { mutableStateOf<List<Int>>(emptyList()) }
+    var latestRemovedShortcutIds by remember { mutableStateOf<List<String>>(emptyList()) }
+
+    fun saveAndClose() {
+        val widgetIds = latestDraftWidgetIds ?: placements.map { item -> item.widgetId }
+        val shortcutIds = latestDraftShortcutIds ?: shortcuts.map { item -> item.id }
+        val removedWidgets = latestRemovedWidgetIds
+        val removedShortcuts = latestRemovedShortcutIds
+
+        removedWidgets.forEach { id ->
+            viewModel.removeWidget(id)
+            hostViewCache.remove(id)
+        }
+        removedShortcuts.forEach { id ->
+            viewModel.removeShortcut(id)
+        }
+        viewModel.reorderWidgets(widgetIds)
+        viewModel.reorderShortcuts(shortcutIds)
+        isReorderMode = false
+    }
+
+    fun enterReorder() {
+        latestDraftWidgetIds = placements.map { item -> item.widgetId }
+        latestDraftShortcutIds = shortcuts.map { item -> item.id }
+        latestRemovedWidgetIds = emptyList()
+        latestRemovedShortcutIds = emptyList()
+        isReorderMode = true
+    }
+
     val softScrollbarSettings = ScrollbarSettings.Default.copy(
         thumbThickness = 5.dp,
         thumbUnselectedColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.9f),
@@ -108,6 +140,7 @@ fun WidgetPage(
 
     LaunchedEffect(pageActive) {
         if (!pageActive) {
+            if (isReorderMode) saveAndClose()
             editingWidgetId = null
             editingShortcutId = null
         }
@@ -118,6 +151,9 @@ fun WidgetPage(
     }
     BackHandler(enabled = editingShortcutId != null) {
         editingShortcutId = null
+    }
+    BackHandler(enabled = isReorderMode) {
+        saveAndClose()
     }
 
     // ── Config activity result handler ─────────────────────────────────
@@ -220,19 +256,15 @@ fun WidgetPage(
                     shortcuts = shortcuts,
                     viewModel = viewModel,
                     hostViewCache = hostViewCache,
-                    onRemoved = { removedWidgetIds, removedShortcutIds ->
-                        removedWidgetIds.forEach { id ->
-                            viewModel.removeWidget(id)
-                            hostViewCache.remove(id)
-                        }
-                        removedShortcutIds.forEach { id ->
-                            viewModel.removeShortcut(id)
-                        }
+                    onDraftChanged = { widgetIds, shortcutIds, removedWidgetIds, removedShortcutIds ->
+                        latestDraftWidgetIds = widgetIds
+                        latestDraftShortcutIds = shortcutIds
+                        latestRemovedWidgetIds = removedWidgetIds
+                        latestRemovedShortcutIds = removedShortcutIds
                     },
-                    onDone = { orderedWidgetIds, orderedShortcutIds ->
-                        viewModel.reorderWidgets(orderedWidgetIds)
-                        viewModel.reorderShortcuts(orderedShortcutIds)
-                        isReorderMode = false
+                    onRemoved = { _, _ -> },
+                    onDone = { _, _ ->
+                        saveAndClose()
                     },
                 )
             }
@@ -288,7 +320,7 @@ fun WidgetPage(
                     }
                 }
                 if (placements.isNotEmpty() || shortcuts.isNotEmpty()) {
-                    IconButton(onClick = { isReorderMode = true }) {
+                    IconButton(onClick = { enterReorder() }) {
                         Icon(
                             imageVector = Icons.Outlined.UnfoldMore,
                             contentDescription = "Reorder widgets and shortcuts",
@@ -342,7 +374,7 @@ fun WidgetPage(
                         ),
                         verticalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        items(placements, key = { "w-${it.widgetId}" }) { placement ->
+                        items(placements, key = { item -> "w-${item.widgetId}" }) { placement ->
                             val preset = WidgetPreset.entries.firstOrNull {
                                 it.heightDp == placement.heightDp
                             } ?: WidgetPreset.Auto
@@ -373,7 +405,7 @@ fun WidgetPage(
                             )
                         }
 
-                        items(shortcuts, key = { "s-${it.id}" }) { shortcut ->
+                        items(shortcuts, key = { item -> "s-${item.id}" }) { shortcut ->
                             Column(Modifier.fillMaxWidth()) {
                                 if (editingShortcutId == shortcut.id) {
                                     InlineShortcutActionBar(

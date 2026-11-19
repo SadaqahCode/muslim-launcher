@@ -68,8 +68,6 @@ class DrawerSheetState internal constructor(
 
     fun settle(velocityY: Float) {
         if (!isMeasured) {
-            // Can't animate without a size. Preserve the current source-of-truth
-            // state so we don't spuriously toggle visibility in the ViewModel.
             if (targetOpen) onOpenRequested() else onCloseRequested()
             return
         }
@@ -81,8 +79,6 @@ class DrawerSheetState internal constructor(
         }
         if (open) onOpenRequested() else onCloseRequested()
 
-        // progress units per second, clamped so a hard fling can't overshoot
-        // visually or take a distractingly short amount of time.
         val velocityProgress = (upwardPerSec / heightPx)
             .coerceIn(-MAX_INITIAL_VELOCITY, MAX_INITIAL_VELOCITY)
         animateTo(open, velocity = velocityProgress)
@@ -90,9 +86,6 @@ class DrawerSheetState internal constructor(
 
     internal fun animateTo(open: Boolean, velocity: Float = 0f) {
         val target = if (open) 1f else 0f
-        // No-op when already settled and no velocity to inject. Saves a
-        // coroutine launch and ~300 ms of no-op spring ticks on every tap on
-        // the drag handle when the drawer is already in that state.
         if (velocity == 0f && abs(progress - target) < SETTLED_EPSILON) {
             targetOpen = open
             progress = target  // snap in case animate() landed on 0.9999 last time
@@ -113,11 +106,6 @@ class DrawerSheetState internal constructor(
         }
     }
 
-    /**
-     * Jump to a state without animation. Useful for initial composition when
-     * persisted state says "open" and you don't want a 0→1 flash, or for
-     * programmatic show/hide in tests.
-     */
     fun snapTo(open: Boolean) {
         settleJob?.cancel()
         targetOpen = open

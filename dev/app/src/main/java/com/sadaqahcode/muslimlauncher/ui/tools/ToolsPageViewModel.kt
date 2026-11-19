@@ -1,78 +1,67 @@
 package com.sadaqahcode.muslimlauncher.ui.tools
 
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
+import androidx.lifecycle.viewModelScope
+import com.sadaqahcode.muslimlauncher.data.tools.ToolPreferencesRepository
+import com.sadaqahcode.muslimlauncher.domain.model.ToolContext
+import com.sadaqahcode.muslimlauncher.domain.model.ToolId
+import com.sadaqahcode.muslimlauncher.domain.model.ToolPreferences
+import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.Calendar
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ToolsPageViewModel : ViewModel() {
+@HiltViewModel
+class ToolsViewModel @Inject constructor(
+    private val repo: ToolPreferencesRepository,
+) : ViewModel() {
 
-    // ── Qibla ────────────────────────────────────────────────────────
-    private val _qiblaBearing = MutableStateFlow(23f)
-    val qiblaBearing: StateFlow<Float> = _qiblaBearing.asStateFlow()
+    val prefs: StateFlow<ToolPreferences> = repo.prefs
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ToolPreferences())
 
-    // ── Tasbih ───────────────────────────────────────────────────────
-    private val _tasbihCount = MutableStateFlow(33)
-    val tasbihCount: StateFlow<Int> = _tasbihCount.asStateFlow()
+    val today: StateFlow<Set<ToolContext>> =
+        flowOf(computeToday()).stateIn(
+            viewModelScope, SharingStarted.Eagerly, emptySet()
+        )
 
-    private val _tasbihRound = MutableStateFlow(3)
-    val tasbihRound: StateFlow<Int> = _tasbihRound.asStateFlow()
+    fun setEnabled(id: ToolId, enabled: Boolean) = viewModelScope.launch {
+        repo.setEnabled(id, enabled)
+    }
+    fun setOrder(ids: List<ToolId>) = viewModelScope.launch { repo.setOrder(ids) }
+    fun reset() = viewModelScope.launch { repo.reset() }
 
-    // ── Salawat ──────────────────────────────────────────────────────
-    private val _salawatCount = MutableStateFlow(47)
-    val salawatCount: StateFlow<Int> = _salawatCount.asStateFlow()
+    private fun computeToday(): Set<ToolContext> {
+        val result = mutableSetOf<ToolContext>()
 
-    private val _salawatGoal = MutableStateFlow(100)
-    val salawatGoal: StateFlow<Int> = _salawatGoal.asStateFlow()
+        // Friday check with java.util.Calendar, API 1
+        val gregorian = Calendar.getInstance()
+        if (gregorian.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
+            result.add(ToolContext.Friday)
+        }
 
-    // ── Adhkar ───────────────────────────────────────────────────────
-    private val _adhkarProgress = MutableStateFlow(3 to 8)
-    val adhkarProgress: StateFlow<Pair<Int, Int>> = _adhkarProgress.asStateFlow()
+        // Hijri check with android.icu, API 24
+        try {
+            val islamic = android.icu.util.IslamicCalendar.getInstance()
+            val month = islamic.get(android.icu.util.Calendar.MONTH)
+            val day = islamic.get(android.icu.util.Calendar.DAY_OF_MONTH)
 
-    private val _adhkarSession = MutableStateFlow("Morning")
-    val adhkarSession: StateFlow<String> = _adhkarSession.asStateFlow()
-
-    // ── Hijri ────────────────────────────────────────────────────────
-    private val _hijriDay = MutableStateFlow(12)
-    val hijriDay: StateFlow<Int> = _hijriDay.asStateFlow()
-
-    private val _hijriMonth = MutableStateFlow("Jumada al-Thani")
-    val hijriMonth: StateFlow<String> = _hijriMonth.asStateFlow()
-
-    private val _hijriYear = MutableStateFlow(1448)
-    val hijriYear: StateFlow<Int> = _hijriYear.asStateFlow()
-
-    private val _hijriWeekday = MutableStateFlow("Thursday")
-    val hijriWeekday: StateFlow<String> = _hijriWeekday.asStateFlow()
-
-    // ── Fasting (weekly sunna + Ramadan) ─────────────────────────────
-    private val _fastingThisWeek = MutableStateFlow(2)
-    val fastingThisWeek: StateFlow<Int> = _fastingThisWeek.asStateFlow()
-
-    private val _fastingGoal = MutableStateFlow(3)
-    val fastingGoal: StateFlow<Int> = _fastingGoal.asStateFlow()
-
-    // ── Sadaqah (this month) ─────────────────────────────────────────
-    private val _sadaqahThisMonth = MutableStateFlow(5)
-    val sadaqahThisMonth: StateFlow<Int> = _sadaqahThisMonth.asStateFlow()
-
-    private val _sadaqahAmount = MutableStateFlow<String?>("Rp 150k")
-    val sadaqahAmount: StateFlow<String?> = _sadaqahAmount.asStateFlow()
-
-    // ── Zakat (last calculation) ─────────────────────────────────────
-    private val _lastZakatAmount = MutableStateFlow<String?>("Rp 2.5jt")
-    val lastZakatAmount: StateFlow<String?> = _lastZakatAmount.asStateFlow()
-
-    private val _lastZakatAge = MutableStateFlow("3 months ago")
-    val lastZakatAge: StateFlow<String> = _lastZakatAge.asStateFlow()
-
-    // ── Contextual (Friday / Ramadan / Ayyam al-Bid) ─────────────────
-    private val _contextual = MutableStateFlow<ContextualTool?>(null)
-    val contextual: StateFlow<ContextualTool?> = _contextual.asStateFlow()
-
-    private val _ramadanDay = MutableStateFlow(12)
-    val ramadanDay: StateFlow<Int> = _ramadanDay.asStateFlow()
+            if (month == android.icu.util.IslamicCalendar.RAMADAN) {
+                result.add(ToolContext.Ramadan)
+            }
+            if ((month == android.icu.util.IslamicCalendar.SHAWWAL && day == 1) ||
+                (month == android.icu.util.IslamicCalendar.DHU_AL_HIJJAH && day == 10)
+            ) {
+                result.add(ToolContext.Eid)
+            }
+            if (day in 13..15) {
+                result.add(ToolContext.AyyamAlBid)
+            }
+        } catch (_: Exception) {
+        }
+        return result
+    }
 }
-
-/** Contextual banner shown above the grid on special days. */
-enum class ContextualTool { Friday, Ramadan, AyyamAlBid }

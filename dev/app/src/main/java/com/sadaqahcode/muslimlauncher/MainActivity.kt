@@ -45,7 +45,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import androidx.core.graphics.drawable.toDrawable
 import com.sadaqahcode.muslimlauncher.util.applyTransparentSystemBars
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     companion object {

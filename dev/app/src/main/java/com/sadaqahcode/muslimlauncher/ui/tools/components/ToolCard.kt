@@ -106,20 +106,20 @@ internal fun ToolCard(
                 Spacer(Modifier.width(10.dp))
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
                     color = colors.onSurface,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
             }
             Column {
                 Text(
                     text = liveValue,
-                    style = MaterialTheme.typography.headlineSmall.copy(fontFeatureSettings = "tnum"),
-                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.labelLarge.copy(fontFeatureSettings = "tnum"),
+                    fontWeight = FontWeight.W500,
                     color = colors.onSurface,
-                    maxLines = 1,
+                    maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Spacer(Modifier.height(2.dp))

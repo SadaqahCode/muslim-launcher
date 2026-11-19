@@ -53,6 +53,7 @@ internal fun ReorderWidgetList(
     shortcuts: List<ShortcutEntity>,
     viewModel: WidgetPageViewModel,
     hostViewCache: MutableMap<Int, AppWidgetHostView>,
+    onDraftChanged: (widgetIds: List<Int>, shortcutIds: List<String>, removedWidgetIds: List<Int>, removedShortcutIds: List<String>) -> Unit,
     onDone: (widgetIds: List<Int>, shortcutIds: List<String>) -> Unit,
     onRemoved: (widgetIds: List<Int>, shortcutIds: List<String>) -> Unit,
 ) {
@@ -65,12 +66,16 @@ internal fun ReorderWidgetList(
     var removedWidgetIds by remember { mutableStateOf(setOf<Int>()) }
     var removedShortcutIds by remember { mutableStateOf(setOf<String>()) }
 
-    LaunchedEffect(placements) {
-        if (removedWidgetIds.isEmpty()) localWidgetOrder = placements
+    fun emitDraft() {
+        onDraftChanged(
+            localWidgetOrder.map { item -> item.widgetId },
+            localShortcutOrder.map { item -> item.id },
+            removedWidgetIds.toList(),
+            removedShortcutIds.toList(),
+        )
     }
-    LaunchedEffect(shortcuts) {
-        if (removedShortcutIds.isEmpty()) localShortcutOrder = shortcuts
-    }
+
+    LaunchedEffect(Unit) { emitDraft() }
 
     Column(Modifier.fillMaxSize()) {
         Row(
@@ -103,13 +108,9 @@ internal fun ReorderWidgetList(
             }
             TextButton(
                 onClick = {
-                    onRemoved(
-                        removedWidgetIds.toList(),
-                        removedShortcutIds.toList(),
-                    )
                     onDone(
-                        localWidgetOrder.map { it.widgetId },
-                        localShortcutOrder.map { it.id },
+                        localWidgetOrder.map { item -> item.widgetId },
+                        localShortcutOrder.map { item -> item.id },
                     )
                 },
             ) {
@@ -130,13 +131,11 @@ internal fun ReorderWidgetList(
                 .padding(top = 8.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            // ── Widgets ─────────────────────────────────────────────
             localWidgetOrder.forEachIndexed { index, placement ->
                 key("w-${placement.widgetId}") {
                     val preset = WidgetPreset.entries.firstOrNull {
                         it.heightDp == placement.heightDp
                     } ?: WidgetPreset.Auto
-
                     val isFirst = index == 0
                     val isLast = index == localWidgetOrder.lastIndex
 
@@ -148,6 +147,7 @@ internal fun ReorderWidgetList(
                                     this[index] = this[index - 1]
                                     this[index - 1] = tmp
                                 }
+                                emitDraft()
                             }
                         },
                         onMoveDown = {
@@ -157,13 +157,13 @@ internal fun ReorderWidgetList(
                                     this[index] = this[index + 1]
                                     this[index + 1] = tmp
                                 }
+                                emitDraft()
                             }
                         },
                         onDelete = {
                             removedWidgetIds = removedWidgetIds + placement.widgetId
-                            localWidgetOrder = localWidgetOrder.filterNot {
-                                it.widgetId == placement.widgetId
-                            }
+                            localWidgetOrder = localWidgetOrder.filterNot { item -> item.widgetId == placement.widgetId }
+                            emitDraft()
                         },
                         canMoveUp = !isFirst,
                         canMoveDown = !isLast,
@@ -184,7 +184,6 @@ internal fun ReorderWidgetList(
                 }
             }
 
-            // ── Shortcuts ───────────────────────────────────────────
             localShortcutOrder.forEachIndexed { index, shortcut ->
                 key("s-${shortcut.id}") {
                     val isFirst = index == 0
@@ -198,6 +197,7 @@ internal fun ReorderWidgetList(
                                     this[index] = this[index - 1]
                                     this[index - 1] = tmp
                                 }
+                                emitDraft()
                             }
                         },
                         onMoveDown = {
@@ -207,13 +207,13 @@ internal fun ReorderWidgetList(
                                     this[index] = this[index + 1]
                                     this[index + 1] = tmp
                                 }
+                                emitDraft()
                             }
                         },
                         onDelete = {
                             removedShortcutIds = removedShortcutIds + shortcut.id
-                            localShortcutOrder = localShortcutOrder.filterNot {
-                                it.id == shortcut.id
-                            }
+                            localShortcutOrder = localShortcutOrder.filterNot { item -> item.id == shortcut.id }
+                            emitDraft()
                         },
                         canMoveUp = !isFirst,
                         canMoveDown = !isLast,
@@ -244,7 +244,6 @@ private fun ReorderRow(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        // Up / Down stack
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,

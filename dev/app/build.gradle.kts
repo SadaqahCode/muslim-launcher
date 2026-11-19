@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    id("com.google.dagger.hilt.android")
 }
 
 // Read local.properties at build time
@@ -110,6 +111,14 @@ dependencies {
 
     // ── Navigation ─────────────────────────────────────────────────────────
     implementation(libs.androidx.navigation.compose)
+
+
+    // Hilt
+    ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.0")
+    implementation(libs.hilt.lifecycle.viewmodel.compose)
+    implementation("com.google.dagger:hilt-android:2.59.2")
+    ksp("com.google.dagger:hilt-android-compiler:2.59.2")
+
 
     // ── Persistence ────────────────────────────────────────────────────────
     implementation(libs.androidx.room.runtime)

@@ -22,7 +22,7 @@ import com.sadaqahcode.muslimlauncher.domain.model.WallpaperTextMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-private val Context.userSettingsDataStore: DataStore<Preferences> by
+val Context.userSettingsDataStore: DataStore<Preferences> by
 preferencesDataStore("user_settings")
 
 class SettingsDataStore(private val context: Context) {

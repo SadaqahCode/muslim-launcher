@@ -46,6 +46,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sadaqahcode.muslimlauncher.MainActivity
+import com.sadaqahcode.muslimlauncher.domain.model.ToolId
 import com.sadaqahcode.muslimlauncher.domain.model.WallpaperMode
 import com.sadaqahcode.muslimlauncher.ui.components.AppContextMenu
 import com.sadaqahcode.muslimlauncher.ui.components.LauncherSnackbarHost
@@ -64,7 +65,6 @@ import com.sadaqahcode.muslimlauncher.ui.home.helper.shadeSwipeGesture
 import com.sadaqahcode.muslimlauncher.ui.theme.ProvideLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.theme.Wallpaper
 import com.sadaqahcode.muslimlauncher.ui.tools.ToolsPage
-import com.sadaqahcode.muslimlauncher.ui.tools.ToolsPageViewModel
 import com.sadaqahcode.muslimlauncher.ui.widgets.WidgetPage
 import com.sadaqahcode.muslimlauncher.ui.widgets.WidgetPageViewModel
 import kotlinx.coroutines.delay
@@ -87,6 +87,7 @@ private val BOTTOM_BAR_HEIGHT = 24.dp
 fun HomeScreen(
     viewModel: HomeViewModel,
     onOpenSettings: () -> Unit,
+    onOpenTool: (ToolId) -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -126,7 +127,6 @@ fun HomeScreen(
 
     val pagerState = rememberPagerState(initialPage = HOME_PAGE, pageCount = { PAGE_COUNT })
     val widgetPageVm: WidgetPageViewModel = viewModel()
-    val toolsVm: ToolsPageViewModel = viewModel()
 
     LaunchedEffect(message) {
         message?.let {
@@ -365,9 +365,9 @@ fun HomeScreen(
                                         onBack = {
                                             scope.launch { pagerState.animateScrollToPage(HOME_PAGE) }
                                         },
-                                        viewModel = toolsVm,
                                         onDoubleTapHome = viewModel::onDoubleTapHome,
-                                        onOpenTool = { /* TODO: navigate to per-tool screen */ },
+                                        onOpenTool = onOpenTool,
+                                        pageActive = pagerState.currentPage == TOOLS_PAGE,
                                     )
                                 }
                             }

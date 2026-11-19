@@ -10,12 +10,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.sadaqahcode.muslimlauncher.domain.model.Tool
+import com.sadaqahcode.muslimlauncher.domain.model.ToolId
+import com.sadaqahcode.muslimlauncher.domain.model.ToolRegistry
 import com.sadaqahcode.muslimlauncher.ui.home.HomeScreen
 import com.sadaqahcode.muslimlauncher.ui.home.HomeViewModel
 import com.sadaqahcode.muslimlauncher.ui.settings.SettingsScreen
+import com.sadaqahcode.muslimlauncher.ui.tools.detail.ToolDetailScreen
 
 private const val NAV_DURATION = 280
 private val navEasing = FastOutSlowInEasing
@@ -32,7 +38,7 @@ fun AppNavHost() {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
 
-        // Forward: Home → Settings
+        // Forward: Home -> Settings / Tool detail
         enterTransition = {
             slideInHorizontally(
                 animationSpec = tween(NAV_DURATION, easing = navEasing),
@@ -46,7 +52,7 @@ fun AppNavHost() {
             )
         },
 
-        // Back: Settings → Home
+        // Back: Settings / Tool detail -> Home
         popEnterTransition = {
             slideInHorizontally(
                 animationSpec = tween(NAV_DURATION, easing = navEasing),
@@ -69,10 +75,30 @@ fun AppNavHost() {
                         launchSingleTop = true
                     }
                 },
+                onOpenTool = { toolId ->
+                    navController.navigate(AppRoutes.toolDetail(toolId)) {
+                        launchSingleTop = true
+                    }
+                },
             )
         }
         composable(AppRoutes.SETTINGS) {
             SettingsScreen(
+                onClose = { navController.popBackStack() },
+            )
+        }
+        composable(
+            route = AppRoutes.TOOL_DETAIL,
+            arguments = listOf(
+                navArgument("toolId") { type = NavType.StringType }
+            ),
+        ) { backStackEntry ->
+            val toolKey: String? = backStackEntry.arguments?.getString("toolId")
+            val toolId: ToolId? = ToolId.entries.firstOrNull { item -> item.key == toolKey }
+            val tool: Tool? = toolId?.let { id -> ToolRegistry.byId[id] }
+
+            ToolDetailScreen(
+                tool = tool,
                 onClose = { navController.popBackStack() },
             )
         }

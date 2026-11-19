@@ -1,11 +1,24 @@
 ## CHANGELOG
 
+
 ### 0.4.1 (2026-11-17)
 - changed: color settings button
 - feat: text size - AppTextSize with scale, Medium = 1.0, scaled for TextUnit and TextStyle
 - feat: update ui ux - AppContextMenu
 - fix: drawer gesture - swipe up works on Home and Widget, disabled on Tools
 - feat: add border - DrawerChipsRow [PT2]
+- feat: update ux - AppContextMenu [PT3]
+- feat: add hilt and DI [PT3]
+- feat: add tools models [PT3]
+- feat: add nav tools [PT3] 
+- fix: tools reorder - swipe to Home saves draft, back saves draft via pageActive + saveAndClose [PT3]
+- fix: ReorderToolsList - single source of truth, removed duplicate orderedIds / enabled state, draft emitted on every move / toggle [PT3]
+- fix: ReorderToolsList - implicit it shadowing in onToggle, renamed to isChecked [PT3]
+- feat: widgets reorder - same swipe / back save pattern as Tools, WidgetPage pageActive + saveAndClose [PT3]
+- feat: ReorderWidgetList - onDraftChanged with widgetIds, shortcutIds, removedWidgetIds, removedShortcutIds [PT3]
+- feat: add nav tools detail - AppRoutes tools/detail/{toolId}, AppNavHost composable, HomeScreen onOpenTool wiring [PT3]
+- fix: nav tools detail - type inference failed for ToolRegistry.byId, convert String key to ToolId first [PT3]
+- feat: ToolDetailScreen - TopAppBar title + centered desc body [PT3]
 
 ### 0.4.0 (2026-11-11)
 - feat: home - pinned apps, dock, wallpaper, prayer hero
