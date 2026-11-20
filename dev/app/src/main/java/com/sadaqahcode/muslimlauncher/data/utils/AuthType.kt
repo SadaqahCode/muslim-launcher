@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.data.remote.api
+package com.sadaqahcode.muslimlauncher.data.utils
 
 enum class AuthType {
     HMAC,    // challenge only, HMAC

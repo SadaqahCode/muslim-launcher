@@ -1,0 +1,9 @@
+Copyright (c) 2010 by King Fahd Glorious Quran Printing Complex.
+All rights reserved.
+
+This font file ("KFGQPC Uthmanic Script HAFS") is distributed under the
+Uthmanic Script License by the King Fahd Glorious Quran Printing Complex.
+
+Permission is granted to use, copy and distribute this font free of charge.
+You may NOT modify, alter, translate, reverse engineer, decompile or
+disassemble the font file.

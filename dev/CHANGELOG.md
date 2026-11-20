@@ -19,7 +19,15 @@
 - feat: add nav tools detail - AppRoutes tools/detail/{toolId}, AppNavHost composable, HomeScreen onOpenTool wiring [PT3]
 - fix: nav tools detail - type inference failed for ToolRegistry.byId, convert String key to ToolId first [PT3]
 - feat: ToolDetailScreen - TopAppBar title + centered desc body [PT3]
-
+- feat: shade swipe - notification shade swipe now works on Widgets page too, updated Home gating, no listener in WidgetPage [PT4]
+- feat: NetworkModule - OkHttp + Retrofit setup [PT5]
+- feat: HMAC for challenge - HMAC signing for /challenge/get [PT5]
+- feat: SessionInterceptor - auto fetch challenge, add session to dhikr [PT5]
+- feat: SessionAuthenticator - auto refresh challenge on 401 [PT5]
+- feat: HmacSigningInterceptor - HMAC only for challenge [PT5]
+- fix: HMAC string-to-sign - timestamp, method, path, body [PT5]
+- fix: HMAC key - raw 64 bytes [PT5]
+- 
 ### 0.4.0 (2026-11-11)
 - feat: home - pinned apps, dock, wallpaper, prayer hero
 - feat: app drawer - search, categories, drag handle, work profile tabs, pause / resume

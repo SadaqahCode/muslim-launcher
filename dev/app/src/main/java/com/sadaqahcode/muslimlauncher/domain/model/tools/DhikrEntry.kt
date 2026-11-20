@@ -1,4 +1,7 @@
 package com.sadaqahcode.muslimlauncher.domain.model.tools
 
-class DhikrEntry {
-}
+/** A dhikr plus how many times it is repeated inside a [DhikrItem] group. */
+data class DhikrEntry(
+    val dhikr: Dhikr,
+    val repetitions: Int,
+)

@@ -236,7 +236,8 @@ fun HomeScreen(
             .shadeSwipeGesture(
                 threshold = SHADE_SWIPE_THRESHOLD,
                 isGatingOk = {
-                    pagerState.currentPage == HOME_PAGE &&
+                    (pagerState.currentPage == HOME_PAGE ||
+                            pagerState.currentPage == WIDGET_PAGE) &&
                             !drawerVisible &&
                             selectedApp == null &&
                             sheet.progress <= SHEET_PROGRESS_EPSILON

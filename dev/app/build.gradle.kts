@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     id("com.google.dagger.hilt.android")
+    kotlin("plugin.serialization") version "2.0.21"
 }
 
 // Read local.properties at build time
@@ -26,6 +27,10 @@ android {
         targetSdk = 37
         versionCode = 261117
         versionName = "0.4.1"
+
+        val hmacKey = localProperties.getProperty("HMACK")
+            ?: "" // empty → fail closed at runtime, don't crash the build
+        buildConfigField("String", "HMACK", "\"$hmacKey\"") // for get nonce
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -112,6 +117,13 @@ dependencies {
     // ── Navigation ─────────────────────────────────────────────────────────
     implementation(libs.androidx.navigation.compose)
 
+
+    // --- Retrofit & JSON Converter ---
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.squareup.retrofit2:converter-kotlinx-serialization:3.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.13.0")
 
     // Hilt
     ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.0")
