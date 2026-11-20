@@ -1,20 +1,29 @@
-package com.sadaqahcode.muslimlauncher.data.launcher
+package com.sadaqahcode.muslimlauncher.data.repository.launcher
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Process
 import android.os.UserHandle
 import android.os.UserManager
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
 import com.sadaqahcode.muslimlauncher.domain.model.AppIconShape
 import com.sadaqahcode.muslimlauncher.domain.model.LauncherApp
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.math.roundToInt
 
-class InstalledAppsRepository(private val context: Context) {
+@Singleton
+class InstalledAppsRepository @Inject constructor(
+    @ApplicationContext private val context: Context,
+) {
 
-    private val iconCache = mutableMapOf<String, androidx.compose.ui.graphics.ImageBitmap>()
+    private val iconCache = mutableMapOf<String, ImageBitmap>()
     private var cachedShape: AppIconShape? = null
 
     fun loadLaunchableApps(shape: AppIconShape, density: Density): List<LauncherApp> {
@@ -32,7 +41,7 @@ class InstalledAppsRepository(private val context: Context) {
     }
 
     private fun loadViaLauncherApps(
-        shape: AppIconShape, density: Density, sizePx: Int, composeShape: androidx.compose.ui.graphics.Shape
+        shape: AppIconShape, density: Density, sizePx: Int, composeShape: Shape
     ): List<LauncherApp> {
         val launcherApps = context.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
         val userManager = context.getSystemService(Context.USER_SERVICE) as UserManager
@@ -88,11 +97,11 @@ class InstalledAppsRepository(private val context: Context) {
     }
 
     private fun loadViaPackageManager(
-        shape: AppIconShape, density: Density, sizePx: Int, composeShape: androidx.compose.ui.graphics.Shape
+        shape: AppIconShape, density: Density, sizePx: Int, composeShape: Shape
     ): List<LauncherApp> {
         val pm = context.packageManager
-        val intent = android.content.Intent(android.content.Intent.ACTION_MAIN).apply {
-            addCategory(android.content.Intent.CATEGORY_LAUNCHER)
+        val intent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_LAUNCHER)
         }
         val resolved = pm.queryIntentActivities(intent, PackageManager.MATCH_ALL)
         return resolved.asSequence()

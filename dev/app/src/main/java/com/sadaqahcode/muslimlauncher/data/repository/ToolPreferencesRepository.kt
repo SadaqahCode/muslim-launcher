@@ -1,10 +1,11 @@
-package com.sadaqahcode.muslimlauncher.data.tools
+package com.sadaqahcode.muslimlauncher.data.repository.tools
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
+import com.sadaqahcode.muslimlauncher.di.ToolsPreferencesDataStore
 import com.sadaqahcode.muslimlauncher.domain.model.ToolId
 import com.sadaqahcode.muslimlauncher.domain.model.ToolPreferences
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +15,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ToolPreferencesRepository @Inject constructor(
-    private val dataStore: DataStore<Preferences>,
+    @ToolsPreferencesDataStore private val dataStore: DataStore<Preferences>,
 ) {
     private val enabledKey = stringSetPreferencesKey("tools.enabled_overrides")
     private val orderKey   = stringPreferencesKey("tools.order")
