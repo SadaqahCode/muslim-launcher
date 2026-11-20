@@ -3,8 +3,13 @@ package com.sadaqahcode.muslimlauncher.data.repository
 import com.sadaqahcode.muslimlauncher.data.local.ShortcutDao
 import com.sadaqahcode.muslimlauncher.data.local.ShortcutEntity
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ShortcutRepository(private val dao: ShortcutDao) {
+@Singleton
+class ShortcutRepository @Inject constructor(
+    private val dao: ShortcutDao,
+) {
 
     fun observeAll(): Flow<List<ShortcutEntity>> = dao.observeAll()
 

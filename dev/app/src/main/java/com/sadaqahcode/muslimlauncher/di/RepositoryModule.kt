@@ -1,7 +1,7 @@
 package com.sadaqahcode.muslimlauncher.di
 
-import com.sadaqahcode.muslimlauncher.data.repository.ChallengeRepositoryImpl
-import com.sadaqahcode.muslimlauncher.data.repository.DhikrRepositoryImpl
+import com.sadaqahcode.muslimlauncher.data.repository.impl.ChallengeRepositoryImpl
+import com.sadaqahcode.muslimlauncher.data.repository.impl.DhikrRepositoryImpl
 import com.sadaqahcode.muslimlauncher.domain.repository.ChallengeRepository
 import com.sadaqahcode.muslimlauncher.domain.repository.DhikrRepository
 import dagger.Binds

@@ -14,6 +14,7 @@ import com.sadaqahcode.muslimlauncher.domain.model.DrawerLayout
 import com.sadaqahcode.muslimlauncher.domain.model.UserSettings
 import com.sadaqahcode.muslimlauncher.domain.model.WallpaperMode
 import com.sadaqahcode.muslimlauncher.domain.model.WallpaperTextMode
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -21,10 +22,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SettingsViewModel(app: Application) : AndroidViewModel(app) {
-
-    private val ds = SettingsDataStore(app)
+@HiltViewModel
+class SettingsViewModel @Inject constructor(
+    app: Application,
+    private val ds: SettingsDataStore,
+) : AndroidViewModel(app) {
 
     val settings: StateFlow<UserSettings> = ds.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UserSettings())

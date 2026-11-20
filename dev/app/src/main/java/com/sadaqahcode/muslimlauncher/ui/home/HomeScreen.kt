@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -85,7 +86,7 @@ private val BOTTOM_BAR_HEIGHT = 24.dp
 
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel,
+    viewModel: HomeViewModel = hiltViewModel(),
     onOpenSettings: () -> Unit,
     onOpenTool: (ToolId) -> Unit,
 ) {
@@ -126,7 +127,7 @@ fun HomeScreen(
     val drawerShown by remember { derivedStateOf { sheet.progress > 0f } }
 
     val pagerState = rememberPagerState(initialPage = HOME_PAGE, pageCount = { PAGE_COUNT })
-    val widgetPageVm: WidgetPageViewModel = viewModel()
+    val widgetPageVm: WidgetPageViewModel = hiltViewModel()
 
     LaunchedEffect(message) {
         message?.let {

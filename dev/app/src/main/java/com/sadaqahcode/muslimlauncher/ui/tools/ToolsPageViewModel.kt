@@ -2,7 +2,7 @@ package com.sadaqahcode.muslimlauncher.ui.tools
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sadaqahcode.muslimlauncher.data.tools.ToolPreferencesRepository
+import com.sadaqahcode.muslimlauncher.data.repository.ToolPreferencesRepository
 import com.sadaqahcode.muslimlauncher.domain.model.ToolContext
 import com.sadaqahcode.muslimlauncher.domain.model.ToolId
 import com.sadaqahcode.muslimlauncher.domain.model.ToolPreferences

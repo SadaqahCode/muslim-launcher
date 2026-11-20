@@ -12,8 +12,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.core.graphics.drawable.toBitmap
-import com.sadaqahcode.muslimlauncher.data.launcher.shapeFor
-import com.sadaqahcode.muslimlauncher.data.launcher.toShapedBitmap
+import com.sadaqahcode.muslimlauncher.data.local.launcher.shapeFor
+import com.sadaqahcode.muslimlauncher.data.local.launcher.toShapedBitmap
 import com.sadaqahcode.muslimlauncher.domain.model.UserSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

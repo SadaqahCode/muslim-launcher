@@ -9,12 +9,12 @@ import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.flagodna.debugprint.debugPrint
-import com.sadaqahcode.muslimlauncher.data.local.DatabaseProvider
 import com.sadaqahcode.muslimlauncher.data.local.SettingsDataStore
 import com.sadaqahcode.muslimlauncher.data.local.ShortcutEntity
 import com.sadaqahcode.muslimlauncher.data.repository.ShortcutRepository
 import com.sadaqahcode.muslimlauncher.data.repository.WidgetPlacementRepository
 import com.sadaqahcode.muslimlauncher.domain.model.UserSettings
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
+import javax.inject.Inject
 
 private const val TAG = "WidgetPageViewModel"
 
@@ -34,14 +35,15 @@ enum class WidgetPreset(val heightDp: Int, val label: String) {
     Large(320, "Large"),
 }
 
-class WidgetPageViewModel(app: Application) : AndroidViewModel(app) {
+@HiltViewModel
+class WidgetPageViewModel @Inject constructor(
+    app: Application,
+    private val widgetRepository: WidgetPlacementRepository,
+    private val shortcutRepository: ShortcutRepository,
+    private val settingsDs: SettingsDataStore,
+) : AndroidViewModel(app) {
 
-    private val db = DatabaseProvider.getDatabase(app)
-    private val widgetRepository = WidgetPlacementRepository(db.widgetDao())
-    private val shortcutRepository = ShortcutRepository(db.shortcutDao())
     private val controller = WidgetHostController(app, widgetRepository)
-    private val settingsDs = SettingsDataStore(app)
-
 
     val placements = widgetRepository.observeAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())

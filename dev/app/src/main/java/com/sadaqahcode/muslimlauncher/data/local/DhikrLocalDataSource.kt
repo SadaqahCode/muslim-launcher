@@ -1,16 +1,14 @@
 package com.sadaqahcode.muslimlauncher.data.local
 
-import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import com.sadaqahcode.muslimlauncher.data.local.entity.DhikrCacheEntity
 import com.sadaqahcode.muslimlauncher.data.local.mapper.DhikrCacheMapper
+import com.sadaqahcode.muslimlauncher.di.DhikrDataStore
 import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrItem
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -18,11 +16,9 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private val Context.dhikrDataStore: DataStore<Preferences> by preferencesDataStore("dhikr_cache")
-
 @Singleton
 class DhikrLocalDataSource @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @DhikrDataStore private val dataStore: DataStore<Preferences>,
     private val json: Json,
     private val cacheMapper: DhikrCacheMapper,
 ) {
@@ -32,7 +28,7 @@ class DhikrLocalDataSource @Inject constructor(
     }
 
     fun getCachedContent(): Flow<List<DhikrItem>?> =
-        context.dhikrDataStore.data.map { prefs ->
+        dataStore.data.map { prefs ->
             prefs[CACHE_KEY]?.let { raw ->
                 try {
                     cacheMapper.toDomain(json.decodeFromString<DhikrCacheEntity>(raw))
@@ -45,21 +41,21 @@ class DhikrLocalDataSource @Inject constructor(
     suspend fun saveCache(items: List<DhikrItem>) {
         val entity = cacheMapper.toEntity(items)
         val raw = json.encodeToString(DhikrCacheEntity.serializer(), entity)
-        context.dhikrDataStore.edit { prefs ->
+        dataStore.edit { prefs ->
             prefs[CACHE_KEY] = raw
             prefs[LAST_UPDATED_KEY] = entity.lastUpdated
         }
     }
 
     suspend fun clearCache() {
-        context.dhikrDataStore.edit { prefs ->
+        dataStore.edit { prefs ->
             prefs.remove(CACHE_KEY)
             prefs.remove(LAST_UPDATED_KEY)
         }
     }
 
     suspend fun getLastUpdated(): Long? =
-        context.dhikrDataStore.data.map { it[LAST_UPDATED_KEY] }.first()
+        dataStore.data.map { it[LAST_UPDATED_KEY] }.first()
 
     suspend fun getCacheAgeSeconds(): Long? {
         val lastUpdated = getLastUpdated() ?: return null

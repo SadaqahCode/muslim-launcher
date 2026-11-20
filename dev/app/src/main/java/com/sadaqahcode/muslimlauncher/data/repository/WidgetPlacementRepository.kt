@@ -3,8 +3,13 @@ package com.sadaqahcode.muslimlauncher.data.repository
 import com.sadaqahcode.muslimlauncher.data.local.WidgetDao
 import com.sadaqahcode.muslimlauncher.data.local.WidgetEntity
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class WidgetPlacementRepository(private val dao: WidgetDao) {
+@Singleton
+class WidgetPlacementRepository @Inject constructor(
+    private val dao: WidgetDao,
+) {
 
     fun observeAll(): Flow<List<WidgetEntity>> = dao.observeAll()
 

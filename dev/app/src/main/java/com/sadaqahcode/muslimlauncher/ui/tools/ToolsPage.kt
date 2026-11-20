@@ -17,7 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.sadaqahcode.muslimlauncher.data.tools.toolIcon
+import com.sadaqahcode.muslimlauncher.data.local.tools.toolIcon
 import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
 import com.sadaqahcode.muslimlauncher.domain.model.ToolId
 import com.sadaqahcode.muslimlauncher.domain.model.ToolRegistry

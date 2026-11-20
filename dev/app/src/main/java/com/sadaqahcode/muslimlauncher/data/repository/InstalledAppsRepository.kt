@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.data.repository.launcher
+package com.sadaqahcode.muslimlauncher.data.repository
 
 import android.content.Context
 import android.content.Intent
@@ -11,6 +11,8 @@ import android.os.UserManager
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
+import com.sadaqahcode.muslimlauncher.data.local.launcher.shapeFor
+import com.sadaqahcode.muslimlauncher.data.local.launcher.toShapedBitmap
 import com.sadaqahcode.muslimlauncher.domain.model.AppIconShape
 import com.sadaqahcode.muslimlauncher.domain.model.LauncherApp
 import dagger.hilt.android.qualifiers.ApplicationContext

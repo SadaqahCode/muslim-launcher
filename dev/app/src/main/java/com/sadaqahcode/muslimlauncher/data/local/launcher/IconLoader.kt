@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.data.repository.launcher
+package com.sadaqahcode.muslimlauncher.data.local.launcher
 
 import android.annotation.SuppressLint
 import android.graphics.Canvas

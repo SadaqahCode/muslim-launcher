@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.data.repository
+package com.sadaqahcode.muslimlauncher.data.repository.impl
 
 import com.sadaqahcode.muslimlauncher.data.remote.api.ApiService
 import com.sadaqahcode.muslimlauncher.domain.model.ChallengeSession

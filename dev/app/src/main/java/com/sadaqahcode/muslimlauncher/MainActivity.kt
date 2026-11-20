@@ -46,6 +46,7 @@ import kotlinx.coroutines.launch
 import androidx.core.graphics.drawable.toDrawable
 import com.sadaqahcode.muslimlauncher.util.applyTransparentSystemBars
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -62,6 +63,9 @@ class MainActivity : ComponentActivity() {
         lateinit var appWidgetManager: AppWidgetManager
             private set
     }
+
+    @Inject
+    lateinit var settingsDataStore: SettingsDataStore
 
     private val _homePressCount = MutableStateFlow(0L)
     val homePressCount: StateFlow<Long> = _homePressCount.asStateFlow()
@@ -113,8 +117,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val context = LocalContext.current
             val view = LocalView.current
-            val ds = remember { SettingsDataStore(context) }
-            val settings by ds.settings.collectAsState(initial = UserSettings())
+            val settings by settingsDataStore.settings.collectAsState(initial = UserSettings())
 
             val currentWallpaperVersion by wallpaperVersion.collectAsState()
 

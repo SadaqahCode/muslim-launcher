@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -67,7 +67,7 @@ fun AppNavHost() {
         },
     ) {
         composable(AppRoutes.HOME) {
-            val vm: HomeViewModel = viewModel()
+            val vm: HomeViewModel = hiltViewModel()
             HomeScreen(
                 viewModel = vm,
                 onOpenSettings = {

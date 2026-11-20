@@ -4,8 +4,13 @@ import com.sadaqahcode.muslimlauncher.data.local.AppPreferenceDao
 import com.sadaqahcode.muslimlauncher.data.local.AppPreferenceEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class AppPreferencesRepository(private val dao: AppPreferenceDao) {
+@Singleton
+class AppPreferencesRepository @Inject constructor(
+    private val dao: AppPreferenceDao,
+) {
 
     // Key = packageName + userId, 0 = personal, 10 = work
     fun observeAll(): Flow<Map<Pair<String, Int>, AppPreferenceEntity>> =

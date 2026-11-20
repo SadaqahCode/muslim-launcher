@@ -51,7 +51,7 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.sadaqahcode.muslimlauncher.data.launcher.shapeFor
+import com.sadaqahcode.muslimlauncher.data.local.launcher.shapeFor
 import com.sadaqahcode.muslimlauncher.domain.model.AppCategory
 import com.sadaqahcode.muslimlauncher.domain.model.LauncherApp
 import com.sadaqahcode.muslimlauncher.domain.model.UserSettings

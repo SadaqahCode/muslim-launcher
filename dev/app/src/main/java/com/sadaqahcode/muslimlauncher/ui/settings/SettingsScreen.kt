@@ -72,6 +72,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sadaqahcode.muslimlauncher.domain.model.AppIconShape
@@ -96,7 +97,7 @@ private val GroupShape = RoundedCornerShape(24.dp)
 @Composable
 fun SettingsScreen(
     onClose: () -> Unit,
-    viewModel: SettingsViewModel = viewModel(),
+    viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val s by viewModel.settings.collectAsStateWithLifecycle()
     val context = LocalContext.current

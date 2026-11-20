@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.data.repository
+package com.sadaqahcode.muslimlauncher.data.repository.impl
 
 import com.flagodna.debugprint.dlog
 import com.sadaqahcode.muslimlauncher.data.local.DhikrLocalDataSource

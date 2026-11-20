@@ -1,5 +1,25 @@
 ## CHANGELOG
 
+### 0.4.2 (2026-11-20)
+
+#### Added
+- `PT6` feat: Hilt DI — DataStoreModule with 4 qualified DataStore providers, DatabaseModule with Room + DAO providers
+- `PT6` feat: DataStore qualifiers — @UserSettingsDataStore, @DhikrDataStore, @TasbihDataStore, @ToolsPreferencesDataStore
+
+#### Changed
+- `PT6` changed: data sources — SettingsDataStore, DhikrLocalDataSource, TasbihPrefs, ToolPreferencesRepository inject qualified DataStore instead of Context
+- `PT6` changed: repositories — InstalledApps, AppPreferences, WidgetPlacement, Shortcut, ToolPreferences now @Singleton + @Inject constructor
+- `PT6` changed: ViewModels — HomeViewModel, SettingsViewModel, WidgetPageViewModel now @HiltViewModel
+- `PT6` changed: call sites — viewModel() → hiltViewModel() across AppNavHost, SettingsScreen, HomeScreen, WidgetPage
+
+#### Fixed
+- `PT6` fix: multiple active DataStores — delegates centralized in DataStoreModule
+- `PT6` fix: MissingBinding chain — repositories, DAOs, qualified DataStores all provided
+- `PT6` fix: Cannot create ViewModel at runtime — HiltViewModelFactory via hiltViewModel()
+- `PT6` fix: DatabaseProvider removed — Room now built via DatabaseModule singleton
+
+---
+
 ### 0.4.1 (2026-11-17)
 
 #### Added
@@ -32,6 +52,8 @@
 - `PT3` fix: nav tools detail - type inference failed for ToolRegistry.byId, convert String key to ToolId first
 - `PT5` fix: HMAC string-to-sign - timestamp, method, path, body
 - `PT5` fix: HMAC key - raw 64 bytes
+
+---
 
 ### 0.4.0 (2026-11-11)
 

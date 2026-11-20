@@ -18,8 +18,7 @@ import androidx.compose.ui.unit.Density
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.flagodna.debugprint.debugPrint
-import com.sadaqahcode.muslimlauncher.data.launcher.InstalledAppsRepository
-import com.sadaqahcode.muslimlauncher.data.local.DatabaseProvider
+import com.sadaqahcode.muslimlauncher.data.repository.InstalledAppsRepository
 import com.sadaqahcode.muslimlauncher.data.local.SettingsDataStore
 import com.sadaqahcode.muslimlauncher.data.repository.AppPreferencesRepository
 import com.sadaqahcode.muslimlauncher.domain.model.AppCategory
@@ -39,6 +38,7 @@ import com.sadaqahcode.muslimlauncher.ui.home.helper.isAccessibilityServiceEnabl
 import com.sadaqahcode.muslimlauncher.ui.settings.isDarkColor
 import com.sadaqahcode.muslimlauncher.ui.settings.isDarkGradient
 import com.sadaqahcode.muslimlauncher.ui.settings.isDarkImage
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -51,6 +51,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 data class PrayerHeroState(
     val hijriDate: String = "2 Jumada al-Thani 1448 AH",
@@ -71,13 +72,13 @@ data class PrayerHeroState(
 
 private const val TAG = "HomeVM"
 
-class HomeViewModel(app: Application) : AndroidViewModel(app) {
-
-    private val appRepository = InstalledAppsRepository(app)
-    private val prefsRepository = AppPreferencesRepository(
-        DatabaseProvider.getDatabase(app).appPreferenceDao()
-    )
-    private val settingsDs = SettingsDataStore(app)
+@HiltViewModel
+class HomeViewModel @Inject constructor(
+    app: Application,
+    private val appRepository: InstalledAppsRepository,
+    private val prefsRepository: AppPreferencesRepository,
+    private val settingsDs: SettingsDataStore,
+) : AndroidViewModel(app) {
 
     private val togglePinUseCase = TogglePinUseCase(prefsRepository)
     private val toggleDockUseCase = ToggleDockUseCase(prefsRepository)

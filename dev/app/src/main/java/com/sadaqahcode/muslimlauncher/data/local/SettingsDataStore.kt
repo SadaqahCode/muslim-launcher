@@ -1,6 +1,5 @@
 package com.sadaqahcode.muslimlauncher.data.local
 
-import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
@@ -8,7 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
+import com.sadaqahcode.muslimlauncher.di.UserSettingsDataStore
 import com.sadaqahcode.muslimlauncher.domain.model.AppIconShape
 import com.sadaqahcode.muslimlauncher.domain.model.AppIconSize
 import com.sadaqahcode.muslimlauncher.domain.model.AppItemLayout
@@ -21,11 +20,13 @@ import com.sadaqahcode.muslimlauncher.domain.model.WallpaperMode
 import com.sadaqahcode.muslimlauncher.domain.model.WallpaperTextMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
-val Context.userSettingsDataStore: DataStore<Preferences> by
-preferencesDataStore("user_settings")
-
-class SettingsDataStore(private val context: Context) {
+@Singleton
+class SettingsDataStore @Inject constructor(
+    @UserSettingsDataStore private val dataStore: DataStore<Preferences>,
+) {
 
     private object Keys {
         val iconSize = stringPreferencesKey("icon_size")
@@ -54,7 +55,7 @@ class SettingsDataStore(private val context: Context) {
         val wallpaperTextMode = stringPreferencesKey("wallpaper_text_mode")
     }
 
-    val settings: Flow<UserSettings> = context.userSettingsDataStore.data.map { p ->
+    val settings: Flow<UserSettings> = dataStore.data.map { p ->
         UserSettings(
             iconSize = p.enumOr(Keys.iconSize, AppIconSize.Medium),
             textSize = p.enumOr(Keys.textSize, AppTextSize.Medium),
@@ -115,7 +116,7 @@ class SettingsDataStore(private val context: Context) {
         write { it[Keys.wallpaperTextMode] = v.name }
 
     private suspend fun write(block: (MutablePreferences) -> Unit) {
-        context.userSettingsDataStore.edit { block(it) }
+        dataStore.edit { block(it) }
     }
 
     private inline fun <reified E : Enum<E>> Preferences.enumOr(
