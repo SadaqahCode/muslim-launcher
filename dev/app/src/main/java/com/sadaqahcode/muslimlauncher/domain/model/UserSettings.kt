@@ -76,6 +76,7 @@ enum class WallpaperTextMode {
 
 
 data class UserSettings(
+    val language: AppLanguage = AppLanguage.English,
     val iconSize: AppIconSize = AppIconSize.Medium,
     val textSize: AppTextSize = AppTextSize.Medium,
     val itemLayout: AppItemLayout = AppItemLayout.TextBelow,

@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.data.local
+package com.sadaqahcode.muslimlauncher.data.local.store
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.MutablePreferences
@@ -11,6 +11,7 @@ import com.sadaqahcode.muslimlauncher.di.UserSettingsDataStore
 import com.sadaqahcode.muslimlauncher.domain.model.AppIconShape
 import com.sadaqahcode.muslimlauncher.domain.model.AppIconSize
 import com.sadaqahcode.muslimlauncher.domain.model.AppItemLayout
+import com.sadaqahcode.muslimlauncher.domain.model.AppLanguage
 import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
 import com.sadaqahcode.muslimlauncher.domain.model.ColorSource
 import com.sadaqahcode.muslimlauncher.domain.model.DarkMode
@@ -29,6 +30,7 @@ class SettingsDataStore @Inject constructor(
 ) {
 
     private object Keys {
+        val language = stringPreferencesKey("language")
         val iconSize = stringPreferencesKey("icon_size")
         val textSize = stringPreferencesKey("text_size")
         val itemLayout = stringPreferencesKey("item_layout")
@@ -57,6 +59,7 @@ class SettingsDataStore @Inject constructor(
 
     val settings: Flow<UserSettings> = dataStore.data.map { p ->
         UserSettings(
+            language = p.enumOr(Keys.language, AppLanguage.English),
             iconSize = p.enumOr(Keys.iconSize, AppIconSize.Medium),
             textSize = p.enumOr(Keys.textSize, AppTextSize.Medium),
             itemLayout = p.enumOr(Keys.itemLayout, AppItemLayout.TextBelow),
@@ -82,6 +85,7 @@ class SettingsDataStore @Inject constructor(
         )
     }
 
+    suspend fun setLanguage(v: AppLanguage) = write { it[Keys.language] = v.name }
     suspend fun setIconSize(v: AppIconSize) = write { it[Keys.iconSize] = v.name }
     suspend fun setTextSize(v: AppTextSize) = write { it[Keys.textSize] = v.name }
     suspend fun setItemLayout(v: AppItemLayout) = write { it[Keys.itemLayout] = v.name }

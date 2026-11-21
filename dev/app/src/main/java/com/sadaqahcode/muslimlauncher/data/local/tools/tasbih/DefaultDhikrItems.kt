@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih
+package com.sadaqahcode.muslimlauncher.data.local.tools.tasbih
 
 import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
 import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrEntry

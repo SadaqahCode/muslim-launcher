@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,7 +46,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sadaqahcode.muslimlauncher.MainActivity
 import com.sadaqahcode.muslimlauncher.domain.model.ToolId
 import com.sadaqahcode.muslimlauncher.domain.model.WallpaperMode
@@ -63,6 +63,7 @@ import com.sadaqahcode.muslimlauncher.ui.home.components.HomeContentPortrait
 import com.sadaqahcode.muslimlauncher.ui.home.helper.ShadeOpenResult
 import com.sadaqahcode.muslimlauncher.ui.home.helper.openNotificationShade
 import com.sadaqahcode.muslimlauncher.ui.home.helper.shadeSwipeGesture
+import com.sadaqahcode.muslimlauncher.ui.home.strings.rememberHomeSnackbarStrings
 import com.sadaqahcode.muslimlauncher.ui.theme.ProvideLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.theme.Wallpaper
 import com.sadaqahcode.muslimlauncher.ui.tools.ToolsPage
@@ -129,6 +130,10 @@ fun HomeScreen(
     val pagerState = rememberPagerState(initialPage = HOME_PAGE, pageCount = { PAGE_COUNT })
     val widgetPageVm: WidgetPageViewModel = hiltViewModel()
 
+    // i18n
+    val snackbarStrings = rememberHomeSnackbarStrings()
+    val currentSnackbarStrings by rememberUpdatedState(snackbarStrings)
+
     LaunchedEffect(message) {
         message?.let {
             snackbarHostState.showLauncherSnackbar(it, LauncherSnackbarType.Info)
@@ -155,22 +160,20 @@ fun HomeScreen(
     }
 
     LaunchedEffect(pagerState.currentPage, drawerVisible, selectedApp) {
-        // Only on Home, not in drawer, widget, tools, or menu
         if (pagerState.currentPage != HOME_PAGE) return@LaunchedEffect
         if (drawerVisible) return@LaunchedEffect
         if (selectedApp != null) return@LaunchedEffect
         if (viewModel.isDefaultLauncher()) return@LaunchedEffect
 
         delay(400.milliseconds)
-        // Don't stack if already showing
         if (snackbarHostState.currentSnackbarData != null) return@LaunchedEffect
 
         snackbarHostState.showLauncherSnackbar(
-            message = "Set Muslim Launcher as your default home?",
-            actionLabel = "Set default",
+            message = currentSnackbarStrings.defaultLauncherMsg,
+            actionLabel = currentSnackbarStrings.defaultLauncherAction,
             onAction = {
                 context.startActivity(Intent(Settings.ACTION_HOME_SETTINGS))
-            }
+            },
         )
     }
 

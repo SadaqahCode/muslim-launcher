@@ -1,9 +1,34 @@
 <resources>
     <string name="app_name">Muslim Launcher</string>
+
     <string name="accessibility_shade_description">Fallback to open notification panel when swipe down fails on some devices. Does not read screen content.</string>
     <string name="accessibility_shade_summary">Swipe down for notifications (fallback)</string>
     <string name="accessibility_lock_description">Locks screen on double tap. Does not read screen content.</string>
     <string name="accessibility_lock_summary">Double tap to lock</string>
+    <string name="accessibility_dialog_title_lock">Double-tap to lock</string>
+    <string name="accessibility_dialog_title_shade">Swipe-down</string>
+    <string name="accessibility_dialog_subtitle_lock">Choose how you want to lock. You only need one.</string>
+    <string name="accessibility_dialog_subtitle_shade">Your device blocks the standard way to open the notification panel.</string>
+    <string name="accessibility_dialog_info_shade">This is only used to open the shade. It does not read your screen or store data.</string>
+    <string name="accessibility_dialog_continue">Continue</string>
+    <string name="accessibility_dialog_open_settings">Open Settings</string>
+    <string name="accessibility_dialog_not_now">Not now</string>
+    <string name="accessibility_dialog_lock_accessibility_title">Accessibility</string>
+    <string name="accessibility_dialog_lock_accessibility_desc">Fingerprint still works. Can reset after restart.</string>
+    <string name="accessibility_dialog_lock_accessibility_badge">Recommended</string>
+    <string name="accessibility_dialog_lock_device_admin_title">Device Admin</string>
+    <string name="accessibility_dialog_lock_device_admin_desc">Survives restart. May ask PIN instead of fingerprint.</string>
+    <string name="accessibility_dialog_lock_device_admin_badge">Most stable</string>
+    <string name="accessibility_dialog_enabled">Enabled</string>
+
+    <string name="commons_back">Back</string>
+    <string name="commons_close">Close</string>
+    <string name="commons_repeat">Repeat</string>
+    <string name="commons_done">Done</string>
+
+    <string name="home_set_default_launcher">Set Muslim Launcher as your default home?</string>
+    <string name="home_set_default_launcher_action">"Set default</string>
+
     <string name="tool_qibla_title">Qibla</string>
     <string name="tool_qibla_sub">Direction of the Ka\'bah from where you stand</string>
     <string name="tool_tasbih_title">Tasbih</string>
@@ -84,4 +109,31 @@
     <string name="tool_islamic_countdown_sub">Ramadan &amp; Eid al-Fitr</string>
     <string name="tool_remind_me_title">Remind Me</string>
     <string name="tool_remind_me_sub">Simple alarm reminder</string>
+
+    <string name="tool_tasbih_page_title">Dhikr</string>
+    <string name="tool_tasbih_empty_list">No dhikr available.</string>
+    <string name="tool_tasbih_choose_list">Choose dhikr.</string>
+    <string name="tool_tasbih_guide_title">Guided</string>
+    <string name="tool_tasbih_guide_step">Step</string>
+    <string name="tool_tasbih_all_list">All dhikr</string>
+    <string name="tool_tasbih_all_routines">All routines</string>
+    <string name="tool_tasbih_remove_favorites">Remove from favorites</string>
+    <string name="tool_tasbih_pin_favorites">Pin to favorites</string>
+    <string name="tool_tasbih_exit_freemode">Exit to free mode</string>
+    <string name="tool_tasbih_view_full">View in full</string>
+    <string name="tool_tasbih_in_use">In use</string>
+    <string name="tool_tasbih_use_this">Use this dhikr</string>
+    <string name="tool_tasbih_counter_text">Tasbih counter</string>
+    <string name="tool_tasbih_counter_reset">Reset count</string>
+    <string name="tool_tasbih_add_one">Add one</string>
+    <string name="tool_tasbih_of">of</string>
+    <string name="tool_tasbih_finish">Finish</string>
+    <string name="tool_tasbih_skip">Skip</string>
+    <string name="tool_tasbih_free">Free</string>
+    <string name="tool_tasbih_pinned">Pinned</string>
+    <string name="tool_tasbih_tap_again">Tap again</string>
+    <string name="tool_tasbih_pin_unpin_favorite">Pin / unpin favorite</string>
+    <string name="tool_tasbih_pick_free">Pick any dhikr and count freely, in no particular order.</string>
+    <string name="tool_tasbih_run_guided">Runs through every step and moves on by itself.</string>
+    <string name="tool_tasbih_completed">Alhamdulillah, completed</string>
 </resources>

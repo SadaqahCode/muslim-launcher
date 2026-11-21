@@ -74,10 +74,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.sadaqahcode.muslimlauncher.domain.model.AppIconShape
 import com.sadaqahcode.muslimlauncher.domain.model.AppIconSize
 import com.sadaqahcode.muslimlauncher.domain.model.AppItemLayout
+import com.sadaqahcode.muslimlauncher.domain.model.AppLanguage
 import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
 import com.sadaqahcode.muslimlauncher.domain.model.ColorSource
 import com.sadaqahcode.muslimlauncher.domain.model.DarkMode
@@ -157,6 +157,21 @@ fun SettingsScreen(
             ),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
+            // Language
+            item(key = "language") {
+                SettingsGroup("Language") {
+                    ChoiceRow(
+                        title = "App language",
+                        hint = "Changes the language used throughout the app. " +
+                                "Native names are shown so you can always find your own language.",
+                        options = AppLanguage.entries,
+                        selected = s.language,
+                        label = { it.nativeName },
+                        onSelect = viewModel::setLanguage,
+                    )
+                }
+            }
+
             // Appearance
             item(key = "appearance") {
                 SettingsGroup("Appearance") {

@@ -2,11 +2,13 @@ package com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sadaqahcode.muslimlauncher.data.local.TasbihPrefs
+import com.sadaqahcode.muslimlauncher.data.local.store.TasbihDataStore
+import com.sadaqahcode.muslimlauncher.data.local.tools.tasbih.DefaultDhikrItems
 import com.sadaqahcode.muslimlauncher.domain.model.Result
 import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
 import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrEntry
 import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrItem
+import com.sadaqahcode.muslimlauncher.domain.model.tools.HapticMode
 import com.sadaqahcode.muslimlauncher.domain.model.tools.name
 import com.sadaqahcode.muslimlauncher.domain.repository.DhikrRepository
 import com.sadaqahcode.muslimlauncher.domain.usecase.tools.GetDhikrItemsUseCase
@@ -30,34 +32,36 @@ sealed interface TasbihHaptic {
     data object TargetReached : TasbihHaptic
     data object ResetConfirmNeeded : TasbihHaptic
     data object ResetConfirmed : TasbihHaptic
-    data object StepDone : TasbihHaptic          // terpandu: pindah ke dzikir berikutnya
-    data object RoutineFinished : TasbihHaptic   // terpandu: semua selesai
+    data object StepDone : TasbihHaptic
+    data object RoutineFinished : TasbihHaptic
 }
 
+private const val MIN_BAR_VISIBLE_MS = 1600L
+private const val INSTANT_RESPONSE_MS = 100L
 /**
- * Free   : tanpa alur. Pilih dzikir apa saja, target apa saja, hitung sebebasnya.
- * Guided : rangkaian dzikir berurutan, pindah langkah otomatis, lalu panel selesai.
+ * Free   : without a flow. Choose any dhikr, any target, count as freely as you like.
+ * Guided : sequential dhikr sequence, automatic step transition, then a completion panel.
  */
 enum class TasbihMode { Free, Guided }
 
-/**
- * Kunci stabil untuk favorit dan pilihan terakhir.
- * Kalau model Dhikr / DhikrItem kamu punya `id`, ganti dua fungsi ini saja.
- */
 fun Dhikr.freeKey(): String = arabic
 fun DhikrItem.guidedKey(): String = name("en")
 
+
 data class TasbihUiState(
-    val isLoading: Boolean = true,
+    /** Visible browser-style bar at the very top while the repository refreshes. */
+    val isRefreshing: Boolean = true,
+    /** Defensive only — never populated during normal refresh, since defaults always exist. */
     val error: String? = null,
-    val items: List<DhikrItem> = emptyList(),
+    /** Seeded with [DefaultDhikrItems.ALL] so the UI is usable on frame 1. */
+    val items: List<DhikrItem> = DefaultDhikrItems.ALL,
     val mode: TasbihMode = TasbihMode.Free,
     val confirmingReset: Boolean = false,
+    val hapticMode: HapticMode = HapticMode.Haptic,
 
     // ── Free ──
     val selectedFreeKey: String? = null,
     val freeTarget: Int = 33,
-    /** Hitungan tiap dzikir diingat selama halaman terbuka, jadi berpindah dzikir tidak menghapusnya. */
     val freeCounts: Map<String, Int> = emptyMap(),
     val favoriteFree: Set<String> = emptySet(),
 
@@ -71,11 +75,9 @@ data class TasbihUiState(
     val autoRun: Boolean get() = mode == TasbihMode.Guided
 
     // ── Free ──
-    /** Semua dzikir tunggal dari seluruh rangkaian, tanpa duplikat. */
     val freeList: List<Dhikr>
         get() = items.flatMap { it.entries }.map { it.dhikr }.distinctBy { it.freeKey() }
 
-    /** Urutan tampil: favorit dulu, sisanya sesuai urutan data. */
     val freeDisplay: List<Dhikr>
         get() = freeList.sortedByDescending { it.freeKey() in favoriteFree }
 
@@ -89,7 +91,7 @@ data class TasbihUiState(
     val isLastEntry: Boolean
         get() = entryIndex >= (currentItem?.entries?.lastIndex ?: 0)
 
-    // ── Aktif (mengikuti mode) ──
+    // ── Aktive ──
     val activeDhikr: Dhikr? get() = if (autoRun) guidedDhikr else currentFree
 
     val count: Int
@@ -99,13 +101,11 @@ data class TasbihUiState(
     val target: Int
         get() = if (autoRun) currentEntry?.repetitions ?: 0 else freeTarget
 
-    val isDone: Boolean get() = target > 0 && count >= target
-
     val isFavoriteCurrent: Boolean
         get() = if (autoRun) currentItem?.guidedKey()?.let { it in favoriteGuided } ?: false
         else currentFree?.freeKey()?.let { it in favoriteFree } ?: false
 
-    /** Progres seluruh rangkaian (hanya bermakna di mode Guided). */
+    /* Progress */
     val totalRepetitions: Int get() = currentItem?.entries?.sumOf { it.repetitions } ?: 0
     val doneRepetitions: Int
         get() = if (finished) totalRepetitions
@@ -117,8 +117,11 @@ data class TasbihUiState(
 @HiltViewModel
 class TasbihViewModel @Inject constructor(
     private val getDhikrItems: GetDhikrItemsUseCase,
-    private val prefs: TasbihPrefs,
+    private val prefs: TasbihDataStore,
 ) : ViewModel() {
+
+    private var hideBarJob: Job? = null
+    private var barShownAt: Long = 0L
 
     private val _state = MutableStateFlow(TasbihUiState())
     val state: StateFlow<TasbihUiState> = _state.asStateFlow()
@@ -134,6 +137,9 @@ class TasbihViewModel @Inject constructor(
             .launchIn(viewModelScope)
         prefs.favoriteGuided
             .onEach { fav -> _state.update { it.copy(favoriteGuided = fav) } }
+            .launchIn(viewModelScope)
+        prefs.hapticMode
+            .onEach { mode -> _state.update { it.copy(hapticMode = mode) } }
             .launchIn(viewModelScope)
 
         viewModelScope.launch {
@@ -154,46 +160,73 @@ class TasbihViewModel @Inject constructor(
         tryOnlineFirst: Boolean = false,
         cacheValiditySeconds: Long = DhikrRepository.DEFAULT_CACHE_VALIDITY_SECONDS,
     ) {
+        hideBarJob?.cancel()
+        barShownAt = System.currentTimeMillis()
+        _state.update { it.copy(isRefreshing = true, error = null) }
+
         getDhikrItems(tryOnlineFirst, cacheValiditySeconds)
             .onEach { result ->
                 when (result) {
-                    Result.Loading -> _state.update { it.copy(isLoading = true, error = null) }
+                    Result.Loading -> Unit   // isRefreshing already true
 
                     is Result.Success -> {
-                        val items = result.data
+                        val wasInstant = System.currentTimeMillis() - barShownAt < INSTANT_RESPONSE_MS
+                        val fresh = result.data
+                        if (fresh.isEmpty()) {
+                            scheduleHideBar(wasInstant)
+                            return@onEach
+                        }
                         _state.update { current ->
                             val newItemIndex = current.selectedItemIndex
-                                .coerceIn(0, (items.size - 1).coerceAtLeast(0))
-                            val entryCount = items.getOrNull(newItemIndex)?.entries?.size ?: 0
+                                .coerceIn(0, (fresh.size - 1).coerceAtLeast(0))
+                            val entryCount = fresh.getOrNull(newItemIndex)?.entries?.size ?: 0
                             val newEntryIndex = current.entryIndex
                                 .coerceIn(0, (entryCount - 1).coerceAtLeast(0))
 
                             val next = current.copy(
-                                isLoading = false,
-                                items = items,
+                                items = fresh,
                                 error = null,
                                 selectedItemIndex = newItemIndex,
                                 entryIndex = newEntryIndex,
                                 confirmingReset = false,
                             )
-                            // Pastikan dzikir bebas yang dipilih masih ada di daftar.
-                            // Hitungan TIDAK direset di sini (data bisa datang dua kali: cache lalu online).
                             next.copy(selectedFreeKey = next.currentFree?.freeKey())
                         }
+                        scheduleHideBar(wasInstant)
                     }
 
-                    is Result.Error -> _state.update {
-                        if (it.items.isEmpty()) it.copy(isLoading = false, error = result.message)
-                        else it.copy(isLoading = false)
+                    is Result.Error -> {
+                        val wasInstant = System.currentTimeMillis() - barShownAt < INSTANT_RESPONSE_MS
+                        _state.update { current ->
+                            if (current.items.isEmpty()) current.copy(error = result.message)
+                            else current
+                        }
+                        scheduleHideBar(wasInstant)
                     }
                 }
             }
             .launchIn(viewModelScope)
     }
 
-    // ───────────────────────── FREE ─────────────────────────
+    private fun scheduleHideBar(wasInstant: Boolean = false) {
+        hideBarJob?.cancel()
+        hideBarJob = viewModelScope.launch {
+            if (!wasInstant) {
+                val elapsed = System.currentTimeMillis() - barShownAt
+                val remaining = (MIN_BAR_VISIBLE_MS - elapsed).coerceAtLeast(0L)
+                if (remaining > 0) delay(remaining)
+            }
+            _state.update { it.copy(isRefreshing = false) }
+        }
+    }
 
-    /** Pilih dzikir apa saja. Kalau sedang terpandu, otomatis kembali ke mode bebas. */
+    // ───────────────────────── FEEDBACK ─────────────────────────
+    fun setHapticMode(mode: HapticMode) {
+        _state.update { it.copy(hapticMode = mode) }
+        viewModelScope.launch { prefs.saveHapticMode(mode) }
+    }
+
+    // ───────────────────────── FREE ─────────────────────────
     fun selectFree(key: String) {
         val s = _state.value
         if (s.freeList.none { it.freeKey() == key }) return
@@ -210,7 +243,7 @@ class TasbihViewModel @Inject constructor(
         viewModelScope.launch { prefs.saveLastFree(key) }
     }
 
-    /** Geser ke dzikir sebelumnya / berikutnya sesuai urutan tampil (favorit dulu). */
+    /** Swipe. */
     fun moveFree(delta: Int) {
         val s = _state.value
         if (s.autoRun) return
@@ -222,7 +255,7 @@ class TasbihViewModel @Inject constructor(
         if (target != index) selectFree(list[target].freeKey())
     }
 
-    /** 0 berarti tanpa target. */
+    /** 0 = no target */
     fun selectTarget(target: Int) {
         _state.update { it.copy(freeTarget = target, confirmingReset = false) }
         viewModelScope.launch { prefs.saveFreeTarget(target) }
@@ -257,7 +290,6 @@ class TasbihViewModel @Inject constructor(
 
     fun restartGuided() = startGuided(_state.value.selectedItemIndex)
 
-    /** Kembali ke mode bebas; dzikir bebas terakhir tetap dipakai. */
     fun exitGuided() {
         cancelResetConfirm()
         _state.update {
@@ -319,7 +351,15 @@ class TasbihViewModel @Inject constructor(
             return
         }
 
-        // Bebas: hitungan terus berjalan melewati target, tidak pernah berputar ke nol sendiri.
+        // Free mode
+        // Finite target (33 / 99 / 100): next tap after target wraps to 0 with haptic.
+        // Infinite target (0):   no cap, counts forever.
+        if (target > 0 && s.count >= target) {
+            _state.update { it.withCount(0) }
+            _haptics.tryEmit(TasbihHaptic.ResetConfirmed)
+            return
+        }
+
         _state.update { it.withCount(next) }
         if (target > 0 && next == target) {
             _haptics.tryEmit(TasbihHaptic.TargetReached)
@@ -362,5 +402,7 @@ class TasbihViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         cancelResetConfirm()
+        hideBarJob?.cancel()
+        hideBarJob = null
     }
 }

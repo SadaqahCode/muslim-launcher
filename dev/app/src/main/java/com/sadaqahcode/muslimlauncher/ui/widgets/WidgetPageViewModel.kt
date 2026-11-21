@@ -9,7 +9,7 @@ import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.flagodna.debugprint.debugPrint
-import com.sadaqahcode.muslimlauncher.data.local.SettingsDataStore
+import com.sadaqahcode.muslimlauncher.data.local.store.SettingsDataStore
 import com.sadaqahcode.muslimlauncher.data.local.ShortcutEntity
 import com.sadaqahcode.muslimlauncher.data.repository.ShortcutRepository
 import com.sadaqahcode.muslimlauncher.data.repository.WidgetPlacementRepository

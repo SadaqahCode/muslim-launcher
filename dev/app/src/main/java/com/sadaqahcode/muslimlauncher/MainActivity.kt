@@ -16,16 +16,18 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.flagodna.debugprint.debugPrint
-import com.sadaqahcode.muslimlauncher.data.local.SettingsDataStore
+import com.sadaqahcode.muslimlauncher.data.local.store.SettingsDataStore
 import com.sadaqahcode.muslimlauncher.data.wallpaper.SystemWallpaperState
 import com.sadaqahcode.muslimlauncher.domain.model.ColorSource
 import com.sadaqahcode.muslimlauncher.domain.model.DarkMode
@@ -36,6 +38,9 @@ import com.sadaqahcode.muslimlauncher.ui.theme.NightColorScheme
 import com.sadaqahcode.muslimlauncher.ui.theme.ParchmentColorScheme
 import com.sadaqahcode.muslimlauncher.ui.theme.rememberColorSchemeFromSeed
 import com.sadaqahcode.muslimlauncher.ui.widgets.LauncherAppWidgetHost
+import com.sadaqahcode.muslimlauncher.util.i18n.rememberLocalizedContext
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,6 +52,8 @@ import androidx.core.graphics.drawable.toDrawable
 import com.sadaqahcode.muslimlauncher.util.applyTransparentSystemBars
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
+
+private const val TAG = "MainActivity"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -81,11 +88,11 @@ class MainActivity : ComponentActivity() {
                 if (which and WallpaperManager.FLAG_SYSTEM != 0) {
                     SystemWallpaperState.update(colors)
                 }
-                debugPrint.d("MainActivity: wallpaper colors changed, scheduling debounce")
+                debugPrint.d(TAG, "wallpaper colors changed, scheduling debounce")
                 wallpaperDebounceJob?.cancel()
                 wallpaperDebounceJob = lifecycleScope.launch {
                     delay(WALLPAPER_DEBOUNCE_MS)
-                    debugPrint.d("MainActivity: debounce elapsed, bumping version")
+                    debugPrint.d(TAG, "debounce elapsed, bumping version")
                     _wallpaperVersion.update { it + 1 }
                 }
             }
@@ -104,7 +111,7 @@ class MainActivity : ComponentActivity() {
 
         appWidgetManager = AppWidgetManager.getInstance(applicationContext)
         appWidgetHost = LauncherAppWidgetHost(applicationContext, APPWIDGET_HOST_ID)
-        debugPrint.d("MainActivity: host initialized id=$APPWIDGET_HOST_ID")
+        debugPrint.d(TAG, "host initialized id=$APPWIDGET_HOST_ID")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             wallpaperColorsListener?.let {
@@ -115,9 +122,14 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            // LocalContext stays the Activity — hiltViewModel() needs it.
             val context = LocalContext.current
             val view = LocalView.current
             val settings by settingsDataStore.settings.collectAsState(initial = UserSettings())
+
+            // Context bound to the user's chosen language. Used only for resources.
+            val localizedContext = rememberLocalizedContext(settings.language)
+            val layoutDirection = if (settings.language.isRtl) LayoutDirection.Rtl else LayoutDirection.Ltr
 
             val currentWallpaperVersion by wallpaperVersion.collectAsState()
 
@@ -168,11 +180,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            MuslimLauncherTheme(
-                colorScheme = colorScheme,
-                darkTheme = darkTheme,
+            CompositionLocalProvider(
+                LocalResources provides localizedContext.resources,
+                LocalLayoutDirection provides layoutDirection,
             ) {
-                AppNavHost()
+                MuslimLauncherTheme(
+                    colorScheme = colorScheme,
+                    darkTheme = darkTheme,
+                ) {
+                    AppNavHost()
+                }
             }
         }
     }
@@ -183,7 +200,7 @@ class MainActivity : ComponentActivity() {
         if (intent.action == Intent.ACTION_MAIN &&
             intent.hasCategory(Intent.CATEGORY_HOME)
         ) {
-            debugPrint.d("MainActivity: HOME intent received, bumping counter")
+            debugPrint.d(TAG, "HOME intent received, bumping counter")
             _homePressCount.update { it + 1 }
         }
     }
@@ -191,15 +208,15 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         runCatching { appWidgetHost.startListening() }
-            .onFailure { debugPrint.e("onStart: startListening failed: ${it.message}") }
-        debugPrint.d("MainActivity: host listening")
+            .onFailure { debugPrint.e(TAG, "onStart: startListening failed: ${it.message}") }
+        debugPrint.d(TAG, "host listening")
     }
 
     override fun onStop() {
         super.onStop()
         runCatching { appWidgetHost.stopListening() }
-            .onFailure { debugPrint.e("onStop: stopListening failed: ${it.message}") }
-        debugPrint.d("MainActivity: host stopped")
+            .onFailure { debugPrint.e(TAG, "onStop: stopListening failed: ${it.message}") }
+        debugPrint.d(TAG, "host stopped")
     }
 
     override fun onDestroy() {

@@ -1,7 +1,7 @@
 package com.sadaqahcode.muslimlauncher.data.repository.impl
 
 import com.flagodna.debugprint.dlog
-import com.sadaqahcode.muslimlauncher.data.local.DhikrLocalDataSource
+import com.sadaqahcode.muslimlauncher.data.local.store.DhikrLocalDataSource
 import com.sadaqahcode.muslimlauncher.data.remote.api.ApiService
 import com.sadaqahcode.muslimlauncher.data.remote.mapper.DhikrDtoMapper
 import com.sadaqahcode.muslimlauncher.di.IoDispatcher

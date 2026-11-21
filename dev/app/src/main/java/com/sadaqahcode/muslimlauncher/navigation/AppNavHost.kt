@@ -2,6 +2,8 @@ package com.sadaqahcode.muslimlauncher.navigation
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
@@ -25,7 +27,6 @@ import com.sadaqahcode.muslimlauncher.ui.tools.detail.ToolDetailScreen
 
 private const val NAV_DURATION = 280
 private val navEasing = FastOutSlowInEasing
-private const val PARALLAX = 4f
 
 @Composable
 fun AppNavHost() {
@@ -38,32 +39,21 @@ fun AppNavHost() {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
 
-        // Forward: Home -> Settings / Tool detail
         enterTransition = {
-            slideInHorizontally(
-                animationSpec = tween(NAV_DURATION, easing = navEasing),
-                initialOffsetX = { fullWidth -> fullWidth },
-            )
+            slideInHorizontally(tween(NAV_DURATION, easing = navEasing)) { it } +
+                    fadeIn(tween(NAV_DURATION))
         },
         exitTransition = {
-            slideOutHorizontally(
-                animationSpec = tween(NAV_DURATION, easing = navEasing),
-                targetOffsetX = { fullWidth -> -(fullWidth / PARALLAX).toInt() },
-            )
+            slideOutHorizontally(tween(NAV_DURATION, easing = navEasing)) { -it / 4 } +
+                    fadeOut(tween(NAV_DURATION))
         },
-
-        // Back: Settings / Tool detail -> Home
         popEnterTransition = {
-            slideInHorizontally(
-                animationSpec = tween(NAV_DURATION, easing = navEasing),
-                initialOffsetX = { fullWidth -> -(fullWidth / PARALLAX).toInt() },
-            )
+            slideInHorizontally(tween(NAV_DURATION, easing = navEasing)) { -it / 4 } +
+                    fadeIn(tween(NAV_DURATION))
         },
         popExitTransition = {
-            slideOutHorizontally(
-                animationSpec = tween(NAV_DURATION, easing = navEasing),
-                targetOffsetX = { fullWidth -> fullWidth },
-            )
+            slideOutHorizontally(tween(NAV_DURATION, easing = navEasing)) { it } +
+                    fadeOut(tween(NAV_DURATION))
         },
     ) {
         composable(AppRoutes.HOME) {

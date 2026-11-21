@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.sadaqahcode.muslimlauncher.ui.home.strings.rememberAccessibilityDialogStrings
 import com.sadaqahcode.muslimlauncher.ui.theme.GlassEmphasis
 import com.sadaqahcode.muslimlauncher.ui.theme.glass
 
@@ -61,6 +62,7 @@ internal fun AccessibilityFallbackDialog(
     isAccessibilityEnabled: Boolean = false,
     isDeviceAdminEnabled: Boolean = false,
 ) {
+    val s = rememberAccessibilityDialogStrings()
     val isLock = kind == AccessibilityDialogKind.Lock
     var selected by remember { mutableStateOf(LockMethod.Accessibility) }
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -89,7 +91,7 @@ internal fun AccessibilityFallbackDialog(
                 .heightIn(max = if (isLandscape) 440.dp else 620.dp),
         ) {
             if (isLandscape) {
-                // LANDSCAPE: split - left = title + actions, right = scrollable options
+                // LANDSCAPE: split
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -110,23 +112,22 @@ internal fun AccessibilityFallbackDialog(
                         )
                         Spacer(Modifier.height(10.dp))
                         Text(
-                            text = if (isLock) "Double-tap to lock" else "Swipe-down",
+                            text = if (isLock) s.titleLock else s.titleShade,
                             style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.semantics { heading() },
                         )
                         Spacer(Modifier.height(6.dp))
                         Text(
-                            text = if (isLock) "Choose how you want to lock. You only need one."
-                            else "Your device blocks the standard way to open the notification panel.",
+                            text = if (isLock) s.subtitleLock else s.subtitleShade,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Spacer(Modifier.height(16.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Button(onClick = onContinue, modifier = Modifier.weight(1f)) {
-                                Text(if (isLock) "Continue" else "Open Settings")
+                                Text(if (isLock) s.continueLabel else s.openSettingsLabel)
                             }
-                            TextButton(onClick = onDismiss) { Text("Not now") }
+                            TextButton(onClick = onDismiss) { Text(s.notNowLabel) }
                         }
                     }
 
@@ -140,22 +141,22 @@ internal fun AccessibilityFallbackDialog(
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             LockOptionCard(
-                                title = "Accessibility",
-                                subtitle = "Fingerprint still works. Can reset after restart.",
-                                badge = "Recommended",
+                                title = s.accessibilityTitle,
+                                subtitle = s.accessibilityDesc,
+                                badge = s.accessibilityBadge,
                                 icon = Icons.Default.Fingerprint,
                                 selected = selected == LockMethod.Accessibility,
-                                enabledLabel = if (isAccessibilityEnabled) "Enabled" else null,
+                                enabledLabel = if (isAccessibilityEnabled) s.enabledLabel else null,
                                 onClick = { selected = LockMethod.Accessibility },
                                 compact = true,
                             )
                             LockOptionCard(
-                                title = "Device Admin",
-                                subtitle = "Survives restart. May ask PIN instead of fingerprint.",
-                                badge = "Most stable",
+                                title = s.deviceAdminTitle,
+                                subtitle = s.deviceAdminDesc,
+                                badge = s.deviceAdminBadge,
                                 icon = Icons.Default.Lock,
                                 selected = selected == LockMethod.DeviceAdmin,
-                                enabledLabel = if (isDeviceAdminEnabled) "Enabled" else null,
+                                enabledLabel = if (isDeviceAdminEnabled) s.enabledLabel else null,
                                 onClick = { selected = LockMethod.DeviceAdmin },
                                 compact = true,
                             )
@@ -169,7 +170,7 @@ internal fun AccessibilityFallbackDialog(
                             verticalArrangement = Arrangement.Center,
                         ) {
                             Text(
-                                text = "This is only used to open the shade. It does not read your screen or store data.",
+                                text = s.infoShade,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -177,7 +178,7 @@ internal fun AccessibilityFallbackDialog(
                     }
                 }
             } else {
-                // PORTRAIT: vertical + scrollable
+                // PORTRAIT: vertical
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -193,15 +194,14 @@ internal fun AccessibilityFallbackDialog(
                     )
                     Spacer(Modifier.height(12.dp))
                     Text(
-                        text = if (isLock) "Double-tap to lock" else "Swipe-down",
+                        text = if (isLock) s.titleLock else s.titleShade,
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.semantics { heading() },
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = if (isLock) "Choose how you want to lock. You only need one."
-                        else "Your device blocks the standard way to open the notification panel.",
+                        text = if (isLock) s.subtitleLock else s.subtitleShade,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.Center,
@@ -214,45 +214,45 @@ internal fun AccessibilityFallbackDialog(
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             LockOptionCard(
-                                title = "Accessibility",
-                                subtitle = "Fingerprint still works. Can reset after restart.",
-                                badge = "Recommended",
+                                title = s.accessibilityTitle,
+                                subtitle = s.accessibilityDesc,
+                                badge = s.accessibilityBadge,
                                 icon = Icons.Default.Fingerprint,
                                 selected = selected == LockMethod.Accessibility,
-                                enabledLabel = if (isAccessibilityEnabled) "Enabled" else null,
+                                enabledLabel = if (isAccessibilityEnabled) s.enabledLabel else null,
                                 onClick = { selected = LockMethod.Accessibility },
                                 compact = false,
                             )
                             LockOptionCard(
-                                title = "Device Admin",
-                                subtitle = "Survives restart. May ask PIN instead of fingerprint.",
-                                badge = "Most stable",
+                                title = s.deviceAdminTitle,
+                                subtitle = s.deviceAdminDesc,
+                                badge = s.deviceAdminBadge,
                                 icon = Icons.Default.Lock,
                                 selected = selected == LockMethod.DeviceAdmin,
-                                enabledLabel = if (isDeviceAdminEnabled) "Enabled" else null,
+                                enabledLabel = if (isDeviceAdminEnabled) s.enabledLabel else null,
                                 onClick = { selected = LockMethod.DeviceAdmin },
                                 compact = false,
                             )
                         }
                         Spacer(Modifier.height(20.dp))
                         Button(onClick = onContinue, modifier = Modifier.fillMaxWidth()) {
-                            Text("Continue")
+                            Text(s.continueLabel)
                         }
                     } else {
                         Text(
-                            text = "This is only used to open the shade. It does not read your screen or store data.",
+                            text = s.infoShade,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center,
                         )
                         Spacer(Modifier.height(20.dp))
                         Button(onClick = onContinue, modifier = Modifier.fillMaxWidth()) {
-                            Text("Open Settings")
+                            Text(s.openSettingsLabel)
                         }
                     }
 
                     TextButton(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) {
-                        Text("Not now")
+                        Text(s.notNowLabel)
                     }
                 }
             }

@@ -19,7 +19,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.flagodna.debugprint.debugPrint
 import com.sadaqahcode.muslimlauncher.data.repository.InstalledAppsRepository
-import com.sadaqahcode.muslimlauncher.data.local.SettingsDataStore
+import com.sadaqahcode.muslimlauncher.data.local.store.SettingsDataStore
 import com.sadaqahcode.muslimlauncher.data.repository.AppPreferencesRepository
 import com.sadaqahcode.muslimlauncher.domain.model.AppCategory
 import com.sadaqahcode.muslimlauncher.domain.model.LauncherApp

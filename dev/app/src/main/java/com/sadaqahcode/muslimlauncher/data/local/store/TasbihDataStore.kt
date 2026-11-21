@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.data.local
+package com.sadaqahcode.muslimlauncher.data.local.store
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.sadaqahcode.muslimlauncher.di.TasbihDataStore
+import com.sadaqahcode.muslimlauncher.domain.model.tools.HapticMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -18,7 +19,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class TasbihPrefs @Inject constructor(
+class TasbihDataStore @Inject constructor(
     @TasbihDataStore private val dataStore: DataStore<Preferences>,
 ) {
     data class Saved(val freeKey: String?, val freeTarget: Int?)
@@ -28,6 +29,7 @@ class TasbihPrefs @Inject constructor(
         val FavoriteGuided = stringSetPreferencesKey("favorite_guided")
         val LastFree = stringPreferencesKey("last_free_key")
         val FreeTarget = intPreferencesKey("free_target")
+        val HapticMode = stringPreferencesKey("haptic_mode")
     }
 
     private val prefsFlow: Flow<Preferences> = dataStore.data.catch { e ->
@@ -39,6 +41,14 @@ class TasbihPrefs @Inject constructor(
 
     val favoriteGuided: Flow<Set<String>> =
         prefsFlow.map { it[Keys.FavoriteGuided] ?: emptySet() }.distinctUntilChanged()
+
+    val hapticMode: Flow<HapticMode> = prefsFlow
+        .map { p ->
+            p[Keys.HapticMode]?.let { raw ->
+                runCatching { HapticMode.valueOf(raw) }.getOrNull()
+            } ?: HapticMode.Vibration
+        }
+        .distinctUntilChanged()
 
     suspend fun readSaved(): Saved {
         val p = prefsFlow.first()
@@ -55,6 +65,10 @@ class TasbihPrefs @Inject constructor(
 
     suspend fun saveFreeTarget(target: Int) {
         dataStore.edit { it[Keys.FreeTarget] = target }
+    }
+
+    suspend fun saveHapticMode(mode: HapticMode) {
+        dataStore.edit { it[Keys.HapticMode] = mode.name }
     }
 
     private suspend fun toggle(key: Preferences.Key<Set<String>>, value: String) {

@@ -1,6 +1,23 @@
 ## CHANGELOG
 
-### 0.4.2 (2026-11-20)
+### 0.4.2 (2026-11-20) 
+
+#### Added
+- `PT7` feat: i18n base — localized `res/values-<lang>/strings.xml` for 6 locales: en, id, ar, ms, ur, hi (defaults stay in `res/values/strings.xml`)
+- `PT7` feat: i18n — `res/xml/locales_config.xml` with `<locale android:name="…"/>` per supported language, declared as `android:localeConfig` in the manifest
+- `PT7` feat: i18n — user setting for language picker, wired into `SettingsDataStore` and applied via `AppCompatDelegate.setApplicationLocales`
+- `PT7` feat: ui — `ScrimDialog` and `ScrimBottomSheet` helpers under `ui/components/` (shared dim + dismiss pattern for `ModalBottomSheet` / `Dialog`)
+- `PT7` feat: tasbih — `HapticMode` enum (`Haptic`, `Vibration`, `Silent`) with selectable feedback persisted via `TasbihDataStore`
+- `PT7` feat: tasbih — horizontal progress/loading bar at the top of the page while the repository refreshes
+
+#### Changed
+- `PT7` changed: data layer — moved `data/local/` → `data/local/store/`, updated imports across `SettingsDataStore`, `DhikrLocalDataSource`, `TasbihPrefs`, `ToolsPreferences`
+
+#### Fixed
+- `PT7` fix: drawer — duplicate LazyColumn `key` for the same package installed in work and personal profiles; keys now include the user/profile id
+- `PT7` fix: tasbih — loading bar lingered ~1600 ms after a cache hit; min-visible delay now only applies to real network responses, cache reads hide instantly
+
+---
 
 #### Added
 - `PT6` feat: Hilt DI — DataStoreModule with 4 qualified DataStore providers, DatabaseModule with Room + DAO providers

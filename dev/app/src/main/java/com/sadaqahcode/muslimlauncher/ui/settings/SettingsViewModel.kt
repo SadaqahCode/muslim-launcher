@@ -3,10 +3,11 @@ package com.sadaqahcode.muslimlauncher.ui.settings
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.sadaqahcode.muslimlauncher.data.local.SettingsDataStore
+import com.sadaqahcode.muslimlauncher.data.local.store.SettingsDataStore
 import com.sadaqahcode.muslimlauncher.domain.model.AppIconShape
 import com.sadaqahcode.muslimlauncher.domain.model.AppIconSize
 import com.sadaqahcode.muslimlauncher.domain.model.AppItemLayout
+import com.sadaqahcode.muslimlauncher.domain.model.AppLanguage
 import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
 import com.sadaqahcode.muslimlauncher.domain.model.ColorSource
 import com.sadaqahcode.muslimlauncher.domain.model.DarkMode
@@ -118,6 +119,8 @@ class SettingsViewModel @Inject constructor(
             }
         }
     }
+
+    fun setLanguage(v: AppLanguage) = viewModelScope.launch { ds.setLanguage(v) }
 
     fun setWallpaperBlurEnabled(v: Boolean) = viewModelScope.launch {
         ds.setWallpaperBlurEnabled(v)

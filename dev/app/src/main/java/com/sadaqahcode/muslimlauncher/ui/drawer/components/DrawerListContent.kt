@@ -56,7 +56,10 @@ internal fun DrawerListContent(
                         CategoryHeader(category = category, topPadding = topHeaderPadding)
                     }
                 }
-                items(section.apps, key = { it.packageName }) { app ->
+                items(
+                    items = section.apps,
+                    key = { "${it.packageName}|${it.userId}|${it.componentName}" },
+                ) { app ->
                     PinnedAppItem(
                         app = app,
                         onClick = { onAppClick(app) },

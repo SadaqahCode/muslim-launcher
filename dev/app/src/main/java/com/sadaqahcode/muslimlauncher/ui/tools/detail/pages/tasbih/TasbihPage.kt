@@ -1,5 +1,14 @@
 package com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih
 
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
+import androidx.compose.ui.platform.LocalContext
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
@@ -51,12 +60,11 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -95,32 +103,16 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sadaqahcode.muslimlauncher.domain.model.Tool
 import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
 import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrItem
+import com.sadaqahcode.muslimlauncher.domain.model.tools.HapticMode
 import com.sadaqahcode.muslimlauncher.domain.model.tools.name
 import com.sadaqahcode.muslimlauncher.domain.model.tools.text
 import com.sadaqahcode.muslimlauncher.domain.model.tools.title
+import com.sadaqahcode.muslimlauncher.ui.components.ScrimBottomSheet
+import com.sadaqahcode.muslimlauncher.ui.components.ScrimDialog
 import com.sadaqahcode.muslimlauncher.ui.theme.ArabicType
 import com.sadaqahcode.muslimlauncher.ui.theme.GlassEmphasis
 import com.sadaqahcode.muslimlauncher.ui.theme.glass
 
-/*
- * TASBIH, REDESIGN 2
- *
- * Dua mode dengan alur yang benar-benar berbeda:
- *
- *   Bebas     Tanpa alur. Pilih dzikir apa saja, target apa saja (33 / 99 / 100 / tanpa target).
- *             Geser kata ke kiri/kanan untuk pindah dzikir. Hitungan tiap dzikir diingat selama
- *             halaman terbuka. Melewati target tidak menghentikan hitungan.
- *   Terpandu  Rangkaian berurutan. Pindah langkah otomatis, diakhiri panel selesai.
- *
- * Kata dan teks Arab dipotong di layar utama; ketuk kata (atau "Lihat lengkap") untuk membuka
- * pembaca penuh: bottom sheet yang bisa digeser antar dzikir, berisi Arab, latin, arti, rujukan.
- *
- * Favorit (disematkan) disimpan lewat DataStore (TasbihPrefs) dan tampil paling atas.
- *
- * Tanpa warna aksen, tanpa spinner, tanpa gerak berulang, tanpa skor.
- */
-
-/** Semua yang bisa diminta layar kepada ViewModel. */
 private class Actions(
     val onTap: () -> Unit,
     val onReset: () -> Unit,
@@ -135,28 +127,18 @@ private class Actions(
     val onNext: () -> Unit,
     val onPrevious: () -> Unit,
     val onRetry: () -> Unit,
+    val onSetHapticMode: (HapticMode) -> Unit,
 )
 
-/**
- *  Stack    satu kolom. Ponsel potret dan tablet potret (dibatasi 640dp).
- *  Split    kata di kiri, penghitung dan dock di kanan. Lanskap.
- *  Library  Split ditambah rel pustaka tetap. Tablet dan foldable terbuka.
- */
 private enum class TasbihLayout { Stack, Split, Library }
 
-/** Target mode Bebas. 0 = tanpa target. Selaras dengan TasbihViewModel.selectTarget. */
+/** Free mode target. 0 = no target. Aligns with TasbihViewModel.selectTarget. */
 private val Targets = listOf(33, 99, 100, 0)
 
-/*
- * Model Dhikr dari JSON punya `latin` dan `reference`. Kalau nama properti di model domain kamu
- * berbeda, cukup ubah dua fungsi ini.
- */
 private fun Dhikr.latinText(): String = latin.orEmpty()
 private fun Dhikr.referenceText(): String = reference.orEmpty()
 
 private fun Dhikr.displayTitle(language: String): String = title(language).ifEmpty { arabic }
-
-/* ═══════════════════════════ PAGE ═══════════════════════════ */
 
 @Composable
 internal fun TasbihPage(
@@ -167,19 +149,19 @@ internal fun TasbihPage(
     val colors = MaterialTheme.colorScheme
     val state by viewModel.state.collectAsStateWithLifecycle()
     val haptic = LocalHapticFeedback.current
+    val context = LocalContext.current
     val language = LocalLocale.current.platformLocale.language
+    val vibrator = remember(context) { context.vibratorOrNull() }
 
-    // Back saat terpandu kembali ke mode bebas, bukan keluar halaman.
     BackHandler(enabled = state.autoRun) { viewModel.exitGuided() }
 
-    LaunchedEffect(viewModel) {
+    LaunchedEffect(viewModel, vibrator) {
         viewModel.haptics.collect { event ->
-            val type = when (event) {
-                TasbihHaptic.Tap, TasbihHaptic.ResetConfirmNeeded -> HapticFeedbackType.TextHandleMove
-                TasbihHaptic.TargetReached, TasbihHaptic.ResetConfirmed,
-                TasbihHaptic.StepDone, TasbihHaptic.RoutineFinished -> HapticFeedbackType.LongPress
+            when (viewModel.state.value.hapticMode) {
+                HapticMode.Haptic -> haptic.performHapticFeedback(event.hapticFeedbackType())
+                HapticMode.Vibration -> vibrator?.vibrateCompat(event)
+                HapticMode.Silent -> Unit
             }
-            haptic.performHapticFeedback(type)
         }
     }
 
@@ -198,6 +180,7 @@ internal fun TasbihPage(
             onNext = viewModel::nextEntry,
             onPrevious = viewModel::previousEntry,
             onRetry = viewModel::retry,
+            onSetHapticMode = viewModel::setHapticMode,
         )
     }
 
@@ -206,18 +189,33 @@ internal fun TasbihPage(
         containerColor = colors.background,
         contentColor = colors.onBackground,
     ) { innerPadding ->
-        Box(
-            Modifier
+        Column(
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            TasbihContent(
-                toolTitle = stringResource(tool.titleRes),
-                state = state,
-                language = language,
-                actions = actions,
-                onClose = onClose,
-            )
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(2.dp)
+            ) {
+                if (state.isRefreshing) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxSize(),
+                        color = colors.primary,
+                        trackColor = colors.primary.copy(alpha = 0.15f),
+                    )
+                }
+            }
+            Box(Modifier.weight(1f)) {
+                TasbihContent(
+                    toolTitle = stringResource(tool.titleRes),
+                    state = state,
+                    language = language,
+                    actions = actions,
+                    onClose = onClose,
+                )
+            }
         }
     }
 }
@@ -231,16 +229,6 @@ private fun TasbihContent(
     onClose: () -> Unit,
 ) {
     when {
-        state.items.isEmpty() && state.isLoading -> Column(Modifier.fillMaxSize()) {
-            PageHeader(language, onClose) {
-                Text(
-                    text = toolTitle,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f),
-                )
-            }
-        }
-
         state.items.isEmpty() && state.error != null -> MessagePane(
             title = toolTitle,
             message = state.error,
@@ -261,7 +249,6 @@ private fun TasbihContent(
     }
 }
 
-/* ═══════════════════════════ BODY AND LAYOUTS ═══════════════════════════ */
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -272,6 +259,7 @@ private fun TasbihBody(
     actions: Actions,
     onClose: () -> Unit,
 ) {
+    var showHapticDialog by remember { mutableStateOf(false) }
     var showLibrary by remember { mutableStateOf(false) }
     var showReader by remember { mutableStateOf(false) }
     val dhikr = state.activeDhikr ?: return
@@ -316,6 +304,7 @@ private fun TasbihBody(
                     onOpenLibrary = {},
                     onOpenReader = { showReader = true },
                     onClose = onClose,
+                    onOpenHapticDialog = { showHapticDialog = true },
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
@@ -334,6 +323,7 @@ private fun TasbihBody(
                 onOpenLibrary = { showLibrary = true },
                 onOpenReader = { showReader = true },
                 onClose = onClose,
+                onOpenHapticDialog = { showHapticDialog = true },
                 modifier = Modifier.fillMaxSize(),
             )
 
@@ -350,6 +340,7 @@ private fun TasbihBody(
                     onOpenLibrary = { showLibrary = true },
                     onOpenReader = { showReader = true },
                     onClose = onClose,
+                    onOpenHapticDialog = { showHapticDialog = true },
                     modifier = Modifier
                         .widthIn(max = 640.dp)
                         .fillMaxSize(),
@@ -357,13 +348,10 @@ private fun TasbihBody(
             }
         }
 
-        // Pustaka: sheet di mana-mana kecuali tempat rel sudah menampilkannya.
+        // Library: sheets everywhere except where rails already display them.
         if (showLibrary && layout != TasbihLayout.Library) {
-            ModalBottomSheet(
-                onDismissRequest = { showLibrary = false },
-                sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-                containerColor = colors.background.copy(alpha = 0.94f),
-                contentColor = colors.onBackground,
+            ScrimBottomSheet(
+                onDismiss = { showLibrary = false },
             ) {
                 LibraryContent(
                     state = state,
@@ -383,7 +371,7 @@ private fun TasbihBody(
             }
         }
 
-        // Pembaca penuh: kata + Arab + latin + arti + rujukan, bisa digeser.
+        // Full reader: word + Arabic + Latin + meaning + reference, swipeable.
         if (showReader) {
             val readerList: List<Dhikr> = if (state.autoRun) {
                 item?.entries?.map { it.dhikr }.orEmpty()
@@ -411,10 +399,21 @@ private fun TasbihBody(
                 showReader = false
             }
         }
+
+        if (showHapticDialog) {
+            HapticFeedbackDialog(
+                current = state.hapticMode,
+                language = language,
+                onSelect = { mode ->
+                    actions.onSetHapticMode(mode)
+                    showHapticDialog = false
+                },
+                onDismiss = { showHapticDialog = false },
+            )
+        }
     }
 }
 
-/** Header, progres terpandu (bila ada), lalu kata, penghitung dan dock. */
 @Composable
 private fun MainPane(
     toolTitle: String,
@@ -428,6 +427,7 @@ private fun MainPane(
     onOpenLibrary: () -> Unit,
     onOpenReader: () -> Unit,
     onClose: () -> Unit,
+    onOpenHapticDialog: () -> Unit,
     modifier: Modifier,
 ) {
     val colors = MaterialTheme.colorScheme
@@ -453,11 +453,22 @@ private fun MainPane(
                     .then(pickerModifier)
                     .padding(horizontal = 8.dp, vertical = 6.dp),
             ) {
-                Text(
-                    text = toolTitle,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = colors.onSurfaceVariant,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = toolTitle,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = colors.onSurfaceVariant,
+                    )
+                    if (showPicker) {
+                        Text(
+                            text = "•  " + tr(language, "Ganti dzikir", "Change dhikr"),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = colors.primary,
+                            modifier = Modifier.padding(start = 6.dp),
+                        )
+                    }
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = if (guided) item.name(language) else dhikr.displayTitle(language),
@@ -471,7 +482,7 @@ private fun MainPane(
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowDown,
                             contentDescription = null,
-                            tint = colors.onSurfaceVariant,
+                            tint = colors.primary,
                             modifier = Modifier.size(20.dp),
                         )
                     }
@@ -488,6 +499,13 @@ private fun MainPane(
                     else actions.onToggleFavFree(dhikr.freeKey())
                 },
             )
+            IconButton(onClick = onOpenHapticDialog) {
+                Icon(
+                    imageVector = Icons.Default.Tune,
+                    contentDescription = tr(language, "Umpan balik sentuhan", "Touch feedback"),
+                    tint = colors.onSurfaceVariant,
+                )
+            }
         }
 
         if (guided) {
@@ -500,7 +518,6 @@ private fun MainPane(
         }
 
         if (finished) {
-            // Panel selesai mengambil seluruh ruang: tanpa kata, tanpa dock.
             FinishPanel(
                 item = item,
                 language = language,
@@ -573,7 +590,6 @@ private fun MainPane(
     }
 }
 
-/* ═══════════════════════════ HEADER ═══════════════════════════ */
 
 @Composable
 private fun PageHeader(
@@ -614,7 +630,6 @@ private fun FavoriteButton(favorite: Boolean, language: String, onClick: () -> U
     }
 }
 
-/** Hanya tampil saat terpandu. Ketuk untuk kembali ke mode bebas. */
 @Composable
 private fun GuidedBadge(language: String, onExit: () -> Unit) {
     val colors = MaterialTheme.colorScheme
@@ -735,12 +750,12 @@ private fun MessagePane(
 /* ═══════════════════════════ WORDS ═══════════════════════════ */
 
 /**
- * Pratinjau kata. Teks panjang dipotong, lalu muncul "Lihat lengkap"; seluruh area bisa diketuk
- * untuk membuka pembaca penuh.
+- Word preview. Long text is truncated, then "View complete" appears; the entire area can be tapped
+- to open the full reader.
  *
- * Bebas    : geser ke kiri/kanan pindah dzikir (favorit dulu).
- * Terpandu : tidak bisa digeser (geseran tak sengaja tidak boleh melompati langkah),
- *            titik di bawah hanya penanda langkah.
+- Free     : swipe left/right to change dhikr (favorites first).
+- Guided   : cannot be swiped (accidental swipes must not skip steps),
+-            dots at the bottom are step indicators only.
  */
 @Composable
 private fun WordsPane(
@@ -864,7 +879,6 @@ private fun WordsText(d: Dhikr, language: String, onOverflow: (Boolean) -> Unit)
     }
 }
 
-/** Titik seperti page control: langkah sekarang berupa pil panjang. Hanya penanda. */
 @Composable
 private fun EntryDots(
     count: Int,
@@ -898,7 +912,6 @@ private fun EntryDots(
     }
 }
 
-/** Geser horizontal pada kata. Callback selalu terbaru tanpa memulai ulang gestur. */
 @Composable
 private fun Modifier.swipeNavigate(
     enabled: Boolean,
@@ -921,15 +934,6 @@ private fun Modifier.swipeNavigate(
         ) { _, dragAmount -> total += dragAmount }
     }
 }
-
-/* ═══════════════════════════ READER ═══════════════════════════ */
-
-/**
- * Pembaca penuh. Satu halaman per dzikir, bisa digeser. Teks panjang bisa digulir.
- *
- * selectable = true  (mode Bebas): ada tombol "Pakai dzikir ini" dan favorit.
- * selectable = false (Terpandu)  : hanya membaca, tidak mengubah langkah.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ReaderSheet(
@@ -952,71 +956,63 @@ private fun ReaderSheet(
     val isCurrent = shown.freeKey() == currentKey
     val isFavorite = shown.freeKey() in favorites
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = colors.background.copy(alpha = 0.96f),
-        contentColor = colors.onBackground,
+    ScrimBottomSheet(
+        onDismiss = onDismiss,
+        heightFraction = 0.92f,
     ) {
-        Column(
-            Modifier
+        Row(
+            modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.92f)
+                .padding(start = 24.dp, end = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
+            Text(
+                text = "${page + 1} / ${dhikrs.size}",
+                style = MaterialTheme.typography.labelLarge.copy(fontFeatureSettings = "tnum"),
+                color = colors.onSurfaceVariant,
+                modifier = Modifier.weight(1f),
+            )
+            if (selectable) {
+                FavoriteButton(
+                    favorite = isFavorite,
+                    language = language,
+                    onClick = { onToggleFavorite(shown) },
+                )
+            }
+            IconButton(onClick = onDismiss) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = tr(language, "Tutup", "Close"),
+                )
+            }
+        }
+
+        HorizontalPager(
+            state = pager,
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+        ) { index ->
+            ReaderPage(dhikrs[index], language)
+        }
+
+        if (selectable) {
+            PillButton(
+                label = if (isCurrent) {
+                    tr(language, "Sedang dipakai", "In use")
+                } else {
+                    tr(language, "Pakai dzikir ini", "Use this dhikr")
+                },
+                filled = !isCurrent,
+                enabled = !isCurrent,
+                onClick = {
+                    onUse(shown)
+                    onDismiss()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 24.dp, end = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "${page + 1} / ${dhikrs.size}",
-                    style = MaterialTheme.typography.labelLarge.copy(fontFeatureSettings = "tnum"),
-                    color = colors.onSurfaceVariant,
-                    modifier = Modifier.weight(1f),
-                )
-                if (selectable) {
-                    FavoriteButton(
-                        favorite = isFavorite,
-                        language = language,
-                        onClick = { onToggleFavorite(shown) },
-                    )
-                }
-                IconButton(onClick = onDismiss) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = tr(language, "Tutup", "Close"),
-                    )
-                }
-            }
-
-            HorizontalPager(
-                state = pager,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-            ) { index ->
-                ReaderPage(dhikrs[index], language)
-            }
-
-            if (selectable) {
-                PillButton(
-                    label = if (isCurrent) {
-                        tr(language, "Sedang dipakai", "In use")
-                    } else {
-                        tr(language, "Pakai dzikir ini", "Use this dhikr")
-                    },
-                    filled = !isCurrent,
-                    enabled = !isCurrent,
-                    onClick = {
-                        onUse(shown)
-                        onDismiss()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 12.dp),
-                )
-            }
+                    .padding(horizontal = 24.dp, vertical = 12.dp),
+            )
         }
     }
 }
@@ -1083,12 +1079,6 @@ private fun ReaderPage(d: Dhikr, language: String) {
 }
 
 /* ═══════════════════════════ COUNTER ═══════════════════════════ */
-
-/**
- * Seluruh zona adalah tombolnya, jadi ibu jari tidak perlu membidik. Cakram dan cincin hanya
- * gambarnya. Cincin terisi menuju target dengan warna teks biasa; di target, cakram memakai kaca
- * yang lebih terang. Hitungan boleh terus berlanjut melewati target.
- */
 @Composable
 private fun TapCounter(
     count: Int,
@@ -1210,9 +1200,9 @@ private fun TapCounter(
 /* ═══════════════════════════ DOCK ═══════════════════════════ */
 
 /**
- * Kontrol yang penting, dalam jangkauan ibu jari.
- * Bebas   : pilih target, reset.
- * Terpandu: sebelumnya, reset, lewati / selesai.
+- Essential controls, within thumb reach.
+- Free    : select target, reset.
+- Guided  : previous, reset, skip / finish.
  */
 @Composable
 private fun ControlDock(
@@ -1283,7 +1273,6 @@ private fun DockAction(
     }
 }
 
-/** Tombol bulat; setelah ketukan pertama muncul label pendek dan meminta ketukan kedua. */
 @Composable
 private fun ResetControl(
     confirming: Boolean,
@@ -1328,7 +1317,6 @@ private fun ResetControl(
     }
 }
 
-/** Trek kaca dengan jempol kaca lebih terang yang meluncur ke pilihan. */
 @Composable
 private fun SegmentedPicker(
     labels: List<String>,
@@ -1337,7 +1325,6 @@ private fun SegmentedPicker(
     modifier: Modifier = Modifier,
 ) {
     val colors = MaterialTheme.colorScheme
-
     BoxWithConstraints(
         modifier = modifier
             .height(48.dp)
@@ -1397,9 +1384,9 @@ private fun SegmentedPicker(
 /* ═══════════════════════════ LIBRARY ═══════════════════════════ */
 
 /**
- * Bebas   : semua dzikir tunggal, pilih yang mana saja. Favorit disematkan di atas.
- * Terpandu: rangkaian lengkap yang berjalan sendiri. Favorit juga di atas.
- * Isi yang sama menjadi sheet di ponsel dan rel tetap di tablet.
+- Free    : all single dhikr, choose any. Favorites pinned at the top.
+- Guided  : complete sequence that runs automatically. Favorites also at the top.
+- Same content becomes a sheet on phones and a persistent rail on tablets.
  */
 @Composable
 private fun LibraryContent(
@@ -1601,9 +1588,9 @@ private fun LibraryRow(
 /* ═══════════════════════════ FINISH ═══════════════════════════ */
 
 /**
- * Menggantikan seluruh isi halaman saat rangkaian terpandu selesai. Di tempat, bukan dialog.
- * Muncul sekali dengan fade pelan (tidak berulang), tenang, tanpa skor atau hadiah.
- * "Selesai" kembali ke mode bebas, "Ulangi" memulai rangkaian yang sama dari awal.
+- Replaces the entire page content when the guided sequence is finished. In-place, not a dialog.
+- Appears once with a slow fade (non-repeating), calm, without scores or rewards.
+- "Finish" returns to free mode, "Restart" starts the same sequence from the beginning.
  */
 @Composable
 private fun FinishPanel(
@@ -1717,7 +1704,6 @@ private fun FinishPanel(
     }
 }
 
-/** Filled memakai warna teks sebagai latar (kontras tinggi, tetap tanpa aksen). */
 @Composable
 private fun PillButton(
     label: String,
@@ -1748,6 +1734,139 @@ private fun PillButton(
             },
         )
     }
+}
+
+@Composable
+private fun HapticFeedbackDialog(
+    current: HapticMode,
+    language: String,
+    onSelect: (HapticMode) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val colors = MaterialTheme.colorScheme
+    ScrimDialog(onDismiss = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = colors.surface,
+            tonalElevation = 6.dp,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    text = tr(language, "Umpan balik sentuhan", "Touch feedback"),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = colors.onSurface,
+                )
+                Text(
+                    text = tr(
+                        language,
+                        "Pilih bagaimana perangkat merespons setiap ketukan.",
+                        "Choose how your device responds to each tap.",
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 12.dp),
+                )
+                FeedbackRow(
+                    title = tr(language, "Haptik", "Haptic"),
+                    subtitle = tr(
+                        language,
+                        "Getaran halus bawaan sistem. Menghormati pengaturan sentuhan Anda.",
+                        "Subtle system-tuned vibration. Respects your touch-feedback settings.",
+                    ),
+                    selected = current == HapticMode.Haptic,
+                    onClick = { onSelect(HapticMode.Haptic) },
+                )
+                FeedbackRow(
+                    title = tr(language, "Getaran", "Vibration"),
+                    subtitle = tr(
+                        language,
+                        "Getaran langsung. Tetap terasa meski haptik sistem dimatikan.",
+                        "Direct motor vibration. Fires even when system haptics is off.",
+                    ),
+                    selected = current == HapticMode.Vibration,
+                    onClick = { onSelect(HapticMode.Vibration) },
+                )
+                FeedbackRow(
+                    title = tr(language, "Senyap", "Silent"),
+                    subtitle = tr(
+                        language,
+                        "Tanpa umpan balik sentuhan.",
+                        "No tactile feedback.",
+                    ),
+                    selected = current == HapticMode.Silent,
+                    onClick = { onSelect(HapticMode.Silent) },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FeedbackRow(
+    title: String,
+    subtitle: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    val colors = MaterialTheme.colorScheme
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        RadioButton(selected = selected, onClick = null)
+        Spacer(Modifier.width(12.dp))
+        Column(Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.titleSmall, color = colors.onSurface)
+            Text(subtitle, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+        }
+    }
+}
+
+// ── Dispatcher helpers ─────────────────────────────────────────
+
+private fun TasbihHaptic.hapticFeedbackType(): HapticFeedbackType = when (this) {
+    TasbihHaptic.Tap, TasbihHaptic.ResetConfirmNeeded -> HapticFeedbackType.TextHandleMove
+    TasbihHaptic.TargetReached, TasbihHaptic.ResetConfirmed,
+    TasbihHaptic.StepDone, TasbihHaptic.RoutineFinished -> HapticFeedbackType.LongPress
+}
+
+private fun Context.vibratorOrNull(): Vibrator? = try {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        (getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager)?.defaultVibrator
+    } else {
+        @Suppress("DEPRECATION")
+        getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+    }
+} catch (_: Exception) { null }
+
+private fun Vibrator.vibrateCompat(event: TasbihHaptic) {
+    val ms: Long = when (event) {
+        TasbihHaptic.Tap -> 12L
+        TasbihHaptic.ResetConfirmNeeded -> 20L
+        TasbihHaptic.TargetReached, TasbihHaptic.ResetConfirmed,
+        TasbihHaptic.StepDone, TasbihHaptic.RoutineFinished -> 35L
+    }
+    val amplitude: Int = when (event) {
+        TasbihHaptic.Tap -> 80
+        TasbihHaptic.ResetConfirmNeeded -> 130
+        else -> 200
+    }
+    try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrate(VibrationEffect.createOneShot(ms, amplitude))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrate(ms)
+        }
+    } catch (_: Exception) { /* DND / ringer silent may reject; fine */ }
 }
 
 private fun tr(language: String, id: String, en: String) = if (language == "id") id else en

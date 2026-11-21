@@ -124,7 +124,10 @@ internal fun HomeContentLandscape(
                         EmptyPinnedHint(textScale = settings.textSize,)
                     }
                 } else {
-                    items(homeApps, key = { it.packageName }) { app ->
+                    items(
+                        items = homeApps,
+                        key = { "${it.packageName}|${it.userId}|${it.componentName}" },
+                    ) { app ->
                         PinnedAppItem(
                             app = app,
                             onClick = { onLaunch(app) },
