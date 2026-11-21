@@ -22,12 +22,19 @@ import javax.inject.Singleton
 class TasbihDataStore @Inject constructor(
     @TasbihDataStore private val dataStore: DataStore<Preferences>,
 ) {
-    data class Saved(val freeKey: String?, val freeTarget: Int?)
+    data class Saved(
+        val freeKey: String?,
+        val freeTarget: Int?,
+        val lastMode: String?,
+        val lastGuidedKey: String?,
+    )
 
     private object Keys {
         val FavoriteFree = stringSetPreferencesKey("favorite_free")
         val FavoriteGuided = stringSetPreferencesKey("favorite_guided")
         val LastFree = stringPreferencesKey("last_free_key")
+        val LastMode = stringPreferencesKey("last_mode") // "Free" / "Guided"
+        val LastGuided = stringPreferencesKey("last_guided_key")
         val FreeTarget = intPreferencesKey("free_target")
         val HapticMode = stringPreferencesKey("haptic_mode")
     }
@@ -52,7 +59,12 @@ class TasbihDataStore @Inject constructor(
 
     suspend fun readSaved(): Saved {
         val p = prefsFlow.first()
-        return Saved(freeKey = p[Keys.LastFree], freeTarget = p[Keys.FreeTarget])
+        return Saved(
+            freeKey = p[Keys.LastFree],
+            freeTarget = p[Keys.FreeTarget],
+            lastMode = p[Keys.LastMode],
+            lastGuidedKey = p[Keys.LastGuided],
+        )
     }
 
     suspend fun toggleFavoriteFree(key: String) = toggle(Keys.FavoriteFree, key)
@@ -61,6 +73,14 @@ class TasbihDataStore @Inject constructor(
 
     suspend fun saveLastFree(key: String) {
         dataStore.edit { it[Keys.LastFree] = key }
+    }
+
+    suspend fun saveLastMode(mode: String) {
+        dataStore.edit { it[Keys.LastMode] = mode }
+    }
+
+    suspend fun saveLastGuided(key: String) {
+        dataStore.edit { it[Keys.LastGuided] = key }
     }
 
     suspend fun saveFreeTarget(target: Int) {

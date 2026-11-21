@@ -10,6 +10,7 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -22,9 +23,9 @@ internal fun ToolTopAppBar(
     title: String,
     onClose: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
+    appBarColors: TopAppBarColors,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
-    val colors = MaterialTheme.colorScheme
     val isLandscape = isWindowLandscape()
 
     val titleContent: @Composable () -> Unit = {
@@ -42,12 +43,6 @@ internal fun ToolTopAppBar(
             )
         }
     }
-    val appBarColors = TopAppBarDefaults.topAppBarColors(
-        containerColor = colors.background,
-        scrolledContainerColor = colors.background,
-        titleContentColor = colors.onBackground,
-        navigationIconContentColor = colors.onBackground,
-    )
 
     if (isLandscape) {
         TopAppBar(

@@ -49,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sadaqahcode.muslimlauncher.MainActivity
 import com.sadaqahcode.muslimlauncher.domain.model.ToolId
 import com.sadaqahcode.muslimlauncher.domain.model.WallpaperMode
+import com.sadaqahcode.muslimlauncher.domain.model.WallpaperTextMode
 import com.sadaqahcode.muslimlauncher.ui.components.AppContextMenu
 import com.sadaqahcode.muslimlauncher.ui.components.LauncherSnackbarHost
 import com.sadaqahcode.muslimlauncher.ui.components.LauncherSnackbarType
@@ -89,7 +90,13 @@ private val BOTTOM_BAR_HEIGHT = 24.dp
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     onOpenSettings: () -> Unit,
-    onOpenTool: (ToolId) -> Unit,
+    onOpenTool: (
+        toolId: ToolId,
+        wallpaperIsDark: Boolean,
+        wallpaperTextMode: WallpaperTextMode,
+        needsHalo: Boolean,
+        adaptToWallpaper: Boolean,
+    ) -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -371,7 +378,15 @@ fun HomeScreen(
                                             scope.launch { pagerState.animateScrollToPage(HOME_PAGE) }
                                         },
                                         onDoubleTapHome = viewModel::onDoubleTapHome,
-                                        onOpenTool = onOpenTool,
+                                        onOpenTool = { toolId ->
+                                            onOpenTool(
+                                                toolId,
+                                                wallpaperIsDark,
+                                                userSettings.wallpaperTextMode,
+                                                userSettings.wallpaperMode == WallpaperMode.Image,
+                                                userSettings.wallpaperMode != WallpaperMode.System,
+                                            )
+                                        },
                                         pageActive = pagerState.currentPage == TOOLS_PAGE,
                                     )
                                 }

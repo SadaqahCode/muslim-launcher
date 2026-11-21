@@ -2,6 +2,20 @@
 
 ### 0.4.2 (2026-11-20) 
 
+##### Added
+- `PT8` feat: tasbih — `ReaderSheet` bottom action `Row` (`Pakai dzikir ini` + `Tutup`), `Tutup` always enabled, `Pakai` disabled when not selectable / in use
+- `PT8` feat: tasbih — persist last open dhikr / last tab via `TasbihDataStore`, auto-select on reopen
+
+##### Changed
+- `PT8` changed: tasbih — split `TasbihPage` into `components/` (`ReaderSheet`, `ReaderPage`, etc.)
+- `PT8` changed: nav — detail tools navigation via manual `onOpenTool` params, `ToolDetailViewModel` for detail shell settings
+
+##### Fixed
+- `PT8` fix: tasbih — `ReaderSheet` jump on fast fling overscroll; sheet now full height (`heightFraction = 1f`), fling swallowed, drag still dismisses
+- `PT8` fix: tasbih — favorites on top, guided display uses saved last mode
+
+---
+
 #### Added
 - `PT7` feat: i18n base — localized `res/values-<lang>/strings.xml` for 6 locales: en, id, ar, ms, ur, hi (defaults stay in `res/values/strings.xml`)
 - `PT7` feat: i18n — `res/xml/locales_config.xml` with `<locale android:name="…"/>` per supported language, declared as `android:localeConfig` in the manifest

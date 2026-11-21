@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.ui.tools.detail.pages
+package com.sadaqahcode.muslimlauncher.ui.tools.detail.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,18 +19,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
+import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
 import com.sadaqahcode.muslimlauncher.domain.model.UserSettings
-import com.sadaqahcode.muslimlauncher.ui.theme.LegibleColors
-import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.theme.Wallpaper
-import com.sadaqahcode.muslimlauncher.ui.tools.detail.components.ToolPageCard
-import com.sadaqahcode.muslimlauncher.ui.tools.detail.components.ToolPageDefaults
-import com.sadaqahcode.muslimlauncher.ui.tools.detail.components.ToolTopAppBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun NotFoundPage(onClose: () -> Unit, settings: UserSettings, scheme: ColorScheme) {
+internal fun NotFoundPage(
+    onClose: () -> Unit,
+    settings: UserSettings,
+    scheme: ColorScheme,
+    textScale: AppTextSize,
+) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
+    val appBarColors = TopAppBarDefaults.topAppBarColors(
+        containerColor = Color.Transparent,
+        scrolledContainerColor = Color.Transparent,
+        titleContentColor = scheme.onBackground,
+        navigationIconContentColor = scheme.onBackground,
+    )
 
     Box(Modifier.fillMaxSize()) {
         Wallpaper(settings = settings, modifier = Modifier.fillMaxSize())
@@ -44,16 +52,21 @@ internal fun NotFoundPage(onClose: () -> Unit, settings: UserSettings, scheme: C
                     title = "Tool not found",
                     onClose = onClose,
                     scrollBehavior = scrollBehavior,
+                    appBarColors = appBarColors
                 )
             },
         ) { innerPadding ->
-            NotFoundContent(innerPadding, scheme = scheme)
+            NotFoundContent(innerPadding, scheme = scheme, textScale = textScale)
         }
     }
 }
 
 @Composable
-private fun NotFoundContent(contentPadding: PaddingValues, scheme: ColorScheme) {
+private fun NotFoundContent(
+    contentPadding: PaddingValues,
+    scheme: ColorScheme,
+    textScale: AppTextSize,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -68,12 +81,12 @@ private fun NotFoundContent(contentPadding: PaddingValues, scheme: ColorScheme) 
             ) {
                 Text(
                     text = "This tool is not available.",
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = textScale.scaled(MaterialTheme.typography.bodyLarge),
                     color = scheme.onSurface,
                 )
                 Text(
                     text = "It may have been removed or renamed in this version.",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = textScale.scaled(MaterialTheme.typography.bodySmall),
                     color = scheme.onSurfaceVariant,
                 )
             }

@@ -17,9 +17,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.sadaqahcode.muslimlauncher.domain.model.Tool
 import com.sadaqahcode.muslimlauncher.domain.model.ToolId
 import com.sadaqahcode.muslimlauncher.domain.model.ToolRegistry
+import com.sadaqahcode.muslimlauncher.domain.model.WallpaperTextMode
 import com.sadaqahcode.muslimlauncher.ui.home.HomeScreen
 import com.sadaqahcode.muslimlauncher.ui.home.HomeViewModel
 import com.sadaqahcode.muslimlauncher.ui.settings.SettingsScreen
@@ -38,7 +38,6 @@ fun AppNavHost() {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
-
         enterTransition = {
             slideInHorizontally(tween(NAV_DURATION, easing = navEasing)) { it } +
                     fadeIn(tween(NAV_DURATION))
@@ -58,15 +57,24 @@ fun AppNavHost() {
     ) {
         composable(AppRoutes.HOME) {
             val vm: HomeViewModel = hiltViewModel()
+
             HomeScreen(
                 viewModel = vm,
                 onOpenSettings = {
                     navController.navigate(AppRoutes.SETTINGS) {
                         launchSingleTop = true
                     }
-                },
-                onOpenTool = { toolId ->
-                    navController.navigate(AppRoutes.toolDetail(toolId)) {
+                }, 
+                onOpenTool = { toolId, wallpaperIsDark, wallpaperTextMode, needsHalo, adaptToWallpaper ->
+                    navController.navigate(
+                        AppRoutes.toolDetail(
+                            toolId = toolId,
+                            wallpaperIsDark = wallpaperIsDark,
+                            wallpaperTextMode = wallpaperTextMode,
+                            needsHalo = needsHalo,
+                            adaptToWallpaper = adaptToWallpaper,
+                        )
+                    ) {
                         launchSingleTop = true
                     }
                 },
@@ -80,16 +88,28 @@ fun AppNavHost() {
         composable(
             route = AppRoutes.TOOL_DETAIL,
             arguments = listOf(
-                navArgument("toolId") { type = NavType.StringType }
+                navArgument("toolId") { type = NavType.StringType },
+                navArgument("dark") { type = NavType.BoolType; defaultValue = false },
+                navArgument("mode") { type = NavType.StringType; defaultValue = WallpaperTextMode.Auto.name },
+                navArgument("halo") { type = NavType.BoolType; defaultValue = true },
+                navArgument("adapt") { type = NavType.BoolType; defaultValue = true },
             ),
         ) { backStackEntry ->
-            val toolKey: String? = backStackEntry.arguments?.getString("toolId")
-            val toolId: ToolId? = ToolId.entries.firstOrNull { item -> item.key == toolKey }
-            val tool: Tool? = toolId?.let { id -> ToolRegistry.byId[id] }
+            val toolKey = backStackEntry.arguments?.getString("toolId")
+            val toolId = ToolId.entries.firstOrNull { it.key == toolKey }
+            val tool = toolId?.let { ToolRegistry.byId[it] }
+
+            val modeRaw = backStackEntry.arguments?.getString("mode")
+            val mode = runCatching { WallpaperTextMode.valueOf(modeRaw ?: "Auto") }
+                .getOrDefault(WallpaperTextMode.Auto)
 
             ToolDetailScreen(
                 tool = tool,
                 onClose = { navController.popBackStack() },
+                wallpaperIsDark = backStackEntry.arguments?.getBoolean("dark") ?: false,
+                wallpaperTextMode = mode,
+                needsHalo = backStackEntry.arguments?.getBoolean("halo") ?: true,
+                adaptToWallpaper = backStackEntry.arguments?.getBoolean("adapt") ?: true,
             )
         }
     }
