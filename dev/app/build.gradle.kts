@@ -129,7 +129,7 @@ dependencies {
     ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.0")
     implementation(libs.hilt.lifecycle.viewmodel.compose)
     implementation("com.google.dagger:hilt-android:2.59.2")
-    ksp("com.google.dagger:hilt-android-compiler:2.59.2")
+    ksp("com.google.dagger:hilt-android-compiler:2.60.1")
 
 
     // ── Persistence ────────────────────────────────────────────────────────
