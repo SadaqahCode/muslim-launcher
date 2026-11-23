@@ -1,6 +1,22 @@
 ## CHANGELOG
 
-### 0.4.2 (2026-11-20) 
+### 0.4.2 (2026-11-20)
+ 
+##### Added
+- `PT10` feat: settings — `setWallpaperMode(v, schemeBackground)`, System = `colorScheme.background`, applied to lockscreen
+- `PT10` feat: settings — `setDarkMode(v, schemeBackground)` + `LaunchedEffect` listener for System wallpaper
+- `PT10` feat: home — rotate listener, pager remap / clamp
+
+##### Changed
+- `PT10` changed: settings — System uses bg image path, no `clear()` / read system file
+- `PT10` changed: tools — auto scroll top on close / unfocus / back to Home
+
+##### Fixed
+- `PT10` fix: settings — stale `wallpaperColor` copy, `READ_EXTERNAL_STORAGE` `SecurityException` on System
+- `PT10` fix: settings — `MaterialTheme` inside `remember { }` crash
+- `PT10` fix: home — test AVD S8 Android 9 rotate layout broken, pager out of range
+
+---
 
 ##### Added
 - `PT9` feat: nav — center dot / Home pill listener button to action, tap center dot = back to home page, not FAB

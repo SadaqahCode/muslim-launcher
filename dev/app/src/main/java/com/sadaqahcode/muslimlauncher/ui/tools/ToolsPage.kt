@@ -57,6 +57,9 @@ fun ToolsPage(
             .mapNotNull { ToolRegistry.byId[it] }
     }
 
+    // MOVED UP: must be before LaunchedEffect(pageActive)
+    val gridState = rememberLazyGridState()
+
     fun saveAndClose() {
         val order = latestDraftOrder ?: allTools.map { it.id }
         val enabled = latestDraftEnabled ?: allTools.associate { it.id to prefs.isEnabled(it.id) }
@@ -71,10 +74,14 @@ fun ToolsPage(
         isReorderMode = true
     }
 
-    // Swipe to Home / Widget = pageActive false -> save and close
+    // Swipe to Home / Widget = pageActive false -> save + scroll direct to top
     LaunchedEffect(pageActive) {
-        if (!pageActive && isReorderMode) {
-            saveAndClose()
+        if (!pageActive) {
+            if (isReorderMode) {
+                saveAndClose()
+            }
+            // Direct jump, no animation
+            gridState.scrollToItem(0)
         }
     }
 
@@ -106,7 +113,6 @@ fun ToolsPage(
 
     val lc = LocalLegibleColors.current
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val gridState = rememberLazyGridState()
     val scrollbarSettings = remember {
         ScrollbarSettings.Default.copy(
             thumbThickness = 5.dp,

@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
@@ -105,6 +106,10 @@ fun SettingsScreen(
     val context = LocalContext.current
     val colors = MaterialTheme.colorScheme
     val wallpaperApplying by viewModel.wallpaperApplying.collectAsStateWithLifecycle()
+
+    val schemeBackground = "#%06X".format(
+        0xFFFFFF and MaterialTheme.colorScheme.background.toArgb()
+    )
 
     // Android 12+ is needed for both of these. Where it is missing, dynamic color is not
     val atLeastAndroid12 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
@@ -303,7 +308,9 @@ fun SettingsScreen(
                                 WallpaperMode.Image -> "Image"
                             }
                         },
-                        onSelect = viewModel::setWallpaperMode,
+                        onSelect = { mode ->
+                            viewModel.setWallpaperMode(mode, schemeBackground)
+                        },
                     )
 
                     RowDivider()
@@ -641,7 +648,6 @@ private fun SwitchRow(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun <T> ChoiceRow(
     title: String,
@@ -822,8 +828,6 @@ private fun trackColor(): Color {
 }
 
 // Swatch pickers
-
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ColorSwatchGrid(
     presets: List<ColorPreset>,

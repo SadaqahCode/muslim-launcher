@@ -23,17 +23,24 @@ internal suspend fun applyToSystemWallpaper(
     context: Context,
     settings: UserSettings,
 ) {
-    if (settings.wallpaperMode == WallpaperMode.System) return
-
     withContext(Dispatchers.IO) {
         val wm = WallpaperManager.getInstance(context)
 
         // Build the "apply" closure once; reuse it across the fallback chain.
-        // Returns true on success, false on failure (exception caught, logged).
         suspend fun tryApply(flags: Int, label: String): Boolean {
             return try {
                 when (settings.wallpaperMode) {
-                    WallpaperMode.System -> Unit
+                    WallpaperMode.System -> {
+                        val color = runCatching {
+                            settings.wallpaperColor.toColorInt()
+                        }.getOrNull() ?: return false
+                        val bmp = solidBitmap(color)
+                        try {
+                            setBitmapCompat(wm, bmp, flags)
+                        } finally {
+                            bmp.recycle()
+                        }
+                    }
 
                     WallpaperMode.Color -> {
                         val color = runCatching {

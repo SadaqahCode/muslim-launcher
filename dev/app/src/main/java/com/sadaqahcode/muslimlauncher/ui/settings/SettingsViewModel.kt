@@ -53,6 +53,7 @@ class SettingsViewModel @Inject constructor(
     fun setDockSlots(v: Int) = viewModelScope.launch { ds.setDockSlots(v) }
     fun setMaxPinned(v: Int) = viewModelScope.launch { ds.setMaxPinned(v) }
     */
+
     fun setDarkMode(v: DarkMode) = viewModelScope.launch { ds.setDarkMode(v) }
 
     // Color source
@@ -68,19 +69,18 @@ class SettingsViewModel @Inject constructor(
         ds.setWallpaperTextMode(v)
     }
 
-    fun setWallpaperMode(v: WallpaperMode) = viewModelScope.launch {
-        // System mode is a no-op for the system wallpaper (we just stop
-        // overlaying an app-level color/image), so it doesn't need the
-        // spinner. Color / Gradient / Image do write the system wallpaper.
-        if (v == WallpaperMode.System) {
-            ds.setWallpaperMode(v)
-            return@launch
-        }
+    fun setWallpaperMode(v: WallpaperMode, schemeBackground: String) = viewModelScope.launch {
         runWallpaperApply {
+            if (v == WallpaperMode.System) {
+                ds.setWallpaperColor(schemeBackground)
+            }
             ds.setWallpaperMode(v)
             applyToSystemWallpaper(
                 getApplication(),
-                settings.value.copy(wallpaperMode = v),
+                settings.value.copy(
+                    wallpaperMode = v,
+                    wallpaperColor = if (v == WallpaperMode.System) schemeBackground else settings.value.wallpaperColor
+                ),
             )
         }
     }

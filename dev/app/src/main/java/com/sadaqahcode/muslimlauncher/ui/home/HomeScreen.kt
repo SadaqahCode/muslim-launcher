@@ -43,9 +43,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -124,7 +123,6 @@ fun HomeScreen(
     val selectedApp by viewModel.selectedApp.collectAsStateWithLifecycle()
     val message by viewModel.message.collectAsStateWithLifecycle()
 
-    // Work profile: call state from ViewModel
     val hasWorkProfile by viewModel.hasWorkProfile.collectAsStateWithLifecycle()
     val isWorkPaused by viewModel.isWorkPaused.collectAsStateWithLifecycle()
     val workApps by viewModel.workApps.collectAsStateWithLifecycle()
@@ -138,15 +136,10 @@ fun HomeScreen(
     )
     val drawerShown by remember { derivedStateOf { sheet.progress > 0f } }
 
-    // Use the actual composition container size - must be before pagerState
-    val windowInfo = LocalWindowInfo.current
-    val density = LocalDensity.current
-    val widthDp = with(density) {
-        windowInfo.containerSize.width.toDp().value.toInt()
-    }
-    val heightDp = with(density) {
-        windowInfo.containerSize.height.toDp().value.toInt()
-    }
+    // FIXED: LocalConfiguration, not LocalWindowInfo - works on API 28 rotate
+    val configuration = LocalConfiguration.current
+    val widthDp = configuration.screenWidthDp
+    val heightDp = configuration.screenHeightDp
 
     LaunchedEffect(widthDp, heightDp) {
         viewModel.onScreenSizeChanged(widthDp, heightDp)
@@ -169,16 +162,18 @@ fun HomeScreen(
 
     // Remap current page on rotation so HOME stays HOME, TOOLS stays TOOLS
     var prevIsLargeLandscape by remember { mutableStateOf<Boolean?>(null) }
-    LaunchedEffect(isLargeLandscape) {
+    LaunchedEffect(isLargeLandscape, effectivePageCount) {
         if (prevIsLargeLandscape == null) {
             prevIsLargeLandscape = isLargeLandscape
             return@LaunchedEffect
         }
         if (prevIsLargeLandscape == isLargeLandscape) return@LaunchedEffect
+
         if (isLargeLandscape) {
             when (pagerState.currentPage) {
                 HOME_PAGE -> pagerState.scrollToPage(0)
                 TOOLS_PAGE -> pagerState.scrollToPage(1)
+                WIDGET_PAGE -> pagerState.scrollToPage(0)
             }
         } else {
             when (pagerState.currentPage) {
@@ -187,6 +182,13 @@ fun HomeScreen(
             }
         }
         prevIsLargeLandscape = isLargeLandscape
+    }
+
+    // Safety clamp if page is out of bounds after rotate
+    LaunchedEffect(effectivePageCount) {
+        if (pagerState.currentPage >= effectivePageCount) {
+            pagerState.scrollToPage(homePageIndex)
+        }
     }
 
     // i18n
@@ -322,7 +324,6 @@ fun HomeScreen(
                 }
             )
     ) {
-        // ── Layer 0+1: home  ──
         Box(
             Modifier
                 .fillMaxSize()
@@ -346,7 +347,6 @@ fun HomeScreen(
                     .padding(innerPadding)
 
                 BoxWithConstraints(contentModifier) {
-                    // isLandscape already from widthDp > heightDp, don't use maxWidth > maxHeight here
                     val showBottomBar = pagerState.currentPage != toolsPageIndex
 
                     val barHorizontalShift = if (isLandscape && !isLargeLandscape && pagerState.currentPage == homePageIndex) {
@@ -437,7 +437,6 @@ fun HomeScreen(
                                                 )
                                             }
                                         }
-                                        // Soft hide / show
                                         val homeAlpha by animateFloatAsState(
                                             targetValue = if (drawerVisible) 0f else 1f,
                                             animationSpec = tween(250),
@@ -472,7 +471,6 @@ fun HomeScreen(
                                         )
                                     }
                                     else -> {
-                                        // Only exists when !isLargeLandscape
                                         val widgetAlpha by animateFloatAsState(
                                             targetValue = if (drawerVisible) 0f else 1f,
                                             animationSpec = tween(250),
@@ -522,7 +520,6 @@ fun HomeScreen(
             }
         }
 
-        // ── Layer 3: drawer
         if (drawerShown) {
             Box(
                 Modifier
@@ -558,7 +555,6 @@ fun HomeScreen(
             }
         }
 
-        // ── Layer 4: context menu
         selectedApp?.let { app ->
             AppContextMenu(
                 app = app,
