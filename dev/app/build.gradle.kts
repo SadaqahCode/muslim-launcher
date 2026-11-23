@@ -83,7 +83,7 @@ android {
     }
     configurations.all {
         resolutionStrategy {
-            force("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.0")
+            force("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
         }
     }
     buildFeatures {
@@ -126,7 +126,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.13.0")
 
     // Hilt
-    ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.0")
+    ksp("org.jetbrains.kotlin:kotlin-metadata-jvm:2.4.21")
     implementation(libs.hilt.lifecycle.viewmodel.compose)
     implementation("com.google.dagger:hilt-android:2.59.2")
     ksp("com.google.dagger:hilt-android-compiler:2.59.2")
