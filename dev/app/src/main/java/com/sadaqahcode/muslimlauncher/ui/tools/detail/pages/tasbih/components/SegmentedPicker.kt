@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,14 +39,15 @@ fun SegmentedPicker(
     labels: List<String>,
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
+    scheme: ColorScheme,
     modifier: Modifier = Modifier,
 ) {
-    val colors = MaterialTheme.colorScheme
+    val defaultColors = MaterialTheme.colorScheme
     BoxWithConstraints(
         modifier = modifier
             .height(48.dp)
             .clip(CircleShape)
-            .background(colors.onSurface.copy(alpha = 0.06f))
+            .background(defaultColors.onSurface.copy(alpha = 0.06f))
             .padding(2.dp)
             .selectableGroup(),
     ) {
@@ -87,7 +89,7 @@ fun SegmentedPicker(
                         text = label,
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                        color = if (isSelected) colors.onSurface else colors.onSurfaceVariant,
+                        color = if (isSelected) defaultColors.onSurface else defaultColors.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )

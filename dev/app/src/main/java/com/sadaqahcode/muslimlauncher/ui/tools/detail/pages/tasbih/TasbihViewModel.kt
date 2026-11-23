@@ -41,29 +41,22 @@ sealed interface TasbihHaptic {
     data object RoutineFinished : TasbihHaptic
 }
 
-private const val MIN_BAR_VISIBLE_MS = 1600L
-private const val INSTANT_RESPONSE_MS = 100L
-
 enum class TasbihMode { Free, Guided }
 
 fun Dhikr.freeKey(): String = arabic
 fun DhikrItem.guidedKey(): String = name("en")
 
 data class TasbihUiState(
-    val isRefreshing: Boolean = true,
+    val isRefreshing: Boolean = false,
     val error: String? = null,
     val items: List<DhikrItem> = DefaultDhikrItems.ALL,
     val mode: TasbihMode = TasbihMode.Free,
     val confirmingReset: Boolean = false,
     val hapticMode: HapticMode = HapticMode.Haptic,
-
-    // Free
     val selectedFreeKey: String? = null,
     val freeTarget: Int = 33,
     val freeCounts: Map<String, Int> = emptyMap(),
     val favoriteFree: Set<String> = emptySet(),
-
-    // Guided
     val selectedItemIndex: Int = 0,
     val entryIndex: Int = 0,
     val guidedCount: Int = 0,
@@ -71,40 +64,28 @@ data class TasbihUiState(
     val favoriteGuided: Set<String> = emptySet(),
 ) {
     val autoRun: Boolean get() = mode == TasbihMode.Guided
-
     val freeList: List<Dhikr>
         get() = items.flatMap { it.entries }.map { it.dhikr }.distinctBy { it.freeKey() }
-
-    // Favorites top, primary. Stable sort keeps original order inside each group.
     val freeDisplay: List<Dhikr>
         get() = freeList.sortedByDescending { it.freeKey() in favoriteFree }
-
-    // Guided list also favorites top for library, but keeps position order inside groups
     val guidedDisplay: List<DhikrItem>
         get() = items.sortedByDescending { it.guidedKey() in favoriteGuided }
-
     val currentFree: Dhikr?
         get() = freeList.firstOrNull { it.freeKey() == selectedFreeKey } ?: freeDisplay.firstOrNull()
-
     val currentItem: DhikrItem? get() = items.getOrNull(selectedItemIndex)
     val currentEntry: DhikrEntry? get() = currentItem?.entries?.getOrNull(entryIndex)
     val guidedDhikr: Dhikr? get() = currentEntry?.dhikr
     val isLastEntry: Boolean
         get() = entryIndex >= (currentItem?.entries?.lastIndex ?: 0)
-
     val activeDhikr: Dhikr? get() = if (autoRun) guidedDhikr else currentFree
-
     val count: Int
         get() = if (autoRun) guidedCount
         else currentFree?.let { freeCounts[it.freeKey()] } ?: 0
-
     val target: Int
         get() = if (autoRun) currentEntry?.repetitions ?: 0 else freeTarget
-
     val isFavoriteCurrent: Boolean
         get() = if (autoRun) currentItem?.guidedKey()?.let { it in favoriteGuided } ?: false
         else currentFree?.freeKey()?.let { it in favoriteFree } ?: false
-
     val totalRepetitions: Int get() = currentItem?.entries?.sumOf { it.repetitions } ?: 0
     val doneRepetitions: Int
         get() = if (finished) totalRepetitions
@@ -120,9 +101,6 @@ class TasbihViewModel @Inject constructor(
     private val settingsDs: SettingsDataStore,
 ) : ViewModel() {
 
-    private var hideBarJob: Job? = null
-    private var barShownAt: Long = 0L
-
     private val _state = MutableStateFlow(TasbihUiState())
     val state: StateFlow<TasbihUiState> = _state.asStateFlow()
 
@@ -130,7 +108,6 @@ class TasbihViewModel @Inject constructor(
     val haptics: SharedFlow<TasbihHaptic> = _haptics.asSharedFlow()
 
     private var resetConfirmJob: Job? = null
-
 
     val settings: StateFlow<UserSettings> = settingsDs.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UserSettings())
@@ -148,9 +125,7 @@ class TasbihViewModel @Inject constructor(
 
         viewModelScope.launch {
             val saved = prefs.readSaved()
-            // Last tab: Free / Guided, default Free
             val savedMode = runCatching { TasbihMode.valueOf(saved.lastMode ?: "Free") }.getOrDefault(TasbihMode.Free)
-            // Last guided: find index by key, else 0
             val savedGuidedIndex = DefaultDhikrItems.ALL.indexOfFirst { it.guidedKey() == saved.lastGuidedKey }.takeIf { it >= 0 } ?: 0
             _state.update {
                 it.copy(
@@ -170,27 +145,22 @@ class TasbihViewModel @Inject constructor(
         tryOnlineFirst: Boolean = false,
         cacheValiditySeconds: Long = DhikrRepository.DEFAULT_CACHE_VALIDITY_SECONDS,
     ) {
-        hideBarJob?.cancel()
-        barShownAt = System.currentTimeMillis()
+        // Show content instantly, refresh in background. No 1600ms forced bar.
         _state.update { it.copy(isRefreshing = true, error = null) }
 
         getDhikrItems(tryOnlineFirst, cacheValiditySeconds)
             .onEach { result ->
                 when (result) {
                     Result.Loading -> Unit
-
                     is Result.Success -> {
-                        val wasInstant = System.currentTimeMillis() - barShownAt < INSTANT_RESPONSE_MS
                         val fresh = result.data
                         if (fresh.isEmpty()) {
-                            scheduleHideBar(wasInstant)
+                            _state.update { it.copy(isRefreshing = false) }
                             return@onEach
                         }
                         _state.update { current ->
-                            // Resolve last guided key to index in fresh list
                             val savedGuidedKey = current.items.getOrNull(current.selectedItemIndex)?.guidedKey()
                             val newItemIndex = if (current.mode == TasbihMode.Guided) {
-                                // Keep last guided if still exists, else first favorite guided, else 0
                                 val byKey = fresh.indexOfFirst { it.guidedKey() == savedGuidedKey }.takeIf { it >= 0 }
                                 val byFav = fresh.indexOfFirst { it.guidedKey() in current.favoriteGuided }.takeIf { it >= 0 }
                                 byKey ?: byFav ?: 0
@@ -199,46 +169,29 @@ class TasbihViewModel @Inject constructor(
                             }
                             val entryCount = fresh.getOrNull(newItemIndex)?.entries?.size ?: 0
                             val newEntryIndex = current.entryIndex.coerceIn(0, (entryCount - 1).coerceAtLeast(0))
-
                             val next = current.copy(
                                 items = fresh,
                                 error = null,
                                 selectedItemIndex = newItemIndex,
                                 entryIndex = newEntryIndex,
                                 confirmingReset = false,
+                                isRefreshing = false,
                             )
-                            // Auto-select free: last saved -> else first favorite -> else first
                             val freeKey = next.selectedFreeKey?.takeIf { k -> next.freeList.any { it.freeKey() == k } }
                                 ?: next.freeDisplay.firstOrNull { it.freeKey() in next.favoriteFree }?.freeKey()
                                 ?: next.freeDisplay.firstOrNull()?.freeKey()
                             next.copy(selectedFreeKey = freeKey)
                         }
-                        scheduleHideBar(wasInstant)
                     }
-
                     is Result.Error -> {
-                        val wasInstant = System.currentTimeMillis() - barShownAt < INSTANT_RESPONSE_MS
                         _state.update { current ->
-                            if (current.items.isEmpty()) current.copy(error = result.message)
-                            else current
+                            if (current.items.isEmpty()) current.copy(error = result.message, isRefreshing = false)
+                            else current.copy(isRefreshing = false)
                         }
-                        scheduleHideBar(wasInstant)
                     }
                 }
             }
             .launchIn(viewModelScope)
-    }
-
-    private fun scheduleHideBar(wasInstant: Boolean = false) {
-        hideBarJob?.cancel()
-        hideBarJob = viewModelScope.launch {
-            if (!wasInstant) {
-                val elapsed = System.currentTimeMillis() - barShownAt
-                val remaining = (MIN_BAR_VISIBLE_MS - elapsed).coerceAtLeast(0L)
-                if (remaining > 0) delay(remaining.milliseconds)
-            }
-            _state.update { it.copy(isRefreshing = false) }
-        }
     }
 
     fun setHapticMode(mode: HapticMode) {
@@ -246,7 +199,6 @@ class TasbihViewModel @Inject constructor(
         viewModelScope.launch { prefs.saveHapticMode(mode) }
     }
 
-    // ── FREE ──
     fun selectFree(key: String) {
         val s = _state.value
         if (s.freeList.none { it.freeKey() == key }) return
@@ -290,7 +242,6 @@ class TasbihViewModel @Inject constructor(
         viewModelScope.launch { prefs.toggleFavoriteGuided(key) }
     }
 
-    // ── GUIDED ──
     fun startGuided(itemIndex: Int) {
         val items = _state.value.items
         if (itemIndex !in items.indices) return
@@ -352,14 +303,12 @@ class TasbihViewModel @Inject constructor(
         _state.update { it.copy(entryIndex = index, guidedCount = 0, confirmingReset = false) }
     }
 
-    // ── TAP / RESET ──
     fun tap() {
         val s = _state.value
         if (s.items.isEmpty() || s.finished) return
         cancelResetConfirm()
         val target = s.target
         val next = s.count + 1
-
         if (s.autoRun) {
             if (target in 1..next) {
                 if (s.isLastEntry) {
@@ -375,13 +324,11 @@ class TasbihViewModel @Inject constructor(
             }
             return
         }
-
         if (target > 0 && s.count >= target) {
             _state.update { it.withCount(0) }
             _haptics.tryEmit(TasbihHaptic.ResetConfirmed)
             return
         }
-
         _state.update { it.withCount(next) }
         if (target > 0 && next == target) {
             _haptics.tryEmit(TasbihHaptic.TargetReached)
@@ -393,14 +340,12 @@ class TasbihViewModel @Inject constructor(
     fun requestReset() {
         val s = _state.value
         if (s.count == 0) return
-
         if (s.confirmingReset) {
             cancelResetConfirm()
             _state.update { it.withCount(0) }
             _haptics.tryEmit(TasbihHaptic.ResetConfirmed)
             return
         }
-
         _state.update { it.copy(confirmingReset = true) }
         _haptics.tryEmit(TasbihHaptic.ResetConfirmNeeded)
         resetConfirmJob?.cancel()
@@ -423,7 +368,5 @@ class TasbihViewModel @Inject constructor(
 
     override fun onCleared() {
         cancelResetConfirm()
-        hideBarJob?.cancel()
-        hideBarJob = null
     }
 }

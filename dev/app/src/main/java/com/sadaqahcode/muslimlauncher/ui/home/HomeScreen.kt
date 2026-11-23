@@ -1,22 +1,25 @@
 package com.sadaqahcode.muslimlauncher.ui.home
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -25,12 +28,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -39,6 +44,8 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -82,10 +89,7 @@ private const val PAGE_COUNT = 3
 private val SHADE_SWIPE_THRESHOLD = 80.dp
 private const val SHEET_PROGRESS_EPSILON = 0.01f
 
-private const val MAX_SCRIM_ALPHA = 0.45f
-
-private val BOTTOM_BAR_HEIGHT = 24.dp
-
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
@@ -134,8 +138,56 @@ fun HomeScreen(
     )
     val drawerShown by remember { derivedStateOf { sheet.progress > 0f } }
 
-    val pagerState = rememberPagerState(initialPage = HOME_PAGE, pageCount = { PAGE_COUNT })
+    // Use the actual composition container size - must be before pagerState
+    val windowInfo = LocalWindowInfo.current
+    val density = LocalDensity.current
+    val widthDp = with(density) {
+        windowInfo.containerSize.width.toDp().value.toInt()
+    }
+    val heightDp = with(density) {
+        windowInfo.containerSize.height.toDp().value.toInt()
+    }
+
+    LaunchedEffect(widthDp, heightDp) {
+        viewModel.onScreenSizeChanged(widthDp, heightDp)
+    }
+
+    val maxWidth = pageMaxWidthFor(widthDp)
+    val contentMaxWidth = pageMaxWidthFor(widthDp)
+    val isLandscape = widthDp > heightDp
+    val isLargeLandscape = isLandscape && widthDp >= 1200
+    val shortSide = minOf(widthDp, heightDp).toFloat()
+    val transparentFraction = ((shortSide - 600f) / 200f).coerceIn(0f, 1f) * 0.15f
+    val topTransparent = heightDp.dp * transparentFraction
+
+    val effectivePageCount = if (isLargeLandscape) 2 else PAGE_COUNT
+    val homePageIndex = if (isLargeLandscape) 0 else HOME_PAGE
+    val toolsPageIndex = if (isLargeLandscape) 1 else TOOLS_PAGE
+
+    val pagerState = rememberPagerState(initialPage = homePageIndex, pageCount = { effectivePageCount })
     val widgetPageVm: WidgetPageViewModel = hiltViewModel()
+
+    // Remap current page on rotation so HOME stays HOME, TOOLS stays TOOLS
+    var prevIsLargeLandscape by remember { mutableStateOf<Boolean?>(null) }
+    LaunchedEffect(isLargeLandscape) {
+        if (prevIsLargeLandscape == null) {
+            prevIsLargeLandscape = isLargeLandscape
+            return@LaunchedEffect
+        }
+        if (prevIsLargeLandscape == isLargeLandscape) return@LaunchedEffect
+        if (isLargeLandscape) {
+            when (pagerState.currentPage) {
+                HOME_PAGE -> pagerState.scrollToPage(0)
+                TOOLS_PAGE -> pagerState.scrollToPage(1)
+            }
+        } else {
+            when (pagerState.currentPage) {
+                0 -> pagerState.scrollToPage(HOME_PAGE)
+                1 -> pagerState.scrollToPage(TOOLS_PAGE)
+            }
+        }
+        prevIsLargeLandscape = isLargeLandscape
+    }
 
     // i18n
     val snackbarStrings = rememberHomeSnackbarStrings()
@@ -162,12 +214,12 @@ fun HomeScreen(
             lastHandledHomePress = homePressCount
             if (viewModel.drawerVisible.value) viewModel.closeDrawer()
             if (viewModel.selectedApp.value != null) viewModel.dismissMenu()
-            if (pagerState.currentPage != HOME_PAGE) pagerState.scrollToPage(HOME_PAGE)
+            if (pagerState.currentPage != homePageIndex) pagerState.scrollToPage(homePageIndex)
         }
     }
 
     LaunchedEffect(pagerState.currentPage, drawerVisible, selectedApp) {
-        if (pagerState.currentPage != HOME_PAGE) return@LaunchedEffect
+        if (pagerState.currentPage != homePageIndex) return@LaunchedEffect
         if (drawerVisible) return@LaunchedEffect
         if (selectedApp != null) return@LaunchedEffect
         if (viewModel.isDefaultLauncher()) return@LaunchedEffect
@@ -184,17 +236,12 @@ fun HomeScreen(
         )
     }
 
-    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-        viewModel.refreshAccessibilityState()
-        viewModel.refreshWorkProfileState()
-    }
-
     BackHandler(enabled = true) {
         when {
             selectedApp != null -> viewModel.dismissMenu()
             drawerVisible -> viewModel.closeDrawer()
-            pagerState.currentPage != HOME_PAGE ->
-                scope.launch { pagerState.animateScrollToPage(HOME_PAGE) }
+            pagerState.currentPage != homePageIndex ->
+                scope.launch { pagerState.animateScrollToPage(homePageIndex) }
             else -> {
                 if (!viewModel.isDefaultLauncher()) {
                     activity?.moveTaskToBack(true)
@@ -203,15 +250,15 @@ fun HomeScreen(
         }
     }
 
-    val homeNestedScroll = remember(sheet, pagerState) {
+    val homeNestedScroll = remember(sheet, pagerState, isLargeLandscape, homePageIndex) {
         object : NestedScrollConnection {
             override fun onPostScroll(
                 consumed: Offset,
                 available: Offset,
                 source: NestedScrollSource,
             ): Offset {
-                if (pagerState.currentPage != HOME_PAGE &&
-                    pagerState.currentPage != WIDGET_PAGE
+                if (pagerState.currentPage != homePageIndex &&
+                    !( !isLargeLandscape && pagerState.currentPage == WIDGET_PAGE )
                 ) return Offset.Zero
                 if (source == NestedScrollSource.UserInput &&
                     available.y < 0f &&
@@ -227,8 +274,8 @@ fun HomeScreen(
                 consumed: Velocity,
                 available: Velocity,
             ): Velocity {
-                if (pagerState.currentPage != HOME_PAGE &&
-                    pagerState.currentPage != WIDGET_PAGE
+                if (pagerState.currentPage != homePageIndex &&
+                    !( !isLargeLandscape && pagerState.currentPage == WIDGET_PAGE )
                 ) return Velocity.Zero
                 if (sheet.progress > 0f) {
                     sheet.settle(available.y)
@@ -247,8 +294,8 @@ fun HomeScreen(
             .shadeSwipeGesture(
                 threshold = SHADE_SWIPE_THRESHOLD,
                 isGatingOk = {
-                    (pagerState.currentPage == HOME_PAGE ||
-                            pagerState.currentPage == WIDGET_PAGE) &&
+                    (pagerState.currentPage == homePageIndex ||
+                            (!isLargeLandscape && pagerState.currentPage == WIDGET_PAGE)) &&
                             !drawerVisible &&
                             selectedApp == null &&
                             sheet.progress <= SHEET_PROGRESS_EPSILON
@@ -275,157 +322,208 @@ fun HomeScreen(
                 }
             )
     ) {
-        Wallpaper(settings = userSettings, modifier = Modifier.fillMaxSize())
-
-        Scaffold(
-            containerColor = Color.Transparent,
-        ) { innerPadding ->
-            val contentModifier = Modifier
+        // ── Layer 0+1: home  ──
+        Box(
+            Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .graphicsLayer {
+                    val p = sheet.progress
+                    val s = 1f - p * 0.04f
+                    scaleX = s
+                    scaleY = s
+                    translationY = p * 12.dp.toPx()
+                    clip = p > 0f
+                    shape = RoundedCornerShape((p * 24).dp)
+                }
+        ) {
+            Wallpaper(settings = userSettings, modifier = Modifier.fillMaxSize())
 
-            BoxWithConstraints(contentModifier) {
-                val isLandscape = maxWidth > maxHeight
-                val showBottomBar = pagerState.currentPage == HOME_PAGE
+            Scaffold(
+                containerColor = Color.Transparent,
+            ) { innerPadding ->
+                val contentModifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
 
-                Box(Modifier.fillMaxSize()) {
-                    HorizontalPager(
-                        state = pagerState,
-                        modifier = Modifier.fillMaxSize(),
-                        beyondViewportPageCount = PAGE_COUNT,
-                        flingBehavior = PagerDefaults.flingBehavior(
+                BoxWithConstraints(contentModifier) {
+                    // isLandscape already from widthDp > heightDp, don't use maxWidth > maxHeight here
+                    val showBottomBar = pagerState.currentPage != toolsPageIndex
+
+                    val barHorizontalShift = if (isLandscape && !isLargeLandscape && pagerState.currentPage == homePageIndex) {
+                        maxWidth * 0.15f
+                    } else if (!isLargeLandscape) {
+                        -maxWidth * 0.25f
+                    } else {
+                        0.dp
+                    }
+
+                    val barWidthFraction = if (isLandscape && pagerState.currentPage == homePageIndex) 0.25f else 0.85f
+
+                    Box(Modifier.fillMaxSize()) {
+                        HorizontalPager(
                             state = pagerState,
-                            snapAnimationSpec = spring(
-                                dampingRatio = Spring.DampingRatioNoBouncy,
-                                stiffness = 700f,
-                                visibilityThreshold = 0.001f,
+                            modifier = Modifier.fillMaxSize(),
+                            beyondViewportPageCount = effectivePageCount,
+                            flingBehavior = PagerDefaults.flingBehavior(
+                                state = pagerState,
+                                snapAnimationSpec = spring(
+                                    dampingRatio = Spring.DampingRatioNoBouncy,
+                                    stiffness = 700f,
+                                    visibilityThreshold = 0.001f,
+                                ),
                             ),
-                        ),
-                    ) { page ->
-                        ProvideLegibleColors(
-                            wallpaperIsDark = wallpaperIsDark,
-                            mode = userSettings.wallpaperTextMode,
-                            needsHalo = userSettings.wallpaperMode == WallpaperMode.Image,
-                            adaptToWallpaper = userSettings.wallpaperMode != WallpaperMode.System,
-                        ) {
-                            when (page) {
-                                HOME_PAGE -> {
-                                    val content = if (isLandscape) {
-                                        @Composable {
-                                            HomeContentLandscape(
-                                                modifier = Modifier.fillMaxSize(),
-                                                heroState = heroState,
-                                                homeApps = homeApps,
-                                                dockApps = dockApps,
-                                                loading = loading,
-                                                settings = userSettings,
-                                                onDoubleTapHome = viewModel::onDoubleTapHome,
-                                                onOpenSettings = onOpenSettings,
-                                                onLaunch = viewModel::launch,
-                                                onAppLongClick = viewModel::selectAppForMenu,
-                                                onOpenDrawer = viewModel::openDrawer,
-                                                isGatingOk = {
-                                                    selectedApp == null &&
-                                                            !drawerVisible &&
-                                                            pagerState.currentPage == HOME_PAGE
-                                                },
-                                            )
+                        ) { page ->
+                            ProvideLegibleColors(
+                                wallpaperIsDark = wallpaperIsDark,
+                                mode = userSettings.wallpaperTextMode,
+                                needsHalo = userSettings.wallpaperMode == WallpaperMode.Image,
+                                adaptToWallpaper = userSettings.wallpaperMode != WallpaperMode.System,
+                            ) {
+                                when (page) {
+                                    homePageIndex -> {
+                                        val content = if (isLandscape) {
+                                            @Composable {
+                                                HomeContentLandscape(
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    maxWidth = contentMaxWidth,
+                                                    heroState = heroState,
+                                                    homeApps = homeApps,
+                                                    dockApps = dockApps,
+                                                    loading = loading,
+                                                    settings = userSettings,
+                                                    onDoubleTapHome = viewModel::onDoubleTapHome,
+                                                    onOpenSettings = onOpenSettings,
+                                                    onLaunch = viewModel::launch,
+                                                    onAppLongClick = viewModel::selectAppForMenu,
+                                                    onOpenDrawer = viewModel::openDrawer,
+                                                    isGatingOk = {
+                                                        selectedApp == null &&
+                                                                !drawerVisible &&
+                                                                pagerState.currentPage == homePageIndex
+                                                    },
+                                                    widgetContent = if (isLargeLandscape) {
+                                                        @Composable {
+                                                            WidgetPage(
+                                                                onBack = {},
+                                                                showIconBack = false,
+                                                                onDoubleTapHome = viewModel::onDoubleTapHome,
+                                                                viewModel = widgetPageVm,
+                                                                pageActive = pagerState.currentPage == homePageIndex,
+                                                            )
+                                                        }
+                                                    } else null,
+                                                )
+                                            }
+                                        } else {
+                                            @Composable {
+                                                HomeContentPortrait(
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    maxWidth = contentMaxWidth,
+                                                    heroState = heroState,
+                                                    homeApps = homeApps,
+                                                    dockApps = dockApps,
+                                                    loading = loading,
+                                                    settings = userSettings,
+                                                    onDoubleTapHome = viewModel::onDoubleTapHome,
+                                                    onOpenSettings = onOpenSettings,
+                                                    onLaunch = viewModel::launch,
+                                                    onAppLongClick = viewModel::selectAppForMenu,
+                                                    onOpenDrawer = viewModel::openDrawer,
+                                                    isGatingOk = {
+                                                        selectedApp == null &&
+                                                                !drawerVisible &&
+                                                                pagerState.currentPage == homePageIndex
+                                                    },
+                                                )
+                                            }
                                         }
-                                    } else {
-                                        @Composable {
-                                            HomeContentPortrait(
-                                                modifier = Modifier.fillMaxSize(),
-                                                heroState = heroState,
-                                                homeApps = homeApps,
-                                                dockApps = dockApps,
-                                                loading = loading,
-                                                settings = userSettings,
-                                                onDoubleTapHome = viewModel::onDoubleTapHome,
-                                                onOpenSettings = onOpenSettings,
-                                                onLaunch = viewModel::launch,
-                                                onAppLongClick = viewModel::selectAppForMenu,
-                                                onOpenDrawer = viewModel::openDrawer,
-                                                isGatingOk = {
-                                                    selectedApp == null &&
-                                                            !drawerVisible &&
-                                                            pagerState.currentPage == HOME_PAGE
+                                        // Soft hide / show
+                                        val homeAlpha by animateFloatAsState(
+                                            targetValue = if (drawerVisible) 0f else 1f,
+                                            animationSpec = tween(250),
+                                            label = "homeAlpha",
+                                        )
+
+                                        Box(
+                                            Modifier
+                                                .fillMaxSize()
+                                                .alpha(homeAlpha)
+                                        ) {
+                                            content()
+                                        }
+                                    }
+                                    toolsPageIndex -> {
+                                        ToolsPage(
+                                            textScale = userSettings.textSize,
+                                            onBack = {
+                                                scope.launch { pagerState.animateScrollToPage(homePageIndex) }
+                                            },
+                                            onDoubleTapHome = viewModel::onDoubleTapHome,
+                                            onOpenTool = { toolId ->
+                                                onOpenTool(
+                                                    toolId,
+                                                    wallpaperIsDark,
+                                                    userSettings.wallpaperTextMode,
+                                                    userSettings.wallpaperMode == WallpaperMode.Image,
+                                                    userSettings.wallpaperMode != WallpaperMode.System,
+                                                )
+                                            },
+                                            pageActive = pagerState.currentPage == toolsPageIndex,
+                                        )
+                                    }
+                                    else -> {
+                                        // Only exists when !isLargeLandscape
+                                        val widgetAlpha by animateFloatAsState(
+                                            targetValue = if (drawerVisible) 0f else 1f,
+                                            animationSpec = tween(250),
+                                            label = "widgetAlpha",
+                                        )
+
+                                        Box(
+                                            Modifier
+                                                .fillMaxSize()
+                                                .alpha(widgetAlpha)
+                                        ) {
+                                            WidgetPage(
+                                                onBack = {
+                                                    scope.launch { pagerState.animateScrollToPage(homePageIndex) }
                                                 },
+                                                onDoubleTapHome = viewModel::onDoubleTapHome,
+                                                viewModel = widgetPageVm,
+                                                pageActive = pagerState.currentPage == WIDGET_PAGE,
                                             )
                                         }
                                     }
-                                    Box(
-                                        Modifier
-                                            .fillMaxSize()
-                                            .padding(bottom = BOTTOM_BAR_HEIGHT)
-                                    ) {
-                                        content()
-                                    }
-                                }
-                                WIDGET_PAGE -> {
-                                    WidgetPage(
-                                        onBack = {
-                                            scope.launch { pagerState.animateScrollToPage(HOME_PAGE) }
-                                        },
-                                        onDoubleTapHome = viewModel::onDoubleTapHome,
-                                        viewModel = widgetPageVm,
-                                        pageActive = pagerState.currentPage == WIDGET_PAGE,
-                                    )
-                                }
-                                TOOLS_PAGE -> {
-                                    ToolsPage(
-                                        textScale = userSettings.textSize,
-                                        onBack = {
-                                            scope.launch { pagerState.animateScrollToPage(HOME_PAGE) }
-                                        },
-                                        onDoubleTapHome = viewModel::onDoubleTapHome,
-                                        onOpenTool = { toolId ->
-                                            onOpenTool(
-                                                toolId,
-                                                wallpaperIsDark,
-                                                userSettings.wallpaperTextMode,
-                                                userSettings.wallpaperMode == WallpaperMode.Image,
-                                                userSettings.wallpaperMode != WallpaperMode.System,
-                                            )
-                                        },
-                                        pageActive = pagerState.currentPage == TOOLS_PAGE,
-                                    )
                                 }
                             }
                         }
-                    }
 
-                    if (showBottomBar) {
-                        ProvideLegibleColors(
-                            wallpaperIsDark = wallpaperIsDark,
-                            mode = userSettings.wallpaperTextMode,
-                            needsHalo = userSettings.wallpaperMode == WallpaperMode.Image,
-                            adaptToWallpaper = userSettings.wallpaperMode != WallpaperMode.System,
-                        ) {
-                            BottomBar(
-                                onOpenDrawer = viewModel::openDrawer,
-                                animate = !drawerShown,
-                                modifier = Modifier
-                                    .align(Alignment.BottomCenter)
-                                    .fillMaxWidth()
-                                    .height(BOTTOM_BAR_HEIGHT),
-                            )
+                        if (showBottomBar) {
+                            ProvideLegibleColors(
+                                wallpaperIsDark = wallpaperIsDark,
+                                mode = userSettings.wallpaperTextMode,
+                                needsHalo = userSettings.wallpaperMode == WallpaperMode.Image,
+                                adaptToWallpaper = userSettings.wallpaperMode != WallpaperMode.System,
+                            ) {
+                                BottomBar(
+                                    onOpenDrawer = viewModel::openDrawer,
+                                    animate = !drawerShown,
+                                    modifier = Modifier
+                                        .align(Alignment.BottomCenter)
+                                        .offset(x = barHorizontalShift)
+                                        .fillMaxWidth(barWidthFraction)
+                                        .padding(bottom = 16.dp)
+                                        .height(10.dp),
+                                )
+                            }
                         }
                     }
                 }
             }
         }
 
+        // ── Layer 3: drawer
         if (drawerShown) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .background(
-                        MaterialTheme.colorScheme.scrim.copy(
-                            alpha = sheet.progress * MAX_SCRIM_ALPHA,
-                        )
-                    )
-            )
-
             Box(
                 Modifier
                     .fillMaxSize()
@@ -453,12 +551,14 @@ fun HomeScreen(
                         isWorkPaused = isWorkPaused,
                         workApps = workApps,
                         personalApps = personalApps,
+                        topTransparent = topTransparent,
                         onToggleWorkPaused = viewModel::toggleWorkPaused,
                     )
                 }
             }
         }
 
+        // ── Layer 4: context menu
         selectedApp?.let { app ->
             AppContextMenu(
                 app = app,
@@ -477,11 +577,11 @@ fun HomeScreen(
         LauncherSnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier
-                .align(Alignment.BottomCenter)
+                .align(Alignment.TopEnd)
                 .padding(
                     start = 16.dp,
                     end = 16.dp,
-                    bottom = BOTTOM_BAR_HEIGHT + 16.dp
+                    top = 16.dp
                 )
                 .zIndex(100f)
         )

@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flagodna.debugprint.debugPrint
+import com.sadaqahcode.muslimlauncher.ui.home.PageMaxWidthScreen
 import com.sadaqahcode.muslimlauncher.ui.home.helper.doubleTapGesture
 import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.widgets.components.AddWidgetRow
@@ -64,13 +65,13 @@ import com.sadaqahcode.muslimlauncher.ui.widgets.components.WidgetRow
 import my.nanihadesuka.compose.LazyColumnScrollbar
 import my.nanihadesuka.compose.ScrollbarSettings
 
-private val PageMaxWidth = 600.dp
 private const val TAG = "WidgetPage"
 
 @Composable
 fun WidgetPage(
     viewModel: WidgetPageViewModel = hiltViewModel(),
     pageActive: Boolean,
+    showIconBack: Boolean = true,
     onDoubleTapHome: () -> Unit,
     onBack: () -> Unit,
 ) {
@@ -158,12 +159,6 @@ fun WidgetPage(
     }
 
     // ── Config activity result handler ─────────────────────────────────
-    //
-    // Runs AFTER the widget's configure activity returns. At this point
-    // pendingId.value and pendingId.providerInfo MUST still be populated —
-    // they are the only link back to the widget that was just bound.
-    // Clearing pendingId before proceedAfterBind() (the previous bug) wiped
-    // that link and the handler silently no-op'd.
     val configLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -184,10 +179,6 @@ fun WidgetPage(
     }
 
     // ── Bind permission result handler ─────────────────────────────────
-    //
-    // The system "Allow widget" dialog. On success, the widget is now bound
-    // but pendingId must survive into proceedAfterBind() so the config
-    // activity (if any) knows which widget to configure.
     val bindPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -205,8 +196,6 @@ fun WidgetPage(
                 info = info,
                 configLauncher = configLauncher,
                 onComplete = {
-                    // Clear only AFTER the full flow finishes, so any later
-                    // callback (config) sees the populated pendingId.
                     pendingId.clear()
                     viewModel.completeAdd(id, info)
                     isAdding = false
@@ -248,7 +237,7 @@ fun WidgetPage(
         ) {
             Box(
                 modifier = Modifier
-                    .widthIn(max = PageMaxWidth)
+                    .widthIn(max = PageMaxWidthScreen)
                     .fillMaxSize(),
             ) {
                 ReorderWidgetList(
@@ -289,7 +278,7 @@ fun WidgetPage(
     ){
         Column(
             modifier = Modifier
-                .widthIn(max = PageMaxWidth)
+                .widthIn(max = PageMaxWidthScreen)
                 .fillMaxSize(),
         ) {
             Row(
@@ -329,13 +318,15 @@ fun WidgetPage(
                         )
                     }
                 }
-                IconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowForwardIos,
-                        contentDescription = "Back to home",
-                        tint = lc.scheme.onBackground,
-                        modifier = Modifier.size(14.dp),
-                    )
+                if(showIconBack){
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowForwardIos,
+                            contentDescription = "Back to home",
+                            tint = lc.scheme.onBackground,
+                            modifier = Modifier.size(14.dp),
+                        )
+                    }
                 }
             }
 
@@ -430,7 +421,7 @@ fun WidgetPage(
                         }
 
                         item(key = "add_row") {
-                            AddWidgetRow(onClick = viewModel::openPicker, lc = lc.scheme, textScale = textScale)
+                            AddWidgetRow(onClick = viewModel::openPicker,  textScale = textScale)
                         }
                     }
                 }

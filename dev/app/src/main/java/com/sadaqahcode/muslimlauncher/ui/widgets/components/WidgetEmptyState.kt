@@ -21,9 +21,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
+import com.sadaqahcode.muslimlauncher.ui.theme.glass
 
 @Composable
 internal fun EmptyWidgetState(
@@ -32,6 +34,8 @@ internal fun EmptyWidgetState(
     lc: ColorScheme,
     onAdd: () -> Unit,
 ) {
+    val defaultColors = MaterialTheme.colorScheme
+
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier
@@ -51,19 +55,18 @@ internal fun EmptyWidgetState(
             Text(
                 "Add tasks, calendar, or others.",
                 style = textScale.scaled(MaterialTheme.typography.bodySmall),
-                color = lc.onSurfaceVariant,
+                color = lc.onBackground.copy(alpha = 0.65f),
             )
             Spacer(Modifier.height(20.dp))
             Button(
                 onClick = onAdd,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .widthIn(max = 400.dp)
+                    .glass(RoundedCornerShape(20.dp))
+                    .widthIn(max = 320.dp)
                     .heightIn(min = 56.dp),
-                shape = RoundedCornerShape(24.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = lc.background.copy(alpha = 0.80f),
-                    contentColor = lc.onPrimaryContainer,
+                    containerColor = Color.Transparent,
+                    contentColor = defaultColors.onSurface,
                 ),
             ) {
                 Text(
@@ -81,8 +84,9 @@ internal fun EmptyWidgetState(
 internal fun AddWidgetRow(
     onClick: () -> Unit,
     textScale: AppTextSize,
-    lc: ColorScheme
 ) {
+    val defaultColors = MaterialTheme.colorScheme
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -91,10 +95,11 @@ internal fun AddWidgetRow(
     ) {
         Button(
             onClick = onClick,
-            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier
+                .glass(RoundedCornerShape(20.dp)),
             colors = ButtonDefaults.buttonColors(
-                containerColor = lc.background.copy(alpha = 0.80f),
-                contentColor = lc.onPrimaryContainer,
+                containerColor = Color.Transparent,
+                contentColor = defaultColors.onSurface,
             ),
         ) {
             Text(

@@ -34,7 +34,6 @@ import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.freeKey
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.guidedKey
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.tr
 
-
 @Composable
 fun MainPane(
     toolTitle: String,
@@ -48,6 +47,7 @@ fun MainPane(
     onOpenLibrary: () -> Unit,
     onOpenReader: () -> Unit,
     onClose: () -> Unit,
+    onDone: () -> Unit,
     onOpenHapticDialog: () -> Unit,
     colors: ColorScheme,
     modifier: Modifier,
@@ -122,9 +122,6 @@ fun MainPane(
                     }
                 }
             }
-            if (guided) {
-                GuidedBadge(language, actions.onExitGuided)
-            }
             FavoriteButton(
                 favorite = state.isFavoriteCurrent,
                 language = language,
@@ -158,7 +155,7 @@ fun MainPane(
                 item = item,
                 language = language,
                 onRepeat = actions.onRestartGuided,
-                onDone = actions.onExitGuided,
+                onDone = onDone, // FIXED: was actions.onExitGuided, now uses TasbihBody's onDone which does exit + showLibrary = true
                 scheme = colors,
                 modifier = Modifier.weight(1f),
             )
@@ -201,6 +198,7 @@ fun MainPane(
                 state = state,
                 language = language,
                 actions = actions,
+                scheme = colors,
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp),
             )
         }

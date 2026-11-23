@@ -188,7 +188,7 @@ class MainActivity : ComponentActivity() {
                     colorScheme = colorScheme,
                     darkTheme = darkTheme,
                 ) {
-                    AppNavHost()
+                    AppNavHost(homePressCount = homePressCount)
                 }
             }
         }

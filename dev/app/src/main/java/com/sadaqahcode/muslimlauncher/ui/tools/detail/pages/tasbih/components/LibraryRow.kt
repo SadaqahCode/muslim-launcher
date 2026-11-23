@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,16 +41,15 @@ fun LibraryRow(
     favLabel: String,
     onClick: () -> Unit,
     onToggleFavorite: () -> Unit,
+    scheme: ColorScheme
 ) {
-    val colors = MaterialTheme.colorScheme
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 64.dp)
             .glass(
                 shape = RoundedCornerShape(16.dp),
-                emphasis = if (selected) GlassEmphasis.Selected else GlassEmphasis.Regular,
+                emphasis = if (!selected) GlassEmphasis.Selected else GlassEmphasis.Regular,
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -67,14 +67,14 @@ fun LibraryRow(
                     text = title,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-                    color = colors.onSurface,
+                    color = scheme.onSurface,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = colors.onSurfaceVariant,
+                    color = scheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -83,16 +83,15 @@ fun LibraryRow(
                 Text(
                     text = badge,
                     style = MaterialTheme.typography.labelLarge.copy(fontFeatureSettings = "tnum"),
-                    color = colors.onSurfaceVariant,
+                    color = scheme.onSurfaceVariant,
                 )
             }
-            // Tanda centang, bukan warna, menandai yang dipilih.
             Box(Modifier.size(20.dp), contentAlignment = Alignment.Center) {
                 if (selected) {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        tint = colors.onSurface,
+                        tint = scheme.onSurface,
                         modifier = Modifier.size(20.dp),
                     )
                 }
@@ -102,7 +101,7 @@ fun LibraryRow(
             Icon(
                 imageVector = if (favorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                 contentDescription = favLabel,
-                tint = if (favorite) colors.onSurface else colors.onSurfaceVariant,
+                tint = if (favorite) scheme.onSurface else scheme.onSurfaceVariant,
                 modifier = Modifier.size(22.dp),
             )
         }

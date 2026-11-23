@@ -22,15 +22,14 @@ import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
 import com.sadaqahcode.muslimlauncher.domain.model.ToolId
 import com.sadaqahcode.muslimlauncher.domain.model.ToolRegistry
 import com.sadaqahcode.muslimlauncher.domain.model.resolveTools
+import com.sadaqahcode.muslimlauncher.ui.home.PageMaxWidthScreen
+import com.sadaqahcode.muslimlauncher.ui.home.ThreeColumnMinWidth
 import com.sadaqahcode.muslimlauncher.ui.home.helper.doubleTapGesture
 import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.tools.components.ReorderToolsList
 import com.sadaqahcode.muslimlauncher.ui.tools.components.ToolCard
 import my.nanihadesuka.compose.LazyVerticalGridScrollbar
 import my.nanihadesuka.compose.ScrollbarSettings
-
-private val PageMaxWidth = 600.dp
-private val ThreeColumnMinWidth = 520.dp
 
 @Composable
 fun ToolsPage(
@@ -85,7 +84,7 @@ fun ToolsPage(
 
     if (isReorderMode) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-            Box(Modifier.widthIn(max = PageMaxWidth).fillMaxSize()) {
+            Box(Modifier.widthIn(max = PageMaxWidthScreen).fillMaxSize()) {
                 ReorderToolsList(
                     textScale = textScale,
                     tools = allTools,
@@ -121,7 +120,7 @@ fun ToolsPage(
         modifier = Modifier.fillMaxSize().doubleTapGesture(onDoubleTap = onDoubleTapHome, isGatingOk = { true }),
         contentAlignment = Alignment.TopCenter,
     ) {
-        Column(Modifier.widthIn(max = PageMaxWidth).fillMaxSize()) {
+        Column(Modifier.widthIn(max = PageMaxWidthScreen).fillMaxSize()) {
             Row(
                 modifier = Modifier.fillMaxWidth().statusBarsPadding()
                     .padding(start = 4.dp, end = 8.dp, top = if (isLandscape) 4.dp else 16.dp, bottom = if (isLandscape) 8.dp else 16.dp),

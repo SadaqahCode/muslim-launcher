@@ -9,8 +9,11 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.size.Size
 import com.sadaqahcode.muslimlauncher.domain.model.UserSettings
 import com.sadaqahcode.muslimlauncher.domain.model.WallpaperMode
 import androidx.core.graphics.toColorInt
@@ -20,13 +23,16 @@ fun Wallpaper(
     settings: UserSettings,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
+    val uri = settings.wallpaperImageUri
+    val blurEnabled = settings.wallpaperBlurEnabled
+
+    // Blurred = 360px, Not blurred = max 1080x1920, never 10 MB full
+    val decodeSize = if (blurEnabled) Size(360, 360) else Size(1080, 1920)
+
     Box(modifier = modifier.fillMaxSize()) {
         when (settings.wallpaperMode) {
-            WallpaperMode.System -> {
-                // Intentionally empty. The transparent Scaffold lets the
-                // real system wallpaper show through from the window below.
-            }
-
+            WallpaperMode.System -> {}
             WallpaperMode.Color -> {
                 Box(
                     Modifier
@@ -34,7 +40,6 @@ fun Wallpaper(
                         .background(parseHexColor(settings.wallpaperColor, Color.White))
                 )
             }
-
             WallpaperMode.Gradient -> {
                 val start = parseHexColor(settings.wallpaperGradientStart, Color.Blue)
                 val end = parseHexColor(settings.wallpaperGradientEnd, Color.Magenta)
@@ -44,36 +49,30 @@ fun Wallpaper(
                         .background(Brush.verticalGradient(listOf(start, end)))
                 )
             }
-
             WallpaperMode.Image -> {
-                val uri = settings.wallpaperImageUri
-                if (uri != null) {
-                    AsyncImage(
-                        model = uri,
-                        contentDescription = "Custom wallpaper",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .then(
-                                if (settings.wallpaperBlurEnabled) {
-                                    // No-op on API < 31 — graceful degradation.
-                                    Modifier.blur(settings.wallpaperBlurRadius.dp)
-                                } else Modifier
-                            ),
-                        contentScale = ContentScale.Crop,
-                    )
-                } else {
-                    // URI lost (e.g. user revoked permission) — fall back.
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(Color(0xFF475569))
-                    )
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFF475569))
+                ) {
+                    if (uri != null) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(context)
+                                .data(uri)
+                                .size(decodeSize)
+                                .build(),
+                            contentDescription = "Custom wallpaper",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .then(if (blurEnabled) Modifier.blur(settings.wallpaperBlurRadius.dp) else Modifier),
+                            contentScale = ContentScale.Crop,
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-/** Parse `#AARRGGBB` or `#RRGGBB` into Compose Color, with fallback. */
 private fun parseHexColor(hex: String, fallback: Color): Color =
     runCatching { Color(hex.toColorInt()) }.getOrDefault(fallback)

@@ -46,11 +46,14 @@ class SettingsViewModel @Inject constructor(
     fun setItemLayout(v: AppItemLayout) = viewModelScope.launch { ds.setItemLayout(v) }
     fun setIconShape(v: AppIconShape) = viewModelScope.launch { ds.setIconShape(v) }
     fun setDrawerLayout(v: DrawerLayout) = viewModelScope.launch { ds.setDrawerLayout(v) }
+    /*
+    // we used auto select for mvp
     fun setHomeColumns(v: Int) = viewModelScope.launch { ds.setHomeColumns(v) }
     fun setDrawerColumns(v: Int) = viewModelScope.launch { ds.setDrawerColumns(v) }
     fun setDockSlots(v: Int) = viewModelScope.launch { ds.setDockSlots(v) }
-    fun setDarkMode(v: DarkMode) = viewModelScope.launch { ds.setDarkMode(v) }
     fun setMaxPinned(v: Int) = viewModelScope.launch { ds.setMaxPinned(v) }
+    */
+    fun setDarkMode(v: DarkMode) = viewModelScope.launch { ds.setDarkMode(v) }
 
     // Color source
     fun setColorSource(v: ColorSource) = viewModelScope.launch {

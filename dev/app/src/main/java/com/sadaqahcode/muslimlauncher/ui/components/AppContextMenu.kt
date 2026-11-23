@@ -28,16 +28,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sadaqahcode.muslimlauncher.data.local.launcher.shapeFor
 import com.sadaqahcode.muslimlauncher.domain.model.AppCategory
@@ -66,7 +68,6 @@ private val TagShape = RoundedCornerShape(16.dp)
 
 enum class MenuPage { Main, Tag }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppContextMenu(
     app: LauncherApp,
@@ -82,15 +83,10 @@ fun AppContextMenu(
 ) {
     val themeIsDark = MaterialTheme.colorScheme.background.luminance() < 0.5f
 
-    // Page lives here because every reader/writer is here. Disposed when the sheet
-    // closes, so every open starts on Main.
     var page by remember(app.packageName) { mutableStateOf(MenuPage.Main) }
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.94f),
-        contentColor = MaterialTheme.colorScheme.onBackground,
+    ScrimDialog(
+        onDismiss = onDismiss,
     ) {
         BackHandler(enabled = page == MenuPage.Tag) {
             page = MenuPage.Main
@@ -105,12 +101,16 @@ fun AppContextMenu(
                 modifier = Modifier.animateContentSize(),
                 label = "menuPage",
             ) { current ->
-                // Scrolls only if a small screen cannot fit the page.
+                Surface(
+                    shape = RoundedCornerShape(20.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 20.dp, vertical = 8.dp),
+                        .padding(horizontal = 20.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     when (current) {
@@ -124,6 +124,7 @@ fun AppContextMenu(
                             onOpenTags = { page = MenuPage.Tag },
                             onAppInfo = onAppInfo,
                             onUninstall = onUninstall,
+                            onClose = onDismiss
                         )
 
                         MenuPage.Tag -> MenuTag(
@@ -140,11 +141,11 @@ fun AppContextMenu(
         }
     }
 }
+}
 
 // Pages
-
 @Composable
-private fun ColumnScope.MenuMain(
+private fun MenuMain(
     app: LauncherApp,
     settings: UserSettings,
     isFavorite: Boolean,
@@ -154,14 +155,17 @@ private fun ColumnScope.MenuMain(
     onOpenTags: () -> Unit,
     onAppInfo: () -> Unit,
     onUninstall: () -> Unit,
+    onClose: () -> Unit,
 ) {
     val c = LocalLegibleColors.current.scheme
+
+    Spacer(Modifier.height(8.dp))
 
     // App
     Row(
         modifier = Modifier.padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Image(
             bitmap = app.icon,
@@ -170,17 +174,33 @@ private fun ColumnScope.MenuMain(
                 .size(48.dp)
                 .clip(shapeFor(settings.iconShape)),
         )
-        Column {
+        Column(
+            modifier = Modifier.weight(1f),
+        ) {
             Text(
                 text = app.label,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = c.onBackground,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
             Text(
                 text = app.packageName,
                 style = MaterialTheme.typography.bodySmall,
                 color = c.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        IconButton(
+            onClick = onClose,
+            modifier = Modifier.size(40.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Close",
+                tint = c.onSurfaceVariant,
             )
         }
     }
@@ -192,13 +212,6 @@ private fun ColumnScope.MenuMain(
             subtitle = "Max ${settings.maxPinned}",
             checked = isFavorite,
             onCheckedChange = { onToggleFavorite() },
-        )
-        RowDivider()
-        ToggleRow(
-            title = "Keep in dock",
-            subtitle = "Max 8 · ${settings.dockSlots} visible",
-            checked = isInDock,
-            onCheckedChange = { onToggleDock() },
         )
     }
 
@@ -225,219 +238,219 @@ private fun ColumnScope.MenuMain(
 }
 
 @Composable
-private fun ColumnScope.MenuTag(
-    app: LauncherApp,
-    onBack: () -> Unit,
-    onCategorySelect: (AppCategory) -> Unit,
+private fun MenuTag(
+app: LauncherApp,
+onBack: () -> Unit,
+onCategorySelect: (AppCategory) -> Unit,
 ) {
-    val c = LocalLegibleColors.current.scheme
+val c = LocalLegibleColors.current.scheme
 
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        TextButton(
-            onClick = onBack,
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = null,
-                tint = c.onBackground,
-                modifier = Modifier.size(18.dp),
-            )
-            Spacer(Modifier.width(6.dp))
-            Text("Back", color = c.onBackground)
-        }
-        Text(
-            text = "What does this app mean for your heart?",
-            style = MaterialTheme.typography.titleMedium,
-            color = c.onBackground,
-            modifier = Modifier.padding(horizontal = 4.dp),
-        )
-    }
-
-    Column(
-        modifier = Modifier.selectableGroup(),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    TextButton(
+        onClick = onBack,
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
     ) {
-        AppCategory.entries.forEach { cat ->
-            TagRow(
-                category = cat,
-                selected = app.category == cat,
-                onClick = { onCategorySelect(cat) },
-            )
-        }
+        Icon(
+            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+            contentDescription = null,
+            tint = c.onBackground,
+            modifier = Modifier.size(18.dp),
+        )
+        Spacer(Modifier.width(6.dp))
+        Text("Back", color = c.onBackground)
     }
-
     Text(
-        text = "A suggestion from the launcher. Tap a tag to make it yours.",
-        style = MaterialTheme.typography.bodySmall,
-        color = c.onSurfaceVariant,
+        text = "What does this app mean for your heart?",
+        style = MaterialTheme.typography.titleMedium,
+        color = c.onBackground,
         modifier = Modifier.padding(horizontal = 4.dp),
     )
+}
 
-    Spacer(Modifier.height(8.dp))
+Column(
+    modifier = Modifier.selectableGroup(),
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+) {
+    AppCategory.entries.forEach { cat ->
+        TagRow(
+            category = cat,
+            selected = app.category == cat,
+            onClick = { onCategorySelect(cat) },
+        )
+    }
+}
+
+Text(
+    text = "A suggestion from the launcher. Tap a tag to make it yours.",
+    style = MaterialTheme.typography.bodySmall,
+    color = c.onSurfaceVariant,
+    modifier = Modifier.padding(horizontal = 4.dp),
+)
+
+Spacer(Modifier.height(8.dp))
 }
 
 // Pieces
 
 @Composable
 private fun GlassGroup(content: @Composable ColumnScope.() -> Unit) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .glass(GroupShape),
-        content = content,
-    )
+Column(
+    modifier = Modifier
+        .fillMaxWidth()
+        .glass(GroupShape),
+    content = content,
+)
 }
 
 @Composable
 private fun RowDivider() {
-    val c = LocalLegibleColors.current.scheme
-    HorizontalDivider(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        color = c.outline.copy(alpha = 0.2f),
-    )
+val c = LocalLegibleColors.current.scheme
+HorizontalDivider(
+    modifier = Modifier.padding(horizontal = 16.dp),
+    color = c.outline.copy(alpha = 0.2f),
+)
 }
 
 @Composable
 private fun ToggleRow(
-    title: String,
-    subtitle: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
+title: String,
+subtitle: String,
+checked: Boolean,
+onCheckedChange: (Boolean) -> Unit,
 ) {
-    val c = LocalLegibleColors.current.scheme
+val c = LocalLegibleColors.current.scheme
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .toggleable(
-                value = checked,
-                role = Role.Switch,
-                onValueChange = onCheckedChange,
-            )
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(title, style = MaterialTheme.typography.bodyLarge, color = c.onBackground)
-            Text(
-                subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = c.onSurfaceVariant,
-            )
-        }
-        Switch(checked = checked, onCheckedChange = null)
+Row(
+    modifier = Modifier
+        .fillMaxWidth()
+        .toggleable(
+            value = checked,
+            role = Role.Switch,
+            onValueChange = onCheckedChange,
+        )
+        .padding(horizontal = 16.dp, vertical = 12.dp),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.SpaceBetween,
+) {
+    Column(Modifier.weight(1f)) {
+        Text(title, style = MaterialTheme.typography.bodyLarge, color = c.onBackground)
+        Text(
+            subtitle,
+            style = MaterialTheme.typography.bodySmall,
+            color = c.onSurfaceVariant,
+        )
     }
+    Switch(checked = checked, onCheckedChange = null)
+}
 }
 
 @Composable
 private fun CategoryTile(category: AppCategory, selected: Boolean) {
-    val c = LocalLegibleColors.current.scheme
-    Box(
-        modifier = Modifier
-            .size(40.dp)
-            .clip(CircleShape)
-            .background(c.onBackground.copy(alpha = if (selected) 0.12f else 0.06f)),
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(
-            imageVector = category.icon,
-            contentDescription = null,
-            tint = if (selected) c.onBackground else c.onSurfaceVariant,
-            modifier = Modifier.size(22.dp),
-        )
-    }
+val c = LocalLegibleColors.current.scheme
+Box(
+    modifier = Modifier
+        .size(40.dp)
+        .clip(CircleShape)
+        .background(c.onBackground.copy(alpha = if (selected) 0.12f else 0.06f)),
+    contentAlignment = Alignment.Center,
+) {
+    Icon(
+        imageVector = category.icon,
+        contentDescription = null,
+        tint = if (selected) c.onBackground else c.onSurfaceVariant,
+        modifier = Modifier.size(22.dp),
+    )
+}
 }
 
 @Composable
 private fun CurrentTagRow(category: AppCategory, onClick: () -> Unit) {
-    val c = LocalLegibleColors.current.scheme
+val c = LocalLegibleColors.current.scheme
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClickLabel = "Change tag", role = Role.Button, onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+Row(
+    modifier = Modifier
+        .fillMaxWidth()
+        .clickable(onClickLabel = "Change tag", role = Role.Button, onClick = onClick)
+        .padding(horizontal = 14.dp, vertical = 12.dp),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(12.dp),
+) {
+    CategoryTile(category = category, selected = true)
+    Column(
+        modifier = Modifier.weight(1f),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        CategoryTile(category = category, selected = true)
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            Text(
-                text = category.displayName,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = c.onBackground,
-            )
-            Text(
-                text = category.hint,
-                style = MaterialTheme.typography.bodySmall,
-                color = c.onSurfaceVariant,
-            )
-        }
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = null,
-            tint = c.onSurfaceVariant,
-            modifier = Modifier.size(20.dp),
+        Text(
+            text = category.displayName,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = c.onBackground,
+        )
+        Text(
+            text = category.hint,
+            style = MaterialTheme.typography.bodySmall,
+            color = c.onSurfaceVariant,
         )
     }
+    Icon(
+        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+        contentDescription = null,
+        tint = c.onSurfaceVariant,
+        modifier = Modifier.size(20.dp),
+    )
+}
 }
 
 @Composable
 private fun TagRow(
-    category: AppCategory,
-    selected: Boolean,
-    onClick: () -> Unit,
+category: AppCategory,
+selected: Boolean,
+onClick: () -> Unit,
 ) {
-    val c = LocalLegibleColors.current.scheme
+val c = LocalLegibleColors.current.scheme
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .glass(
-                shape = TagShape,
-                emphasis = if (selected) GlassEmphasis.Selected else GlassEmphasis.Regular,
-            )
-            .selectable(selected = selected, onClick = onClick, role = Role.RadioButton)
-            .padding(horizontal = 14.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+Row(
+    modifier = Modifier
+        .fillMaxWidth()
+        .glass(
+            shape = TagShape,
+            emphasis = if (selected) GlassEmphasis.Selected else GlassEmphasis.Regular,
+        )
+        .selectable(selected = selected, onClick = onClick, role = Role.RadioButton)
+        .padding(horizontal = 14.dp, vertical = 12.dp),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.spacedBy(12.dp),
+) {
+    CategoryTile(category = category, selected = selected)
+    Column(
+        modifier = Modifier.weight(1f),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        CategoryTile(category = category, selected = selected)
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            Text(
-                text = category.displayName,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-                color = c.onBackground,
-            )
-            Text(
-                text = category.hint,
-                style = MaterialTheme.typography.bodySmall,
-                color = if (selected) c.onBackground.copy(alpha = 0.8f) else c.onSurfaceVariant,
-            )
-        }
-        RadioButton(selected = selected, onClick = null)
+        Text(
+            text = category.displayName,
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+            color = c.onBackground,
+        )
+        Text(
+            text = category.hint,
+            style = MaterialTheme.typography.bodySmall,
+            color = if (selected) c.onBackground.copy(alpha = 0.8f) else c.onSurfaceVariant,
+        )
     }
+    RadioButton(selected = selected, onClick = null)
+}
 }
 
 @Composable
 private fun ActionRow(text: String, color: Color, onClick: () -> Unit) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodyLarge,
-        color = color,
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-    )
+Text(
+    text = text,
+    style = MaterialTheme.typography.bodyLarge,
+    color = color,
+    modifier = Modifier
+        .fillMaxWidth()
+        .clickable(role = Role.Button, onClick = onClick)
+        .padding(horizontal = 16.dp, vertical = 16.dp),
+)
 }

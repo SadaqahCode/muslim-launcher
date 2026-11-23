@@ -119,9 +119,6 @@ internal fun WidgetPickerSheet(
         scrollbarPadding = 0.dp,
     )
 
-    // Build groups off the main thread. `null` = still loading, empty = no
-    // items on the device. The previous synchronous version blocked the sheet's
-    // first frame by ~50–150 ms (50+ binder calls to PackageManager).
     val groupsState by produceState<List<PickerGroup>?>(
         initialValue = null,
         widgets,
@@ -141,9 +138,6 @@ internal fun WidgetPickerSheet(
             }
             map
                 .map { (pkg, items) ->
-                    // Pre-load the group header label here on IO. GroupSection
-                    // then reads it directly instead of making its own binder
-                    // call on the main thread during composition.
                     val label = runCatching {
                         pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString()
                     }.getOrDefault(pkg)
@@ -158,10 +152,9 @@ internal fun WidgetPickerSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.94f),
-        contentColor = MaterialTheme.colorScheme.onBackground,
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         tonalElevation = 0.dp,
-        shape = RectangleShape,
         dragHandle = { BottomSheetDefaults.DragHandle() },
         contentWindowInsets = { WindowInsets.navigationBars },
     ) {

@@ -3,6 +3,31 @@
 ### 0.4.2 (2026-11-20) 
 
 ##### Added
+- `PT9` feat: nav — center dot / Home pill listener button to action, tap center dot = back to home page, not FAB
+- `PT9` feat: home — `HomeExt.kt` single source for page widths / layout
+- `PT9` feat: home — `AutoHomeLayout` dynamic columns / pinned grid for small + large screen
+- `PT9` feat: tasbih — `Selesai / Done` opens library drawer / `ModalSidebar`, keeps prev data until pick
+- `PT9` feat: home — pinned grid `CircularProgressIndicator` while `loading`
+
+##### Changed
+- `PT9` changed: home — `HomeExt.kt` single source for `PageMaxWidthScreen` / `Medium` / `Large` / `ThreeColumnMinWidth` / `pageMaxWidthFor()`
+- `PT9` changed: nav — app nav transition effect updated, soft fade / snap, no zoom / scale, no stuck fast fade
+- `PT9` changed: nav — bottom bar `barHorizontalShift` dynamic: `maxWidth * 0.25f` for `isLandscape && !isLargeLandscape && homePageIndex`, else `0.dp`
+- `PT9` changed: tasbih — `MainPane` uses `onDone` param, not `actions.onExitGuided`
+- `PT9` changed: tasbih — `Done` only opens drawer, `exitGuided()` only after pick
+- `PT9` changed: tasbih — UX page update, auto-save logic: last dhikr / last mode / last tab via `TasbihDataStore`, auto-select on reopen
+- `PT9` changed: home — UX fix both small screen and large screen dynamic, `pageMaxWidthFor()` + `AutoHomeLayout`
+
+##### Fixed
+- `PT9` fix: nav — disable predictive back `android:enableOnBackInvokedCallback="false"` in `AndroidManifest.xml`, system back = appbar back / `onClose`, no inconsistent slide / fade
+- `PT9` fix: tasbih — `Done` ignored `onDone`, drawer never opened
+- `PT9` fix: tasbih — `Done` reset data even if drawer closed without picking, now prev finished data kept
+- `PT9` fix: home — pinned grid loading was `intentionally empty` blank gap, now circular loading
+- `PT9` fix: home — bottom bar shift always `-25%` / `0f` in landscape, now `+25%` right only for small landscape home
+
+---
+
+##### Added
 - `PT8` feat: tasbih — `ReaderSheet` bottom action `Row` (`Pakai dzikir ini` + `Tutup`), `Tutup` always enabled, `Pakai` disabled when not selectable / in use
 - `PT8` feat: tasbih — persist last open dhikr / last tab via `TasbihDataStore`, auto-select on reopen
 

@@ -5,9 +5,6 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import androidx.compose.ui.platform.LocalContext
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,11 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
@@ -70,8 +66,6 @@ internal fun TasbihPage(
     val language = LocalLocale.current.platformLocale.language
     val vibrator = remember(context) { context.vibratorOrNull() }
 
-    BackHandler(enabled = state.autoRun) { viewModel.exitGuided() }
-
     LaunchedEffect(viewModel, vibrator) {
         viewModel.haptics.collect { event ->
             when (viewModel.state.value.hapticMode) {
@@ -100,7 +94,6 @@ internal fun TasbihPage(
             onSetHapticMode = viewModel::setHapticMode,
         )
     }
-
 
     Box(Modifier.fillMaxSize()) {
         Wallpaper(settings = userSettings, modifier = Modifier.fillMaxSize())
@@ -140,8 +133,6 @@ internal fun TasbihPage(
         }
     }
 }
-
-
 
 // ── Dispatcher helpers ─────────────────────────────────────────
 

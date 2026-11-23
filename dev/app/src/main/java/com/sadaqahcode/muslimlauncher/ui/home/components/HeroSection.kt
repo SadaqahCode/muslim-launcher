@@ -133,8 +133,8 @@ private fun PrayerTimeItem(
 ) {
     val colors = MaterialTheme.colorScheme
     val color = when (rowState) {
-        PrayerRowState.Started -> colors.onSurfaceVariant.copy(alpha = 0.55f)
-        PrayerRowState.Current -> colors.primary
+        PrayerRowState.Started -> colors.onBackground.copy(alpha = 0.65f)
+        PrayerRowState.Current -> colors.onBackground
         PrayerRowState.Upcoming -> colors.onSurface
     }
     val weight = if (rowState == PrayerRowState.Current) FontWeight.SemiBold

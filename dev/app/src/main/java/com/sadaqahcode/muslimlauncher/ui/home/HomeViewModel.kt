@@ -33,6 +33,7 @@ import com.sadaqahcode.muslimlauncher.service.LauncherAccessibilityService
 import com.sadaqahcode.muslimlauncher.service.LauncherDeviceAdminReceiver
 import com.sadaqahcode.muslimlauncher.service.NotificationShadeService
 import com.sadaqahcode.muslimlauncher.ui.home.components.AccessibilityDialogKind
+import com.sadaqahcode.muslimlauncher.ui.home.helper.AutoHomeLayout
 import com.sadaqahcode.muslimlauncher.ui.home.helper.ShadeOpenResult
 import com.sadaqahcode.muslimlauncher.ui.home.helper.isAccessibilityServiceEnabled
 import com.sadaqahcode.muslimlauncher.ui.settings.isDarkColor
@@ -117,9 +118,33 @@ class HomeViewModel @Inject constructor(
     val hasWorkProfile: StateFlow<Boolean> = _hasWorkProfile.asStateFlow()
     val isWorkPaused: StateFlow<Boolean> = _isWorkPaused.asStateFlow()
 
+    // Screen size, pushed from the UI on config change. Drives AutoHomeLayout.
+    private data class ScreenSize(val widthDp: Int = 360, val heightDp: Int = 720)
+    private val _screenSize = MutableStateFlow(ScreenSize())
+
+    fun onScreenSizeChanged(widthDp: Int, heightDp: Int) {
+        _screenSize.value = ScreenSize(widthDp, heightDp)
+    }
+
     private val _imageIsDark = MutableStateFlow<Boolean?>(null)
 
-    val settings: StateFlow<UserSettings> = settingsDs.settings
+    /**
+     * [UserSettings] with `homeColumns`, `drawerColumns`, and `maxPinned`
+     * **overwritten** by [AutoHomeLayout].
+     * Raw stored values remain in DataStore but are no longer authoritative;
+     * the settings UI for those three fields is hidden in the MVP.
+     */
+    val settings: StateFlow<UserSettings> = combine(
+        settingsDs.settings,
+        _screenSize,
+    ) { raw, size ->
+        val layout = AutoHomeLayout.resolve(raw, size.widthDp, size.heightDp)
+        raw.copy(
+            homeColumns = layout.homeColumns,
+            drawerColumns = layout.drawerColumns,
+            maxPinned = layout.maxPinned,
+        )
+    }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UserSettings())
 
     private val appsWithPrefs =
@@ -137,7 +162,12 @@ class HomeViewModel @Inject constructor(
         }
 
     val homeApps: StateFlow<List<LauncherApp>> = appsWithPrefs
-        .map { apps -> apps.filter { it.isPinned }.sortedBy { it.label.lowercase() } }
+        .combine(settings) { apps, s ->
+            apps.filter { it.isPinned }
+                .sortedBy { it.label.lowercase() }
+                // Defensive: pins that predate a capacity shrink (device change, text size grew)
+                .take(s.maxPinned)
+        }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     val dockAppList: StateFlow<List<LauncherApp>> = appsWithPrefs

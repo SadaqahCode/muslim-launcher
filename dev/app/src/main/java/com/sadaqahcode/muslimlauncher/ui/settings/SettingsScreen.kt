@@ -88,6 +88,8 @@ import com.sadaqahcode.muslimlauncher.ui.theme.GlassEmphasis
 import com.sadaqahcode.muslimlauncher.ui.theme.Wallpaper
 import com.sadaqahcode.muslimlauncher.ui.theme.glass
 import kotlin.math.abs
+import androidx.core.graphics.toColorInt
+import com.sadaqahcode.muslimlauncher.ui.home.PageMaxWidthScreen
 
 private val ScreenGutter = 20.dp
 private val RowGutter = 16.dp
@@ -123,9 +125,13 @@ fun SettingsScreen(
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter,
+    ) {
     Scaffold(
         modifier = Modifier
-            .fillMaxSize()
+            .widthIn(max = PageMaxWidthScreen).fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = colors.background,
         contentColor = colors.onBackground,
@@ -306,7 +312,10 @@ fun SettingsScreen(
                             RowText(
                                 title = "System wallpaper",
                                 hint = "Uses the wallpaper currently set in your device settings.",
-                                modifier = Modifier.padding(horizontal = RowGutter, vertical = 14.dp),
+                                modifier = Modifier.padding(
+                                    horizontal = RowGutter,
+                                    vertical = 14.dp
+                                ),
                             )
                         }
 
@@ -454,30 +463,6 @@ fun SettingsScreen(
             // Layout
             item(key = "layout") {
                 SettingsGroup("Layout") {
-                    IntChoiceRow(
-                        title = "Home columns",
-                        hint = "How many pinned apps fit per row on the home screen.",
-                        options = (2..5).toList(),
-                        selected = s.homeColumns,
-                        onSelect = viewModel::setHomeColumns,
-                    )
-                    RowDivider()
-                    IntChoiceRow(
-                        title = "Max pinned apps",
-                        hint = "How many apps can be pinned to home at once.",
-                        options = listOf(4, 6, 8, 10, 12, 16, 20, 24),
-                        selected = s.maxPinned,
-                        onSelect = viewModel::setMaxPinned,
-                    )
-                    RowDivider()
-                    IntChoiceRow(
-                        title = "Dock slots",
-                        hint = "Visible icons in the dock. Extra icons scroll sideways.",
-                        options = (3..8).toList(),
-                        selected = s.dockSlots,
-                        onSelect = viewModel::setDockSlots,
-                    )
-                    RowDivider()
                     ChoiceRow(
                         title = "Drawer layout",
                         hint = "How apps are listed when you open the drawer.",
@@ -492,16 +477,6 @@ fun SettingsScreen(
                         },
                         onSelect = viewModel::setDrawerLayout,
                     )
-                    if (s.drawerLayout == DrawerLayout.Grid) {
-                        RowDivider()
-                        IntChoiceRow(
-                            title = "Drawer columns",
-                            hint = "How many apps fit per row in the grid.",
-                            options = (3..6).toList(),
-                            selected = s.drawerColumns,
-                            onSelect = viewModel::setDrawerColumns,
-                        )
-                    }
                 }
             }
 
@@ -564,6 +539,7 @@ fun SettingsScreen(
                 )
             }
         }
+    }
     }
 }
 
@@ -888,10 +864,10 @@ private fun GradientSwatchGrid(
     ) {
         presets.forEachIndexed { i, preset ->
             val start = runCatching {
-                Color(android.graphics.Color.parseColor(preset.start))
+                Color(preset.start.toColorInt())
             }.getOrNull() ?: return@forEachIndexed
             val end = runCatching {
-                Color(android.graphics.Color.parseColor(preset.end))
+                Color(preset.end.toColorInt())
             }.getOrNull() ?: return@forEachIndexed
             SwatchFrame(
                 selected = preset.start.equals(selectedStart, ignoreCase = true) &&
