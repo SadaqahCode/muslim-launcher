@@ -1,18 +1,8 @@
-
 version: 2
 
 updates:
-  # Kotlin / Android / Gradle dependencies
   - package-ecosystem: "gradle"
     directory: "/dev"
-    schedule:
-      interval: "weekly"
-    labels:
-      - "dependencies"
-
-  # GitHub Actions
-  - package-ecosystem: "github-actions"
-    directory: "/"
     schedule:
       interval: "weekly"
     labels:
