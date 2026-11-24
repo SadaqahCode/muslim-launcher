@@ -87,6 +87,7 @@ data class UserSettings(
     val dockSlots: Int = 4,
     val maxPinned: Int = 8,
     val darkMode: DarkMode = DarkMode.Auto,
+    val paddingTopEnabled: Boolean = false,
     val wallpaperMode: WallpaperMode = WallpaperMode.System,
     val wallpaperColor: String = "#FFFFFFFF",
     val wallpaperGradientStart: String = "#FF6200EE",

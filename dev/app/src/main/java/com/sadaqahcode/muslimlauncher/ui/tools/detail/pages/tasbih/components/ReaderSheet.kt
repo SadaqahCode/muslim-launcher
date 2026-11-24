@@ -24,6 +24,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
@@ -42,6 +43,7 @@ fun ReaderSheet(
     language: String,
     onUse: (Dhikr) -> Unit,
     onToggleFavorite: (Dhikr) -> Unit,
+    topTransparentModal: Dp,
     onDismiss: () -> Unit,
 ) {
     val colors = MaterialTheme.colorScheme
@@ -82,6 +84,8 @@ fun ReaderSheet(
         onDismiss = onDismiss,
         sheetState = sheetState,
         heightFraction = 1f,
+        modifier = Modifier
+            .padding(top = topTransparentModal),
     ) {
         Row(
             modifier = Modifier

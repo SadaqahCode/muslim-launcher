@@ -90,7 +90,7 @@ import com.sadaqahcode.muslimlauncher.ui.theme.Wallpaper
 import com.sadaqahcode.muslimlauncher.ui.theme.glass
 import kotlin.math.abs
 import androidx.core.graphics.toColorInt
-import com.sadaqahcode.muslimlauncher.ui.home.PageMaxWidthScreen
+import com.sadaqahcode.muslimlauncher.ui.common.layout.PageMaxWidthScreen
 
 private val ScreenGutter = 20.dp
 private val RowGutter = 16.dp
@@ -484,6 +484,24 @@ fun SettingsScreen(
                         },
                         onSelect = viewModel::setDrawerLayout,
                     )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Column {
+                            Text(
+                                text = "Extra space at top screens",
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                        }
+                        Switch(
+                            checked = s.paddingTopEnabled,
+                            onCheckedChange = { viewModel.setPaddingTopEnabled(it) },
+                        )
+                    }
                 }
             }
 

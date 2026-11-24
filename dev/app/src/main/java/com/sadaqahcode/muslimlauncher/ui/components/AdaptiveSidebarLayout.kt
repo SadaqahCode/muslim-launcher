@@ -3,9 +3,11 @@ package com.sadaqahcode.muslimlauncher.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -23,6 +25,8 @@ fun AdaptiveSidebarLayout(
     drawerOpen: Boolean,
     onDrawerClose: () -> Unit,
     sidebarWidth: Dp = 320.dp,
+    sidebarWindowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
+    contentWindowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
     sidebarContent: @Composable () -> Unit,
     content: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -34,8 +38,15 @@ fun AdaptiveSidebarLayout(
                 Modifier
                     .width(sidebarWidth)
                     .fillMaxHeight()
+                    .background(MaterialTheme.colorScheme.background)
             ) {
-                sidebarContent()
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .windowInsetsPadding(sidebarWindowInsets)
+                ) {
+                    sidebarContent()
+                }
             }
             Box(
                 Modifier
@@ -47,6 +58,7 @@ fun AdaptiveSidebarLayout(
                 Modifier
                     .weight(1f)
                     .fillMaxHeight()
+                    .windowInsetsPadding(contentWindowInsets)
             ) {
                 content()
             }
@@ -70,9 +82,18 @@ fun AdaptiveSidebarLayout(
         drawerContent = {
             ModalDrawerSheet(
                 drawerContainerColor = MaterialTheme.colorScheme.background,
-                modifier = Modifier.width(sidebarWidth),
+                windowInsets = WindowInsets(0, 0, 0, 0),
+                modifier = Modifier
+                    .width(sidebarWidth)
+                    .fillMaxHeight(),
             ) {
-                sidebarContent()
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .windowInsetsPadding(sidebarWindowInsets)
+                ) {
+                    sidebarContent()
+                }
             }
         },
         modifier = modifier,

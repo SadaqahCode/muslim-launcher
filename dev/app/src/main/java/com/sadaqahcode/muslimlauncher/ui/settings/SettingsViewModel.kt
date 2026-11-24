@@ -54,6 +54,10 @@ class SettingsViewModel @Inject constructor(
     fun setMaxPinned(v: Int) = viewModelScope.launch { ds.setMaxPinned(v) }
     */
 
+    fun setPaddingTopEnabled(v: Boolean) {
+        viewModelScope.launch { ds.setPaddingTopEnabled(v) }
+    }
+
     fun setDarkMode(v: DarkMode) = viewModelScope.launch { ds.setDarkMode(v) }
 
     // Color source

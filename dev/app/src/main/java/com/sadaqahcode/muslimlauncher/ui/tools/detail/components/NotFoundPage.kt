@@ -9,52 +9,36 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
 import com.sadaqahcode.muslimlauncher.domain.model.UserSettings
+import com.sadaqahcode.muslimlauncher.ui.common.layout.AppBarPage
 import com.sadaqahcode.muslimlauncher.ui.theme.Wallpaper
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun NotFoundPage(
     onClose: () -> Unit,
     settings: UserSettings,
     scheme: ColorScheme,
     textScale: AppTextSize,
+    paddingTop: Dp,
+    useCollapsingBar: Boolean,
+    paddingTopEnabled: Boolean,
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-
-    val appBarColors = TopAppBarDefaults.topAppBarColors(
-        containerColor = Color.Transparent,
-        scrolledContainerColor = Color.Transparent,
-        titleContentColor = scheme.onBackground,
-        navigationIconContentColor = scheme.onBackground,
-    )
-
     Box(Modifier.fillMaxSize()) {
         Wallpaper(settings = settings, modifier = Modifier.fillMaxSize())
-        Scaffold(
-            modifier = Modifier
-                .fillMaxSize()
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
-            containerColor = Color.Transparent,
-            topBar = {
-                ToolTopAppBar(
-                    title = "Tool not found",
-                    onClose = onClose,
-                    scrollBehavior = scrollBehavior,
-                    appBarColors = appBarColors
-                )
-            },
+        AppBarPage(
+            title = "Tool not found",
+            textScale = textScale,
+            onBack = onClose,
+            useCollapsingBar = useCollapsingBar,
+            paddingTop = paddingTop,
+            paddingTopEnabled = paddingTopEnabled,
         ) { innerPadding ->
             NotFoundContent(innerPadding, scheme = scheme, textScale = textScale)
         }

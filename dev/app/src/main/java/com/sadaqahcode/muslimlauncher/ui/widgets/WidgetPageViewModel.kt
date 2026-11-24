@@ -3,9 +3,14 @@ package com.sadaqahcode.muslimlauncher.ui.widgets
 import android.app.Application
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
+import android.content.Context
 import android.content.Intent
+import android.content.pm.LauncherApps
 import android.content.pm.ResolveInfo
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.os.UserHandle
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.flagodna.debugprint.debugPrint
@@ -66,6 +71,9 @@ class WidgetPageViewModel @Inject constructor(
     private val _pickerLoading = MutableStateFlow(false)
     val pickerLoading: StateFlow<Boolean> = _pickerLoading.asStateFlow()
 
+    // Package listener
+    private var launcherAppsCallback: LauncherApps.Callback? = null
+
     init {
         debugPrint.d(TAG, "[WidgetFlow] init → controller.start()")
         controller.start()
@@ -76,12 +84,79 @@ class WidgetPageViewModel @Inject constructor(
             debugPrint.d(TAG, "[WidgetFlow] init → cleaning orphans against ${installed.size} providers")
             controller.cleanOrphans(installed)
         }
+        startPackageListener()
     }
 
     override fun onCleared() {
         debugPrint.d(TAG, "[WidgetFlow] onCleared → controller.stop()")
+        val launcherApps = getApplication<Application>()
+            .getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+        launcherAppsCallback?.let { cb ->
+            runCatching { launcherApps.unregisterCallback(cb) }
+        }
+        launcherAppsCallback = null
         controller.stop()
         super.onCleared()
+    }
+
+    // ---- Package listener ----
+    private fun startPackageListener() {
+        val ctx = getApplication<Application>()
+        val launcherApps = ctx.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+        val cb = object : LauncherApps.Callback() {
+            override fun onPackageAdded(packageName: String, user: UserHandle) {
+                debugPrint.d(TAG, "[WidgetFlow] onPackageAdded $packageName → cleanOrphans")
+                viewModelScope.launch { cleanOrphansFull() }
+            }
+            override fun onPackageRemoved(packageName: String, user: UserHandle) {
+                debugPrint.d(TAG, "[WidgetFlow] onPackageRemoved $packageName → cleanOrphansForPackage")
+                viewModelScope.launch { cleanOrphansForPackage(packageName) }
+            }
+            override fun onPackageChanged(packageName: String, user: UserHandle) {
+                viewModelScope.launch { cleanOrphansFull() }
+            }
+            override fun onPackagesAvailable(
+                packageNames: Array<String>,
+                user: UserHandle,
+                replacing: Boolean
+            ) {
+                viewModelScope.launch { cleanOrphansFull() }
+            }
+            override fun onPackagesUnavailable(
+                packageNames: Array<String>,
+                user: UserHandle,
+                replacing: Boolean
+            ) {
+                viewModelScope.launch {
+                    packageNames.forEach { cleanOrphansForPackage(it) }
+                }
+            }
+        }
+        launcherAppsCallback = cb
+        runCatching { launcherApps.registerCallback(cb, Handler(Looper.getMainLooper())) }
+    }
+
+    private suspend fun cleanOrphansFull() {
+        withContext(Dispatchers.IO) {
+            val installed = controller.availableProviders().map { it.provider.flattenToString() }
+            controller.cleanOrphans(installed)
+        }
+    }
+
+    private suspend fun cleanOrphansForPackage(packageName: String) {
+        withContext(Dispatchers.IO) {
+            val installed = controller.availableProviders().map { it.provider.flattenToString() }
+            // Widgets
+            controller.cleanOrphans(installed)
+
+            // Shortcuts
+            val forPackage = shortcutRepository.getAll()
+                .filter { it.packageName == packageName }
+            if (forPackage.isNotEmpty()) {
+                debugPrint.d(TAG, "[WidgetFlow] cleanOrphansForPackage $packageName → deleting ${forPackage.size} shortcuts")
+                forPackage.forEach { shortcutRepository.remove(it.id) }
+            }
+        }
     }
 
     fun openPicker() {
@@ -186,13 +261,13 @@ class WidgetPageViewModel @Inject constructor(
         val info = controller.providerInfoFor(widgetId) ?: return 200
 
         return when {
-            // 1. Modern widgets (Android 12+) — use the exact cells the author requested
+            // Modern widgets (Android 12+) — use the exact cells the author requested
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && info.targetCellHeight > 0 -> {
                 // Still need an approximation, but this is the closest without a real grid
                 (info.targetCellHeight * 80).coerceIn(80, 520)
             }
 
-            // 2. Older widgets — use the real minHeight the author set
+            // Older widgets — use the real minHeight the author set
             info.minHeight > 0 -> {
                 pxToDp(info.minHeight).toInt().coerceIn(80, 520)
             }

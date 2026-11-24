@@ -41,6 +41,7 @@ class SettingsDataStore @Inject constructor(
         val dockSlots = intPreferencesKey("dock_slots")
         val darkMode = stringPreferencesKey("dark_mode")
         val maxPinned = intPreferencesKey("max_pinned")
+        val paddingTopEnabled = booleanPreferencesKey("padding_top_enabled")
 
         // Color source
         val colorSource = stringPreferencesKey("color_source")
@@ -70,6 +71,7 @@ class SettingsDataStore @Inject constructor(
             dockSlots = (p[Keys.dockSlots] ?: 4).coerceIn(3, 8),
             maxPinned = (p[Keys.maxPinned] ?: 8).coerceIn(4, 24),
             darkMode = p.enumOr(Keys.darkMode, DarkMode.Auto),
+            paddingTopEnabled = p[Keys.paddingTopEnabled] ?: true,
 
             colorSource = p.enumOr(Keys.colorSource, ColorSource.LauncherDefault),
             customSeedColor = p[Keys.customSeedColor] ?: "#FFFF8F00",
@@ -96,6 +98,8 @@ class SettingsDataStore @Inject constructor(
     suspend fun setDockSlots(v: Int) = write { it[Keys.dockSlots] = v.coerceIn(3, 8) }
     suspend fun setDarkMode(v: DarkMode) = write { it[Keys.darkMode] = v.name }
     suspend fun setMaxPinned(v: Int) = write { it[Keys.maxPinned] = v.coerceIn(4, 24) }
+    suspend fun setPaddingTopEnabled(v: Boolean) =
+        write { it[Keys.paddingTopEnabled] = v }
 
     suspend fun setColorSource(v: ColorSource) =
         write { it[Keys.colorSource] = v.name }

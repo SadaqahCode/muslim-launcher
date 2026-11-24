@@ -25,8 +25,8 @@ android {
         applicationId = "com.sadaqahcode.muslimlauncher"
         minSdk = 24
         targetSdk = 37
-        versionCode = 261120
-        versionName = "0.4.2"
+        versionCode = 261125
+        versionName = "0.4.3"
 
         val hmacKey = localProperties.getProperty("HMACK")
             ?: "" // empty → fail closed at runtime, don't crash the build

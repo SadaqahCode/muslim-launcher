@@ -6,7 +6,6 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
 import android.content.Intent
 import android.content.pm.ResolveInfo
-import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -45,14 +43,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flagodna.debugprint.debugPrint
-import com.sadaqahcode.muslimlauncher.ui.home.PageMaxWidthScreen
+import com.sadaqahcode.muslimlauncher.ui.common.layout.AppBarPage
+import com.sadaqahcode.muslimlauncher.ui.common.layout.PageMaxWidthScreen
 import com.sadaqahcode.muslimlauncher.ui.home.helper.doubleTapGesture
 import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.widgets.components.AddWidgetRow
@@ -71,14 +69,16 @@ private const val TAG = "WidgetPage"
 fun WidgetPage(
     viewModel: WidgetPageViewModel = hiltViewModel(),
     pageActive: Boolean,
+    paddingTop: Dp,
+    useCollapsingBar: Boolean,
+    paddingTopEnabled: Boolean,
     showIconBack: Boolean = true,
+    topTransparent: Dp,
     onDoubleTapHome: () -> Unit,
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
     val activity = context as? Activity
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val lc = LocalLegibleColors.current
 
     val placements by viewModel.placements.collectAsStateWithLifecycle()
@@ -101,7 +101,6 @@ fun WidgetPage(
     val listState = rememberLazyListState()
     val textScale = userSettings.textSize
 
-    // Draft hoisted from ReorderWidgetList, so swipe / back can save it
     var latestDraftWidgetIds by remember { mutableStateOf<List<Int>?>(null) }
     var latestDraftShortcutIds by remember { mutableStateOf<List<String>?>(null) }
     var latestRemovedWidgetIds by remember { mutableStateOf<List<Int>>(emptyList()) }
@@ -262,54 +261,17 @@ fun WidgetPage(
         return
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize().doubleTapGesture(
-            onDoubleTap = onDoubleTapHome,
-            isGatingOk = {
-                editingWidgetId == null &&
-                        editingShortcutId == null &&
-                        !isReorderMode &&
-                        !pickerOpen &&
-                        !isAdding &&
-                        pageActive
-            }
-        ),
-        contentAlignment = Alignment.TopCenter,
-    ){
-        Column(
-            modifier = Modifier
-                .widthIn(max = PageMaxWidthScreen)
-                .fillMaxSize(),
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(
-                        start = 28.dp,
-                        end = 4.dp,
-                        top = if (isLandscape) 4.dp else 16.dp,
-                        bottom = if (isLandscape) 8.dp else 16.dp,
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        text = "Widgets",
-                        style = textScale.scaled(MaterialTheme.typography.titleLarge),
-                        fontWeight = FontWeight.Medium,
-                        color = lc.scheme.onBackground,
-                    )
-                    val countLine = buildCountLine(placements.size, shortcuts.size)
-                    if (countLine.isNotEmpty()) {
-                        Text(
-                            text = countLine,
-                            style = textScale.scaled(MaterialTheme.typography.bodySmall),
-                            color = lc.scheme.onBackground.copy(alpha = 0.72f),
-                        )
-                    }
-                }
-                if (placements.isNotEmpty() || shortcuts.isNotEmpty()) {
+    val countLine = buildCountLine(placements.size, shortcuts.size)
+    val isNotEmptyData = placements.isNotEmpty() || shortcuts.isNotEmpty()
+    val effectivePaddingTopEnabled = isNotEmptyData && paddingTopEnabled
+
+    Box(Modifier.fillMaxSize()) {
+        AppBarPage(
+            title = "Widgets",
+            subtitle = countLine.ifEmpty { null },
+            textScale = textScale,
+            actions = {
+                if (isNotEmptyData) {
                     IconButton(onClick = { enterReorder() }) {
                         Icon(
                             imageVector = Icons.Outlined.UnfoldMore,
@@ -318,23 +280,38 @@ fun WidgetPage(
                         )
                     }
                 }
-                if(showIconBack){
+                if (showIconBack) {
                     IconButton(onClick = onBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowForwardIos,
                             contentDescription = "Back to home",
                             tint = lc.scheme.onBackground,
-                            modifier = Modifier.size(14.dp),
                         )
                     }
                 }
-            }
-
+            },
+            useCollapsingBar = useCollapsingBar,
+            paddingTop = paddingTop,
+            paddingTopEnabled = effectivePaddingTopEnabled,
+            wrapperModifier = Modifier.doubleTapGesture(
+                onDoubleTap = onDoubleTapHome,
+                isGatingOk = {
+                    editingWidgetId == null &&
+                            editingShortcutId == null &&
+                            !isReorderMode &&
+                            !pickerOpen &&
+                            !isAdding &&
+                            pageActive
+                },
+            ),
+        ) { innerPadding ->
             if (placements.isEmpty() && shortcuts.isEmpty()) {
                 EmptyWidgetState(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize(),
                     textScale = textScale,
-                    lc= lc.scheme,
+                    lc = lc.scheme,
                     onAdd = viewModel::openPicker,
                 )
             } else {
@@ -342,8 +319,8 @@ fun WidgetPage(
                     state = listState,
                     settings = softScrollbarSettings,
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
+                        .padding(innerPadding)
+                        .fillMaxSize(),
                 ) {
                     LazyColumn(
                         state = listState,
@@ -421,7 +398,7 @@ fun WidgetPage(
                         }
 
                         item(key = "add_row") {
-                            AddWidgetRow(onClick = viewModel::openPicker,  textScale = textScale)
+                            AddWidgetRow(onClick = viewModel::openPicker, textScale = textScale)
                         }
                     }
                 }
@@ -471,6 +448,7 @@ fun WidgetPage(
             shortcuts = availableShortcuts,
             settings = userSettings,
             isLoading = pickerLoading,
+            topTransparent  = topTransparent,
             onSelectWidget = { info ->
                 isAdding = true
                 viewModel.closePicker()
@@ -484,10 +462,6 @@ fun WidgetPage(
 
                 val bound = viewModel.bindWidget(id, info)
                 if (bound) {
-                    // DO NOT clear pendingId here. proceedAfterBind() may
-                    // launch a config activity; when it returns, the config
-                    // callback reads pendingId to know which widget to
-                    // complete. Clearing now would wipe that link.
                     proceedAfterBind(
                         activity = activity,
                         widgetId = id,

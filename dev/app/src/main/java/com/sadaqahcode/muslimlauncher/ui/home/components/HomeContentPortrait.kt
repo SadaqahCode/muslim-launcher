@@ -55,7 +55,6 @@ internal fun HomeContentPortrait(
     onOpenDrawer: () -> Unit,
 ) {
     val gridState = rememberLazyGridState()
-    val lc = LocalLegibleColors.current
     val colors = MaterialTheme.colorScheme
 
     Box(
@@ -85,6 +84,7 @@ internal fun HomeContentPortrait(
                             Spacer(Modifier.height(48.dp))
                             HeroSection(
                                 state = heroState,
+                                onOpenSettings = onOpenSettings,
                                 textScale = settings.textSize
                             )
                             Spacer(Modifier.height(32.dp))
@@ -132,26 +132,6 @@ internal fun HomeContentPortrait(
                         settings = settings,
                         onLaunch = onLaunch,
                         onAppLongClick = onAppLongClick,
-                    )
-                }
-            }
-
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .statusBarsPadding()
-                    .padding(top = 4.dp, end = 8.dp)
-                    .glass(RoundedCornerShape(20.dp))
-                    .size(38.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                IconButton(
-                    onClick = onOpenSettings,
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Palette,
-                        contentDescription = "Theme settings",
-                        tint = colors.onBackground.copy(alpha = 0.65f),
                     )
                 }
             }

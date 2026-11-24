@@ -1,4 +1,3 @@
-
 package com.sadaqahcode.muslimlauncher.ui.home.helper
 
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -21,9 +20,7 @@ internal fun Modifier.shadeSwipeGesture(
     val currentGating by rememberUpdatedState(isGatingOk)
     val currentOnSwipe by rememberUpdatedState(onSwipeTriggered)
 
-    val thresholdPx = with(LocalDensity.current) {
-        threshold.toPx()
-    }
+    val thresholdPx = with(LocalDensity.current) { threshold.toPx() }
 
     return pointerInput(thresholdPx) {
         val touchSlop = viewConfiguration.touchSlop
@@ -35,58 +32,39 @@ internal fun Modifier.shadeSwipeGesture(
             var lifted = false
             var cancelled = false
 
-            val firstDown = awaitPointerEvent(
-                PointerEventPass.Initial
-            ).changes.firstOrNull() ?: return@awaitEachGesture
-
+            val firstDown = awaitPointerEvent(PointerEventPass.Initial)
+                .changes.firstOrNull() ?: return@awaitEachGesture
             val pointerId = firstDown.id
 
             while (true) {
-                val event = awaitPointerEvent(
-                    PointerEventPass.Initial
-                )
+                // Initial pass: see the drag before scrollables consume it.
+                val event = awaitPointerEvent(PointerEventPass.Initial)
 
-                // Ignore multi-touch gestures.
                 if (event.changes.count { it.pressed } > 1) {
                     cancelled = true
                     break
                 }
 
-                val change = event.changes.firstOrNull {
-                    it.id == pointerId
-                } ?: break
+                val change = event.changes.firstOrNull { it.id == pointerId } ?: break
 
-                if (!change.pressed) {
-                    lifted = true
-                    break
-                }
+                if (!change.pressed) { lifted = true; break }
+
 
                 val delta = change.position - change.previousPosition
-
-                if (delta.y > 0f) {
-                    downAccum += delta.y
-                } else {
-                    upAccum += abs(delta.y)
-                }
-
+                if (delta.y > 0f) downAccum += delta.y else upAccum += abs(delta.y)
                 horizontalAccum += abs(delta.x)
             }
 
-            if (!lifted || cancelled) {
-                return@awaitEachGesture
-            }
+            if (!lifted || cancelled) return@awaitEachGesture
 
             val verticalAccum = downAccum + upAccum
-
             val isDownSwipe =
                 downAccum >= thresholdPx &&
                         downAccum > horizontalAccum &&
                         downAccum > upAccum &&
                         verticalAccum > touchSlop
 
-            if (isDownSwipe && currentGating()) {
-                currentOnSwipe(downAccum)
-            }
+            if (isDownSwipe && currentGating()) currentOnSwipe(downAccum)
         }
     }
 }

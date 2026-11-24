@@ -10,6 +10,8 @@ import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.os.Process
 import android.os.UserHandle
 import android.os.UserManager
@@ -101,7 +103,6 @@ class HomeViewModel @Inject constructor(
     private val _notificationShadeReady = MutableStateFlow(false)
     private val _shadeAccessibilityEnabled = MutableStateFlow(false)
 
-    // Work Profile: 1 state for screen
     private val _hasWorkProfile = MutableStateFlow(false)
     private val _isWorkPaused = MutableStateFlow(false)
 
@@ -118,7 +119,6 @@ class HomeViewModel @Inject constructor(
     val hasWorkProfile: StateFlow<Boolean> = _hasWorkProfile.asStateFlow()
     val isWorkPaused: StateFlow<Boolean> = _isWorkPaused.asStateFlow()
 
-    // Screen size, pushed from the UI on config change. Drives AutoHomeLayout.
     private data class ScreenSize(val widthDp: Int = 360, val heightDp: Int = 720)
     private val _screenSize = MutableStateFlow(ScreenSize())
 
@@ -128,12 +128,9 @@ class HomeViewModel @Inject constructor(
 
     private val _imageIsDark = MutableStateFlow<Boolean?>(null)
 
-    /**
-     * [UserSettings] with `homeColumns`, `drawerColumns`, and `maxPinned`
-     * **overwritten** by [AutoHomeLayout].
-     * Raw stored values remain in DataStore but are no longer authoritative;
-     * the settings UI for those three fields is hidden in the MVP.
-     */
+    // Package listener - no service needed
+    private var launcherAppsCallback: LauncherApps.Callback? = null
+
     val settings: StateFlow<UserSettings> = combine(
         settingsDs.settings,
         _screenSize,
@@ -165,7 +162,6 @@ class HomeViewModel @Inject constructor(
         .combine(settings) { apps, s ->
             apps.filter { it.isPinned }
                 .sortedBy { it.label.lowercase() }
-                // Defensive: pins that predate a capacity shrink (device change, text size grew)
                 .take(s.maxPinned)
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -178,7 +174,6 @@ class HomeViewModel @Inject constructor(
         .combine(_searchQuery) { apps, q ->
             val filtered = if (q.isBlank()) apps
             else apps.filter { it.label.contains(q, ignoreCase = true) }
-
             filtered.sortedWith(
                 compareBy<LauncherApp> { categoryRank(it.category) }
                     .thenBy { it.label.lowercase() }
@@ -186,7 +181,6 @@ class HomeViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    // Convenience for drawer Work tab
     val workApps: StateFlow<List<LauncherApp>> = appsWithPrefs
         .map { apps -> apps.filter { it.isWork }.sortedBy { it.label.lowercase() } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -245,8 +239,49 @@ class HomeViewModel @Inject constructor(
                 }
         }
 
+        startPackageListener()
         refreshAccessibilityState()
         refreshWorkProfileState()
+    }
+
+    override fun onCleared() {
+        val launcherApps = getApplication<Application>()
+            .getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+        launcherAppsCallback?.let { runCatching { launcherApps.unregisterCallback(it) } }
+        launcherAppsCallback = null
+        super.onCleared()
+    }
+
+    // ---- Package listener ----
+    private fun startPackageListener() {
+        val ctx = getApplication<Application>()
+        val launcherApps = ctx.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
+        val cb = object : LauncherApps.Callback() {
+            override fun onPackageAdded(packageName: String, user: UserHandle) { reloadApps() }
+            override fun onPackageRemoved(packageName: String, user: UserHandle) { reloadApps() }
+            override fun onPackageChanged(packageName: String, user: UserHandle) { reloadApps() }
+            override fun onPackagesAvailable(packageNames: Array<String>, user: UserHandle, replacing: Boolean) { reloadApps() }
+            override fun onPackagesUnavailable(packageNames: Array<String>, user: UserHandle, replacing: Boolean) { reloadApps() }
+        }
+        launcherAppsCallback = cb
+        runCatching { launcherApps.registerCallback(cb, Handler(Looper.getMainLooper())) }
+    }
+
+    private fun reloadApps() {
+        viewModelScope.launch {
+            _loading.value = true
+            val shape = settings.value.iconShape
+            val density = Density(
+                getApplication<Application>().resources.displayMetrics.density,
+                1f,
+            )
+            val loaded = withContext(Dispatchers.IO) {
+                appRepository.loadLaunchableApps(shape, density)
+            }
+            _installedApps.value = loaded
+            _loading.value = false
+            refreshWorkProfileState()
+        }
     }
 
     private fun categoryRank(c: AppCategory): Int = when (c) {
@@ -255,8 +290,6 @@ class HomeViewModel @Inject constructor(
         AppCategory.DUNYA_OPTIONAL -> 2
         AppCategory.FITNAH_RISK -> 3
     }
-
-    // Work Profile
 
     fun refreshWorkProfileState() {
         val ctx = getApplication<Application>()
@@ -287,7 +320,6 @@ class HomeViewModel @Inject constructor(
 
     fun toggleWorkPaused() = setWorkPaused(!_isWorkPaused.value)
 
-    // UserManager.isManagedProfile(userId) only exists on API 30+, use reflection
     private fun isWorkProfile(userManager: UserManager, profile: UserHandle): Boolean {
         val userId = profile.hashCode()
         if (userId == Process.myUserHandle().hashCode()) return false
@@ -298,12 +330,9 @@ class HomeViewModel @Inject constructor(
                     .invoke(userManager, userId) as? Boolean
             }.getOrNull() ?: (userId != 0)
         }
-        // API 24-29: no isManagedProfile(userId), Private Space does not exist yet,
-        // so any non-personal profile is work
         return userId != 0
     }
 
-    // Guard with SDK check + reflection so min 24 does not trigger lint error.
     private fun isQuietModeEnabledSafe(userManager: UserManager, workHandle: UserHandle): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) return false
         return runCatching {
@@ -330,8 +359,6 @@ class HomeViewModel @Inject constructor(
         }.getOrNull() ?: false
     }
 
-    // Accessibility + Device Admin
-
     fun isDefaultLauncher(): Boolean {
         val app = getApplication<Application>()
         val intent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
@@ -340,7 +367,6 @@ class HomeViewModel @Inject constructor(
         )
         return resolve?.activityInfo?.packageName == app.packageName
     }
-
 
     fun isDeviceAdminActive(): Boolean {
         val ctx = getApplication<Application>()
@@ -356,7 +382,6 @@ class HomeViewModel @Inject constructor(
         val instanceRunning = LauncherAccessibilityService.instance != null
         val shadeRunning = NotificationShadeService.instance != null
         debugPrint.d(TAG, "refresh: lock=$lockEnabled shade=$shadeEnabled shadeRunning=$shadeRunning")
-
         _accessibilityEnabled.value = lockEnabled || instanceRunning
         _shadeAccessibilityEnabled.value = shadeEnabled || shadeRunning
         _deviceAdminEnabled.value = isDeviceAdminActive()
@@ -453,8 +478,6 @@ class HomeViewModel @Inject constructor(
         _showAccessibilityDialog.value = true
     }
 
-    // Actions
-
     fun toggleFavorite(app: LauncherApp) {
         viewModelScope.launch {
             val max = settings.value.maxPinned
@@ -485,11 +508,8 @@ class HomeViewModel @Inject constructor(
 
     fun consumeMessage() { _message.value = null }
 
-    // Navigation and UI
-
     fun launch(app: LauncherApp) {
         val ctx = getApplication<Application>()
-        // Work app must use LauncherApps with correct UserHandle, else it opens personal
         if (app.isWork && app.userHandle != null && app.componentName.isNotBlank()) {
             val launcherApps = ctx.getSystemService(Context.LAUNCHER_APPS_SERVICE) as LauncherApps
             val component = ComponentName.unflattenFromString(app.componentName) ?: return

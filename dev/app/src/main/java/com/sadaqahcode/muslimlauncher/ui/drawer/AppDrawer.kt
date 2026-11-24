@@ -54,13 +54,13 @@ import com.sadaqahcode.muslimlauncher.domain.model.DrawerLayout
 import com.sadaqahcode.muslimlauncher.domain.model.LauncherApp
 import com.sadaqahcode.muslimlauncher.domain.model.UserSettings
 import com.sadaqahcode.muslimlauncher.domain.model.buildDrawerModel
+import com.sadaqahcode.muslimlauncher.ui.common.layout.PageMaxWidthScreen
 import com.sadaqahcode.muslimlauncher.ui.drawer.components.DrawerChipsRow
 import com.sadaqahcode.muslimlauncher.ui.drawer.components.DrawerGridContent
 import com.sadaqahcode.muslimlauncher.ui.drawer.components.DrawerHorizontalContent
 import com.sadaqahcode.muslimlauncher.ui.drawer.components.DrawerListContent
 import com.sadaqahcode.muslimlauncher.ui.drawer.components.DrawerSearchField
 import com.sadaqahcode.muslimlauncher.ui.drawer.components.SheetNestedScroll
-import com.sadaqahcode.muslimlauncher.ui.home.PageMaxWidthScreen
 import com.sadaqahcode.muslimlauncher.ui.theme.ProvideLegibleColors
 import my.nanihadesuka.compose.ScrollbarSettings
 

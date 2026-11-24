@@ -11,12 +11,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,12 +25,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -46,17 +42,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sadaqahcode.muslimlauncher.domain.model.LauncherApp
 import com.sadaqahcode.muslimlauncher.domain.model.UserSettings
 import com.sadaqahcode.muslimlauncher.ui.components.DockIcon
 import com.sadaqahcode.muslimlauncher.ui.components.PinnedAppItem
+import com.sadaqahcode.muslimlauncher.ui.components.ScrimBottomSheet
 import com.sadaqahcode.muslimlauncher.ui.widgets.helper.rememberAppIcon
 import com.sadaqahcode.muslimlauncher.ui.widgets.helper.rememberShortcutIcon
 import com.sadaqahcode.muslimlauncher.ui.widgets.helper.rememberWidgetPreview
@@ -102,6 +99,7 @@ internal fun WidgetPickerSheet(
     isLoading: Boolean,
     onSelectWidget: (AppWidgetProviderInfo) -> Unit,
     onSelectShortcut: (ResolveInfo) -> Unit,
+    topTransparent: Dp,
     onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -149,18 +147,14 @@ internal fun WidgetPickerSheet(
 
     var expandedPackage by rememberSaveable { mutableStateOf<String?>(null) }
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
+    ScrimBottomSheet(
+        onDismiss = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        tonalElevation = 0.dp,
-        dragHandle = { BottomSheetDefaults.DragHandle() },
-        contentWindowInsets = { WindowInsets.navigationBars },
+        modifier = Modifier
+            .padding(top = topTransparent),
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
                 .fillMaxSize(),
         ) {
             Column(

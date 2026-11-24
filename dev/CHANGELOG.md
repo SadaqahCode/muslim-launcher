@@ -1,5 +1,32 @@
 ## CHANGELOG
 
+### 0.4.3 (2026-11-25)
+
+##### Added
+- `PT11` feat: common — reusable `AppBarPage`, `ScreenLayout`, `ScreenTopPadding` under `ui/common/layout`
+- `PT11` feat: common — reusable `AdaptiveSidebarLayout` with `sidebarWindowInsets` / `contentWindowInsets` for edge-to-edge sidebar + content panes
+- `PT11` feat: settings — new "Extra space at top" toggle (`paddingTopEnabled`); when off, ignores `paddingTop` **and** forces short `TopAppBar`
+- `PT11` feat: tasbih — `LibraryContent` fade-in on open / replay on done (`Animatable` + trigger counter)
+- `PT11` feat: components — `ScrimBottomSheet.showRounded` now renders 28dp top corners (was a no-op)
+
+##### Changed
+- `PT11` changed: navigation — `NavHost` transitions replaced with modern fade (220ms in / 160ms out, `FastOutSlowInEasing` / `LinearOutSlowInEasing`)
+- `PT11` changed: tools — `ToolsPage` refactored to `AppBarPage`; reorder-mode overlay unchanged
+- `PT11` changed: widgets — `WidgetPage` refactored to `AppBarPage`, wired `paddingTop` / `useCollapsingBar` / `paddingTopEnabled` (previously accepted but ignored)
+- `PT11` changed: tools detail — `PlaceholderToolPage` and `NotFoundPage` refactored to `AppBarPage`, inherit bar mode + top padding from `rememberScreenLayout()`
+- `PT11` changed: tools detail — `ToolDetailScreen` computes `paddingTop` / `useCollapsingBar` / `paddingTopEnabled` inline; `ToolPageContent` typealias now receives `topTransparentModal`
+- `PT11` changed: tasbih — `TasbihPage` sets `contentWindowInsets = WindowInsets(0)`; progress indicator overlays content (no reserved 2dp, no layout shift)
+- `PT11` changed: ux — snackbar polish
+- `PT11` changed: home gesture — shade down-swipe observed at `PointerEventPass.Initial` (no longer skipped when scrollables consume the drag)
+
+##### Fixed
+- `PT11` fix: navigation — surface flash during crossfade over transparent pages (transitions no longer expose `NavHost` background)
+- `PT11` fix: common — `AppBarPage` large bar no longer extra-tall when `paddingTopEnabled = false` (short bar enforced, padding ignored)
+- `PT11` fix: tasbih — double top padding when inner `Scaffold` insets were left on
+- `PT11` fix: home gesture — down-swipe to expand notification shade did not trigger on pages with scrollable content
+
+---
+
 ### 0.4.2 (2026-11-20)
  
 ##### Added

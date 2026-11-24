@@ -1,22 +1,32 @@
 package com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
+import com.sadaqahcode.muslimlauncher.ui.common.layout.PageMaxWidthLargeScreen
+import com.sadaqahcode.muslimlauncher.ui.common.layout.PageMaxWidthScreen
 import com.sadaqahcode.muslimlauncher.ui.components.AdaptiveSidebarLayout
-import com.sadaqahcode.muslimlauncher.ui.home.PageMaxWidthLargeScreen
-import com.sadaqahcode.muslimlauncher.ui.home.PageMaxWidthScreen
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.Actions
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.TasbihUiState
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.freeKey
@@ -29,11 +39,27 @@ fun TasbihBody(
     language: String,
     actions: Actions,
     onClose: () -> Unit,
+    topTransparentModal: Dp,
     colors: ColorScheme,
 ) {
     var showHapticDialog by remember { mutableStateOf(false) }
     var showLibrary by remember { mutableStateOf(false) }
     var showReader by remember { mutableStateOf(false) }
+
+    var libraryAnimTrigger by remember { mutableIntStateOf(0) }
+    val libraryAlpha = remember { Animatable(0f) }
+
+    LaunchedEffect(libraryAnimTrigger) {
+        libraryAlpha.snapTo(0f)
+        libraryAlpha.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(
+                durationMillis = 420,
+                easing = FastOutSlowInEasing,
+            ),
+        )
+    }
+
     val dhikr = state.activeDhikr ?: return
     val item = state.currentItem
 
@@ -60,24 +86,32 @@ fun TasbihBody(
                 AdaptiveSidebarLayout(
                     isTablet = isTablet,
                     drawerOpen = showLibrary,
-                    onDrawerClose = { showLibrary = false }, // close without pick = keep prev data, no reset
+                    onDrawerClose = { showLibrary = false },
                     sidebarWidth = 320.dp,
+                    sidebarWindowInsets = WindowInsets.systemBars,
+                    contentWindowInsets = WindowInsets(0),
                     sidebarContent = {
-                        LibraryContent(
-                            state = state,
-                            language = language,
-                            onPickFree = { key ->
-                                actions.onSelectFree(key) // this already sets mode=Free, finished=false
-                                showLibrary = false
-                            },
-                            onPickGuided = { index ->
-                                actions.onStartGuided(index) // this already sets mode=Guided, entry=0, finished=false
-                                showLibrary = false
-                            },
-                            onToggleFavFree = actions.onToggleFavFree,
-                            onToggleFavGuided = actions.onToggleFavGuided,
-                            modifier = Modifier.fillMaxSize(),
-                        )
+                        Box(
+                            Modifier
+                                .fillMaxSize()
+                                .alpha(libraryAlpha.value)
+                        ) {
+                            LibraryContent(
+                                state = state,
+                                language = language,
+                                onPickFree = { key ->
+                                    actions.onSelectFree(key)
+                                    showLibrary = false
+                                },
+                                onPickGuided = { index ->
+                                    actions.onStartGuided(index)
+                                    showLibrary = false
+                                },
+                                onToggleFavFree = actions.onToggleFavFree,
+                                onToggleFavGuided = actions.onToggleFavGuided,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        }
                     },
                     content = {
                         MainPane(
@@ -93,9 +127,11 @@ fun TasbihBody(
                             onOpenReader = { showReader = true },
                             onClose = onClose,
                             onOpenHapticDialog = { showHapticDialog = true },
-                            // Prev finished data stays until user actually picks
-                            onDone = { showLibrary = true },
-                            modifier = Modifier.fillMaxSize(),
+                            onDone = {
+                                showLibrary = true
+                                libraryAnimTrigger++
+                            },
+                            modifier = Modifier.fillMaxSize().safeDrawingPadding(),
                             colors = colors,
                         )
                     },
@@ -124,6 +160,7 @@ fun TasbihBody(
                     language = language,
                     onUse = { d -> actions.onSelectFree(d.freeKey()) },
                     onToggleFavorite = { d -> actions.onToggleFavFree(d.freeKey()) },
+                    topTransparentModal = topTransparentModal,
                     onDismiss = { showReader = false },
                 )
             } else {

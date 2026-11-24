@@ -1,6 +1,5 @@
 package com.sadaqahcode.muslimlauncher.ui.tools
 
-import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
@@ -11,9 +10,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -22,18 +22,23 @@ import com.sadaqahcode.muslimlauncher.domain.model.AppTextSize
 import com.sadaqahcode.muslimlauncher.domain.model.ToolId
 import com.sadaqahcode.muslimlauncher.domain.model.ToolRegistry
 import com.sadaqahcode.muslimlauncher.domain.model.resolveTools
-import com.sadaqahcode.muslimlauncher.ui.home.PageMaxWidthScreen
-import com.sadaqahcode.muslimlauncher.ui.home.ThreeColumnMinWidth
+import com.sadaqahcode.muslimlauncher.ui.common.layout.AppBarPage
+import com.sadaqahcode.muslimlauncher.ui.common.layout.PageMaxWidthScreen
+import com.sadaqahcode.muslimlauncher.ui.common.layout.ThreeColumnMinWidth
 import com.sadaqahcode.muslimlauncher.ui.home.helper.doubleTapGesture
 import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.tools.components.ReorderToolsList
 import com.sadaqahcode.muslimlauncher.ui.tools.components.ToolCard
+import kotlinx.coroutines.launch
 import my.nanihadesuka.compose.LazyVerticalGridScrollbar
 import my.nanihadesuka.compose.ScrollbarSettings
 
 @Composable
 fun ToolsPage(
     textScale: AppTextSize,
+    paddingTop: Dp,
+    useCollapsingBar: Boolean,
+    paddingTopEnabled: Boolean,
     onOpenTool: (ToolId) -> Unit,
     onDoubleTapHome: () -> Unit,
     onBack: () -> Unit,
@@ -57,7 +62,6 @@ fun ToolsPage(
             .mapNotNull { ToolRegistry.byId[it] }
     }
 
-    // MOVED UP: must be before LaunchedEffect(pageActive)
     val gridState = rememberLazyGridState()
 
     fun saveAndClose() {
@@ -74,14 +78,12 @@ fun ToolsPage(
         isReorderMode = true
     }
 
-    // Swipe to Home / Widget = pageActive false -> save + scroll direct to top
     LaunchedEffect(pageActive) {
         if (!pageActive) {
             if (isReorderMode) {
                 saveAndClose()
             }
-            // Direct jump, no animation
-            gridState.scrollToItem(0)
+            launch { gridState.scrollToItem(0) }
         }
     }
 
@@ -112,56 +114,100 @@ fun ToolsPage(
     }
 
     val lc = LocalLegibleColors.current
-    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+
     val scrollbarSettings = remember {
         ScrollbarSettings.Default.copy(
             thumbThickness = 5.dp,
-            thumbUnselectedColor = androidx.compose.ui.graphics.Color.Transparent,
-            thumbSelectedColor = androidx.compose.ui.graphics.Color.Transparent,
+            thumbUnselectedColor = Color.Transparent,
+            thumbSelectedColor = Color.Transparent,
             scrollbarPadding = 0.dp,
         )
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize().doubleTapGesture(onDoubleTap = onDoubleTapHome, isGatingOk = { true }),
-        contentAlignment = Alignment.TopCenter,
-    ) {
-        Column(Modifier.widthIn(max = PageMaxWidthScreen).fillMaxSize()) {
-            Row(
-                modifier = Modifier.fillMaxWidth().statusBarsPadding()
-                    .padding(start = 4.dp, end = 8.dp, top = if (isLandscape) 4.dp else 16.dp, bottom = if (isLandscape) 8.dp else 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Outlined.ArrowBackIos, "Back to home", tint = lc.scheme.onBackground, modifier = Modifier.size(14.dp))
-                }
-                Column(Modifier.weight(1f)) {
-                    Text("Tools", style = textScale.scaled(MaterialTheme.typography.titleLarge), fontWeight = FontWeight.Medium, color = lc.scheme.onBackground)
-                    Text("Daily Islamic essentials", style = textScale.scaled(MaterialTheme.typography.bodySmall), color = lc.scheme.onBackground.copy(alpha = 0.72f))
-                }
-                IconButton(onClick = { enterReorder() }) {
-                    Icon(Icons.Outlined.UnfoldMore, "Manage tools", tint = lc.scheme.onBackground, modifier = Modifier.size(20.dp))
-                }
+    AppBarPage(
+        title = {
+            Text(
+                text = "Tools",
+                style = textScale.scaled(MaterialTheme.typography.titleLarge),
+                fontWeight = FontWeight.Medium,
+                color = lc.scheme.onBackground,
+            )
+        },
+        subtitle = {
+            Text(
+                text = "Daily Islamic essentials",
+                style = textScale.scaled(MaterialTheme.typography.bodySmall),
+                color = lc.scheme.onBackground.copy(alpha = 0.72f),
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowBackIos,
+                    contentDescription = "Back to home",
+                    tint = lc.scheme.onBackground,
+                )
             }
-            BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
-                val columns = if (maxWidth >= ThreeColumnMinWidth) 3 else 2
-                LazyVerticalGridScrollbar(state = gridState, settings = scrollbarSettings) {
-                    LazyVerticalGrid(
-                        state = gridState,
-                        columns = GridCells.Fixed(columns),
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(start = 28.dp, end = 28.dp, top = 8.dp, bottom = 38.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        banner?.let { b ->
-                            item(key = "banner-${b.id.key}", span = { GridItemSpan(maxLineSpan) }) {
-                                ToolCard(icon = toolIcon(b.id), title = stringResource(b.titleRes), liveValue = stringResource(b.subtitleRes), context = "", onClick = { onOpenTool(b.id) })
-                            }
+        },
+        actions = {
+            IconButton(onClick = { enterReorder() }) {
+                Icon(
+                    imageVector = Icons.Outlined.UnfoldMore,
+                    contentDescription = "Manage tools",
+                    tint = lc.scheme.onBackground,
+                )
+            }
+        },
+        useCollapsingBar = useCollapsingBar,
+        paddingTop = paddingTop,
+        paddingTopEnabled = paddingTopEnabled,
+        wrapperModifier = Modifier.doubleTapGesture(
+            onDoubleTap = onDoubleTapHome,
+            isGatingOk = { true },
+        ),
+    ) { innerPadding ->
+        BoxWithConstraints(
+            Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            val columns = if (maxWidth >= ThreeColumnMinWidth) 3 else 2
+            LazyVerticalGridScrollbar(state = gridState, settings = scrollbarSettings) {
+                LazyVerticalGrid(
+                    state = gridState,
+                    columns = GridCells.Fixed(columns),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        start = 28.dp,
+                        end = 28.dp,
+                        top = 8.dp,
+                        bottom = 38.dp,
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    banner?.let { b ->
+                        item(
+                            key = "banner-${b.id.key}",
+                            span = { GridItemSpan(maxLineSpan) },
+                        ) {
+                            ToolCard(
+                                icon = toolIcon(b.id),
+                                title = stringResource(b.titleRes),
+                                liveValue = stringResource(b.subtitleRes),
+                                context = "",
+                                onClick = { onOpenTool(b.id) },
+                            )
                         }
-                        items(tools, key = { it.id.key }) { tool ->
-                            ToolCard(icon = toolIcon(tool.id), title = stringResource(tool.titleRes), liveValue = stringResource(tool.subtitleRes), context = "", onClick = { onOpenTool(tool.id) })
-                        }
+                    }
+                    items(tools, key = { it.id.key }) { tool ->
+                        ToolCard(
+                            icon = toolIcon(tool.id),
+                            title = stringResource(tool.titleRes),
+                            liveValue = stringResource(tool.subtitleRes),
+                            context = "",
+                            onClick = { onOpenTool(tool.id) },
+                        )
                     }
                 }
             }

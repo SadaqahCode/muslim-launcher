@@ -17,13 +17,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,7 +31,6 @@ import com.sadaqahcode.muslimlauncher.ui.components.PinnedAppItem
 import com.sadaqahcode.muslimlauncher.ui.home.PrayerHeroState
 import com.sadaqahcode.muslimlauncher.ui.home.helper.doubleTapGesture
 import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
-import com.sadaqahcode.muslimlauncher.ui.theme.glass
 
 @Composable
 internal fun HomeContentLandscape(
@@ -63,25 +57,9 @@ internal fun HomeContentLandscape(
         Box(Modifier.fillMaxWidth()) {
             HeroSection(
                 state = heroState,
+                onOpenSettings = onOpenSettings,
                 textScale = settings.textSize
             )
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .glass(RoundedCornerShape(20.dp))
-                    .size(38.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                IconButton(
-                    onClick = onOpenSettings,
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Palette,
-                        contentDescription = "Theme settings",
-                        tint = colors.onBackground.copy(alpha = 0.65f),
-                    )
-                }
-            }
         }
     }
 
@@ -144,6 +122,13 @@ internal fun HomeContentLandscape(
                     .doubleTapGesture(onDoubleTap = onDoubleTapHome, isGatingOk = isGatingOk)
             ) {
                 if (widgetContent != null) {
+                    Box(
+                        Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    ) {
+                        widgetContent()
+                    }
                     Column(
                         modifier = Modifier
                             .weight(1f)
@@ -156,14 +141,6 @@ internal fun HomeContentLandscape(
                                 .weight(1f)
                                 .fillMaxWidth()
                         )
-                    }
-
-                    Box(
-                        Modifier
-                            .weight(1f)
-                            .fillMaxHeight()
-                    ) {
-                        widgetContent()
                     }
                 } else {
                     Column(

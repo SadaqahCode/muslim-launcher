@@ -155,7 +155,7 @@ fun MainPane(
                 item = item,
                 language = language,
                 onRepeat = actions.onRestartGuided,
-                onDone = onDone, // FIXED: was actions.onExitGuided, now uses TasbihBody's onDone which does exit + showLibrary = true
+                onDone = onDone,
                 scheme = colors,
                 modifier = Modifier.weight(1f),
             )

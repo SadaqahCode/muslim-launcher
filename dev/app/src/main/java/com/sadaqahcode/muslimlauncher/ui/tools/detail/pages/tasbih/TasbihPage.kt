@@ -1,22 +1,23 @@
 package com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -24,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,9 +56,9 @@ class Actions(
 internal fun TasbihPage(
     tool: Tool,
     onClose: () -> Unit,
+    topTransparentModal: Dp,
     viewModel: TasbihViewModel = hiltViewModel(),
 ) {
-
     val lc = LocalLegibleColors.current
     val colors = lc.scheme
     val userSettings by viewModel.settings.collectAsStateWithLifecycle()
@@ -95,38 +97,34 @@ internal fun TasbihPage(
         )
     }
 
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     Box(Modifier.fillMaxSize()) {
         Wallpaper(settings = userSettings, modifier = Modifier.fillMaxSize())
 
         Scaffold(
             containerColor = Color.Transparent,
-        ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(2.dp)
-                ) {
-                    if (state.isRefreshing) {
-                        LinearProgressIndicator(
-                            modifier = Modifier.fillMaxSize(),
-                            color = colors.primary,
-                            trackColor = colors.primary.copy(alpha = 0.15f),
-                        )
-                    }
-                }
-                Box(Modifier.weight(1f)) {
-                    TasbihContent(
-                        toolTitle = stringResource(tool.titleRes),
-                        state = state,
-                        language = language,
-                        actions = actions,
-                        onClose = onClose,
-                        scheme = colors,
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        ) { _ ->
+            Box(Modifier.fillMaxSize()) {
+                TasbihContent(
+                    toolTitle = stringResource(tool.titleRes),
+                    state = state,
+                    language = language,
+                    actions = actions,
+                    onClose = onClose,
+                    scheme = colors,
+                    topTransparentModal = topTransparentModal,
+                )
+
+                // Overlay — no reserved space, no layout shift when it shows/hides.
+                if (state.isRefreshing) {
+                    LinearProgressIndicator(
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .fillMaxWidth()
+                            .height(2.dp),
+                        color = colors.primary,
+                        trackColor = colors.primary.copy(alpha = 0.15f),
                     )
                 }
             }

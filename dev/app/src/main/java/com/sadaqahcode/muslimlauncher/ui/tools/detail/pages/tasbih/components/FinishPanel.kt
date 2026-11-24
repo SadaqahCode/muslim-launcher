@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrItem
 import com.sadaqahcode.muslimlauncher.domain.model.tools.name
-import com.sadaqahcode.muslimlauncher.ui.theme.GlassEmphasis
 import com.sadaqahcode.muslimlauncher.ui.theme.glass
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.displayTitle
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.tr
@@ -69,7 +68,7 @@ fun FinishPanel(
             Box(
                 modifier = Modifier
                     .size(80.dp)
-                    .glass(CircleShape, GlassEmphasis.Selected),
+                    .glass(CircleShape),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(

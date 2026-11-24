@@ -27,7 +27,7 @@
     <string name="commons_done">Done</string>
 
     <string name="home_set_default_launcher">Set Muslim Launcher as your default home?</string>
-    <string name="home_set_default_launcher_action">"Set default</string>
+    <string name="home_set_default_launcher_action">Set</string>
 
     <string name="tool_qibla_title">Qibla</string>
     <string name="tool_qibla_sub">Direction of the Ka\'bah from where you stand</string>

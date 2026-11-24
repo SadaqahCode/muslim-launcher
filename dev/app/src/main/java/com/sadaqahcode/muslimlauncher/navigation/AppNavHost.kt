@@ -1,19 +1,18 @@
 package com.sadaqahcode.muslimlauncher.navigation
 
-import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -29,9 +28,6 @@ import com.sadaqahcode.muslimlauncher.ui.settings.SettingsScreen
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.ToolDetailScreen
 import kotlinx.coroutines.flow.StateFlow
 
-private const val NAV_DURATION = 320
-private const val FADE_DURATION = 220
-private val navEasing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
 
 @Composable
 fun AppNavHost(
@@ -39,13 +35,11 @@ fun AppNavHost(
 ) {
     val navController = rememberNavController()
 
-    // Center dot / Home pill while inside a tool -> close to Home
     LaunchedEffect(navController) {
         var lastSeen = homePressCount.value
         homePressCount.collect { count ->
             if (count != lastSeen) {
                 lastSeen = count
-                // Already on HOME = no-op. else = pop to HOME.
                 navController.popBackStack(AppRoutes.HOME, inclusive = false)
             }
         }
@@ -58,25 +52,35 @@ fun AppNavHost(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
         enterTransition = {
-            slideInHorizontally(tween(NAV_DURATION, easing = navEasing)) { 24 } +
-                    fadeIn(tween(FADE_DURATION)) +
-                    scaleIn(tween(NAV_DURATION, easing = navEasing), initialScale = 0.98f)
+            fadeIn(tween(220, easing = FastOutSlowInEasing)) +
+                    slideInVertically(
+                        animationSpec = tween(220, easing = FastOutSlowInEasing),
+                        initialOffsetY = { fullHeight -> fullHeight / 20 } // Small upward drift from center
+                    ) +
+                    scaleIn(
+                        animationSpec = tween(220, easing = FastOutSlowInEasing),
+                        initialScale = 0.94f,
+                        transformOrigin = TransformOrigin(0.5f, 0f) // Anchored to top-center
+                    )
         },
         exitTransition = {
-            slideOutHorizontally(tween(NAV_DURATION, easing = navEasing)) { -24 } +
-                    fadeOut(tween(FADE_DURATION)) +
-                    scaleOut(tween(NAV_DURATION, easing = navEasing), targetScale = 0.98f)
+            fadeOut(tween(160, easing = FastOutSlowInEasing))
         },
         popEnterTransition = {
-            slideInHorizontally(tween(NAV_DURATION, easing = navEasing)) { -24 } +
-                    fadeIn(tween(FADE_DURATION)) +
-                    scaleIn(tween(NAV_DURATION, easing = navEasing), initialScale = 0.98f)
+            fadeIn(tween(220, easing = FastOutSlowInEasing)) +
+                    slideInVertically(
+                        animationSpec = tween(220, easing = FastOutSlowInEasing),
+                        initialOffsetY = { fullHeight -> fullHeight / 20 }
+                    ) +
+                    scaleIn(
+                        animationSpec = tween(220, easing = FastOutSlowInEasing),
+                        initialScale = 0.94f,
+                        transformOrigin = TransformOrigin(0.5f, 0f)
+                    )
         },
         popExitTransition = {
-            slideOutHorizontally(tween(NAV_DURATION, easing = navEasing)) { 24 } +
-                    fadeOut(tween(FADE_DURATION)) +
-                    scaleOut(tween(NAV_DURATION, easing = navEasing), targetScale = 0.98f)
-        },
+            fadeOut(tween(160, easing = FastOutSlowInEasing))
+        }
     ) {
         composable(AppRoutes.HOME) {
             val vm: HomeViewModel = hiltViewModel()
@@ -87,7 +91,7 @@ fun AppNavHost(
                     navController.navigate(AppRoutes.SETTINGS) {
                         launchSingleTop = true
                     }
-                }, 
+                },
                 onOpenTool = { toolId, wallpaperIsDark, wallpaperTextMode, needsHalo, adaptToWallpaper ->
                     navController.navigate(
                         AppRoutes.toolDetail(
