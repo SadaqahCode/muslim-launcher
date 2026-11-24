@@ -1,6 +1,9 @@
 version: 2
+
 updates:
-    - package-ecosystem: "gradle"
+  - package-ecosystem: "gradle"
     directory: "/dev"
     schedule:
       interval: "weekly"
+    labels:
+      - "dependencies"
