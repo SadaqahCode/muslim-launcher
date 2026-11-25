@@ -24,10 +24,10 @@ import com.sadaqahcode.muslimlauncher.domain.model.ToolRegistry
 import com.sadaqahcode.muslimlauncher.domain.model.WallpaperTextMode
 import com.sadaqahcode.muslimlauncher.ui.home.HomeScreen
 import com.sadaqahcode.muslimlauncher.ui.home.HomeViewModel
+import com.sadaqahcode.muslimlauncher.ui.settings.LicensesScreen
 import com.sadaqahcode.muslimlauncher.ui.settings.SettingsScreen
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.ToolDetailScreen
 import kotlinx.coroutines.flow.StateFlow
-
 
 @Composable
 fun AppNavHost(
@@ -110,6 +110,16 @@ fun AppNavHost(
         composable(AppRoutes.SETTINGS) {
             SettingsScreen(
                 onClose = { navController.popBackStack() },
+                onOpenLicenses = {
+                    navController.navigate(AppRoutes.LICENSES) {
+                        launchSingleTop = true
+                    }
+                },
+            )
+        }
+        composable(AppRoutes.LICENSES) {
+            LicensesScreen(
+                onBack = { navController.popBackStack() },
             )
         }
         composable(

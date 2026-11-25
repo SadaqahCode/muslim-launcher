@@ -3,6 +3,15 @@
 ### 0.4.3 (2026-11-25)
 
 ##### Added
+- `PT13` feat: project — add lib `AboutLibraries`
+- `PT13` feat: project — add folder `/config/` for manual `AboutLibraries` libraries
+- `PT13` feat: settings — new screen `LicensesScreen`
+- `PT13` feat: settings — new page `licenses` for open source licenses
+- `PT13` feat: fonts — register Amiri Quran, Source Sans 3, Source Serif 4 in `dev/config/libraries/` with `OFL-1.1`
+
+---
+
+##### Added
 - `PT12` feat: common/layout — new reusable `SoftScrollbar`
 - `PT12` feat: project — add root-level `THIRD-PARTY-NOTICES.md`
 

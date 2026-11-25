@@ -16,6 +16,7 @@ dataStore = "1.3.0"
 kotlinxDatetime = "0.8.0"
 kotlinxCoroutines = "1.11.0"
 navigationCompose = "2.10.2"
+aboutlibraries = "15.3.0"
 ui = "1.12.1"
 material = "1.14.0"
 
@@ -47,10 +48,12 @@ kotlinx-datetime           = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-test    = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test",    version.ref = "kotlinxCoroutines" }
 hilt-lifecycle-viewmodel-compose = { group = "androidx.hilt", name = "hilt-lifecycle-viewmodel-compose", version.ref = "hilt-compose" }
+aboutlibraries-compose-m3 = { group = "com.mikepenz", name = "aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+aboutlibraries-android = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutlibraries" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

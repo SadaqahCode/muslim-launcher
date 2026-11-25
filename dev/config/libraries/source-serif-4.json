@@ -1,0 +1,22 @@
+{
+  "uniqueId": "fonts:source-serif-4",
+  "name": "Source Serif 4",
+  "description": "Source Serif 4, version 4.004, Regular, TTF. Designed by Frank Grießhammer. Copyright 2014-2021 【entity-Adobe¦canonical_name=Adobe】 Systems Incorporated, with Reserved Font Name \"Source\".",
+  "website": "https://github.com/adobe-fonts/source-serif",
+  "developers": [
+    {
+      "name": "Frank Grießhammer",
+      "organisationUrl": "https://github.com/adobe-fonts/source-serif"
+    }
+  ],
+  "organization": {
+    "name": "【entity-Adobe¦canonical_name=Adobe】",
+    "url": "https://github.com/adobe-fonts/source-serif"
+  },
+  "scm": {
+    "connection": "scm:git:https://github.com/adobe-fonts/source-serif.git",
+    "developerConnection": "scm:git:https://github.com/adobe-fonts/source-serif.git",
+    "url": "https://github.com/adobe-fonts/source-serif"
+  },
+  "licenses": ["OFL-1.1"]
+}

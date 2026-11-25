@@ -1,0 +1,22 @@
+{
+  "uniqueId": "fonts:source-sans-3",
+  "name": "Source Sans 3",
+  "description": "Source Sans 3, version 3.052, Regular, TTF. Designed by Paul D. Hunt. Copyright 2023 【entity-Adobe¦canonical_name=Adobe】, with Reserved Font Name \"Source\".",
+  "website": "https://github.com/adobe-fonts/source-sans",
+  "developers": [
+    {
+      "name": "Paul D. Hunt",
+      "organisationUrl": "https://github.com/adobe-fonts/source-sans"
+    }
+  ],
+  "organization": {
+    "name": "【entity-Adobe¦canonical_name=Adobe】",
+    "url": "https://github.com/adobe-fonts/source-sans"
+  },
+  "scm": {
+    "connection": "scm:git:https://github.com/adobe-fonts/source-sans.git",
+    "developerConnection": "scm:git:https://github.com/adobe-fonts/source-sans.git",
+    "url": "https://github.com/adobe-fonts/source-sans"
+  },
+  "licenses": ["OFL-1.1"]
+}

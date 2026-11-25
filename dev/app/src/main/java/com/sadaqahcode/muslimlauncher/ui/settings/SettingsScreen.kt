@@ -38,6 +38,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Policy
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material3.Button
@@ -100,6 +101,7 @@ private val GroupShape = RoundedCornerShape(24.dp)
 @Composable
 fun SettingsScreen(
     onClose: () -> Unit,
+    onOpenLicenses: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val s by viewModel.settings.collectAsStateWithLifecycle()
@@ -144,6 +146,9 @@ fun SettingsScreen(
             LargeTopAppBar(
                 title = { Text("Settings") },
                 actions = {
+                    IconButton(onClick = onOpenLicenses) {
+                        Icon(Icons.Default.Policy, contentDescription = "Open Source Licenses")
+                    }
                     IconButton(onClick = onClose) {
                         Icon(Icons.Default.Close, contentDescription = "Close settings")
                     }

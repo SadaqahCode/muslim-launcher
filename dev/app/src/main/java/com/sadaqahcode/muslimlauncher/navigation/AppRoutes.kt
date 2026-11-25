@@ -6,6 +6,7 @@ import com.sadaqahcode.muslimlauncher.domain.model.WallpaperTextMode
 object AppRoutes {
     const val HOME = "home"
     const val SETTINGS = "settings"
+    const val LICENSES = "licenses"
 
     const val TOOL_DETAIL =
         "tool/{toolId}?dark={dark}&mode={mode}&halo={halo}&adapt={adapt}"

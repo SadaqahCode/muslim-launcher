@@ -1,0 +1,22 @@
+{
+  "uniqueId": "fonts:amiri-quran",
+  "name": "Amiri Quran",
+  "description": "Amiri Quran, Regular, TTF. Copyright 2010-2022 The Amiri Project Authors.",
+  "website": "https://github.com/aliftype/amiri",
+  "developers": [
+    {
+      "name": "The Amiri Project Authors",
+      "organisationUrl": "https://github.com/aliftype/amiri"
+    }
+  ],
+  "organization": {
+    "name": "The Amiri Project",
+    "url": "https://github.com/aliftype/amiri"
+  },
+  "scm": {
+    "connection": "scm:git:https://github.com/aliftype/amiri.git",
+    "developerConnection": "scm:git:https://github.com/aliftype/amiri.git",
+    "url": "https://github.com/aliftype/amiri"
+  },
+  "licenses": ["OFL-1.1"]
+}

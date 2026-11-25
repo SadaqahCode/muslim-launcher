@@ -4,4 +4,5 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.ksp) apply false
     id("com.google.dagger.hilt.android") version "2.60.1" apply false
+    id("com.mikepenz.aboutlibraries.plugin.android") version "15.3.0" apply false
 }

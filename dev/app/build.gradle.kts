@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.aboutlibraries.android)
     id("com.google.dagger.hilt.android")
     kotlin("plugin.serialization") version "2.0.21"
 }
@@ -168,6 +169,9 @@ dependencies {
     // Guide UI
     implementation("io.github.tharukack:guidekit:1.2.0")
 
+    // Library UI
+    implementation(libs.aboutlibraries.compose.m3)
+
     // ── Tests ──────────────────────────────────────────────────────────────
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -179,4 +183,10 @@ dependencies {
 
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+}
+
+aboutLibraries {
+    collect {
+        configPath = file("../config")
+    }
 }

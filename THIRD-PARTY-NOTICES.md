@@ -72,6 +72,14 @@ This project includes third-party software and assets, each subject to its respe
 - License: MIT
 - Source: https://github.com/tharukack/guidekit
 
+### AboutLibraries
+
+- Version: 15.3.0
+- Developer: Mike Penz
+- Copyright: Copyright 2026 Mike Penz
+- License: Apache-2.0
+- Source: https://github.com/mikepenz/aboutlibraries
+
 ### DebugPrint
 
 - Version: 0.1.1
@@ -89,7 +97,29 @@ This project includes third-party software and assets, each subject to its respe
 - Copyright: Copyright 2010-2022 The Amiri Project Authors.
 - License: SIL Open Font License 1.1
 - Source: https://github.com/aliftype/amiri
-- License File: data/fonts/OFL.txt
+- License File: licenses/fonts/Amiri-OFL.txt
+
+### Source Sans 3
+
+- Version: 3.052
+- Style: Regular
+- Format: TTF
+- Designer: Paul D. Hunt
+- Copyright: © 2023 Adobe, with Reserved Font Name "Source".
+- License: SIL Open Font License 1.1 (OFL-1.1)
+- Source: https://github.com/adobe-fonts/source-sans
+- License File: licenses/fonts/SourceSans3-OFL.txt
+
+### Source Serif 4
+
+- Version: 4.004
+- Style: Regular
+- Format: TTF
+- Designer: Frank Grießhammer
+- Copyright: © 2014-2021 Adobe Systems Incorporated, with Reserved Font Name "Source".
+- License: SIL Open Font License 1.1 (OFL-1.1)
+- Source: https://github.com/adobe-fonts/source-serif
+- License File: licenses/fonts/SourceSerif4-OFL.txt
 
 ---
 

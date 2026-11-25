@@ -3,22 +3,19 @@ package com.sadaqahcode.muslimlauncher.ui.tools.components
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +38,9 @@ import com.sadaqahcode.muslimlauncher.ui.theme.glass
 private val CARD_HEIGHT = 150.dp
 private val CARD_RADIUS = 24.dp
 
+private val WATERMARK_SIZE = 104.dp
+private val WATERMARK_OFFSET = 26.dp
+
 @Composable
 internal fun ToolCard(
     icon: ImageVector,
@@ -53,6 +53,7 @@ internal fun ToolCard(
 ) {
     val colors = MaterialTheme.colorScheme
     val isDark = colors.background.luminance() < 0.5f
+    val shape = RoundedCornerShape(CARD_RADIUS)
 
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
@@ -64,6 +65,13 @@ internal fun ToolCard(
         ),
         label = "toolCardPress",
     )
+    val watermarkAlpha = animateFloatAsState(
+        targetValue = when {
+            pressed -> if (isDark) 0.20f else 0.17f
+            else -> if (isDark) 0.14f else 0.12f
+        },
+        label = "toolCardWatermark",
+    )
 
     Box(
         modifier = modifier
@@ -73,7 +81,8 @@ internal fun ToolCard(
                 scaleX = scale.value
                 scaleY = scale.value
             }
-            .glass(RoundedCornerShape(CARD_RADIUS))
+            .glass(shape)
+            .clip(shape)
             .clickable(
                 interactionSource = interaction,
                 indication = null,
@@ -82,37 +91,31 @@ internal fun ToolCard(
                 onClick = onClick,
             )
     ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = colors.primary,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .offset(x = WATERMARK_OFFSET, y = WATERMARK_OFFSET)
+                .size(WATERMARK_SIZE)
+                .graphicsLayer { alpha = watermarkAlpha.value },
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(18.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(colors.onSurface.copy(alpha = if (isDark) 0.10f else 0.06f)),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = colors.primary,
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
-                Spacer(Modifier.width(10.dp))
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = colors.onSurface,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = colors.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
             Column {
                 Text(
                     text = liveValue,
