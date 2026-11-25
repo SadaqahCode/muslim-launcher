@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.aboutlibraries.android)
     id("com.google.dagger.hilt.android")
-    kotlin("plugin.serialization") version "2.0.21"
+    kotlin("plugin.serialization") version "2.4.21"
 }
 
 // Read local.properties at build time
