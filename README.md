@@ -3,6 +3,7 @@
 **by [Sadaqah Code](https://github.com/SadaqahCode)**
 
 > **Most launchers are built to keep you engaged.**
+>
 > **Muslim Launcher is built to keep you aware.**
 
 ![Muslim Launcher Screenshots](./data/images/screenshots.jpg)
@@ -13,7 +14,7 @@ It approaches the smartphone not merely as a device for accessing apps, but as a
 
 No ads. No analytics. No tracking.
 
-[![Version](https://img.shields.io/badge/version-0.4.1-blue.svg)]()
+[![Version](https://img.shields.io/github/v/release/SadaqahCode/muslim-launcher?label=version)](https://github.com/SadaqahCode/muslim-launcher/releases/latest)
 [![License](https://img.shields.io/badge/license-GPL--3.0-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-brightgreen.svg)]()
 [![Target SDK](https://img.shields.io/badge/targetSdk-37-orange.svg)]()
@@ -82,28 +83,13 @@ Muslim Launcher is designed to operate without unnecessary data collection.
 
 Your smartphone usage should not become another source of data extraction.
 
-## Project Status
-
-**Current version: 0.4.1**
-
-The project is under active development.
-
-| Component      | Status         |
-| -------------- | -------------- |
-| Home           | Implemented    |
-| App Drawer     | Implemented    |
-| App Categories | Implemented    |
-| Widgets        | Implemented    |
-| Gestures       | Implemented    |
-| Tools          | Placeholder UI |
-
-Features and implementation details may change as development progresses.
-
 ## Documentation
 
-- [Roadmap](./docs/ROADMAP.md)
-- [Developer Contract](./DEVELOPER_CONTRACT.md)
-- [Changelog](./dev/CHANGELOG.md)
+- [Roadmap](./data/docs/ROADMAP.md)
+- [Developer Contract](./data/docs/DEVELOPER_CONTRACT.md)
+- [Changelog](./changelog/)
+
+Changelog uses a PT (Patch) system. Each PT represents a numbered group of development changes, recorded in a separate Markdown file under `changelog/`. The application version follows the `major.year.PT` format (e.g. PT14 = 0.26.14).
 
 ## Contributing
 
@@ -141,6 +127,7 @@ Founded and maintained by [FlagoDNA](https://flagodna.com).
 ---
 
 > **The phone is an _amanah_.**
+>
 > Muslim Launcher is built with that responsibility in mind.
 
 **Bismillah.**

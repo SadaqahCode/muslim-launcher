@@ -1,6 +1,6 @@
 .idea/
-dev/.idea
-dev/.kotlin
+mobile/.idea
+mobile/.kotlin
 
-docs/mockups
-docs/DESIGN_AND_FEATURES.md
+data/docs/mockups
+data/docs/DESIGN_AND_FEATURES.md

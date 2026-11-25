@@ -97,7 +97,7 @@ This project includes third-party software and assets, each subject to its respe
 - Copyright: Copyright 2010-2022 The Amiri Project Authors.
 - License: SIL Open Font License 1.1
 - Source: https://github.com/aliftype/amiri
-- License File: licenses/fonts/Amiri-OFL.txt
+- License File: data/licenses/fonts/Amiri-OFL.txt
 
 ### Source Sans 3
 
@@ -108,7 +108,7 @@ This project includes third-party software and assets, each subject to its respe
 - Copyright: © 2023 Adobe, with Reserved Font Name "Source".
 - License: SIL Open Font License 1.1 (OFL-1.1)
 - Source: https://github.com/adobe-fonts/source-sans
-- License File: licenses/fonts/SourceSans3-OFL.txt
+- License File: data/licenses/fonts/SourceSans3-OFL.txt
 
 ### Source Serif 4
 
@@ -119,7 +119,7 @@ This project includes third-party software and assets, each subject to its respe
 - Copyright: © 2014-2021 Adobe Systems Incorporated, with Reserved Font Name "Source".
 - License: SIL Open Font License 1.1 (OFL-1.1)
 - Source: https://github.com/adobe-fonts/source-serif
-- License File: licenses/fonts/SourceSerif4-OFL.txt
+- License File: data/licenses/fonts/SourceSerif4-OFL.txt
 
 ---
 
