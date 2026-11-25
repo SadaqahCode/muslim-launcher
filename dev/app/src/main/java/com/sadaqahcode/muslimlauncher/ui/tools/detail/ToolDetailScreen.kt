@@ -8,6 +8,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sadaqahcode.muslimlauncher.domain.model.Tool
 import com.sadaqahcode.muslimlauncher.domain.model.ToolId
 import com.sadaqahcode.muslimlauncher.domain.model.WallpaperTextMode
+import com.sadaqahcode.muslimlauncher.ui.common.layout.ScreenLayout
 import com.sadaqahcode.muslimlauncher.ui.common.layout.ScreenTopPadding
 import com.sadaqahcode.muslimlauncher.ui.common.layout.rememberScreenLayout
 import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
@@ -19,12 +20,12 @@ import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.TasbihPage
 internal typealias ToolPageContent = @Composable (
     tool: Tool,
     onClose: () -> Unit,
-    topTransparentModal: Dp,
+    screenLayout: ScreenLayout,
 ) -> Unit
 
 private val ToolPages: Map<ToolId, ToolPageContent> = mapOf(
-    ToolId.Tasbih to { tool, onClose, topTransparentModal ->
-        TasbihPage(tool, onClose, topTransparentModal)
+    ToolId.Tasbih to { tool, onClose, screenLayout ->
+        TasbihPage(tool, onClose, screenLayout)
     },
     // add more
 )
@@ -43,7 +44,6 @@ fun ToolDetailScreen(
     val textScale = settings.textSize
 
     val screen = rememberScreenLayout()
-    val topTransparentModal = screen.topTransparent
     val screenTopPadding = ScreenTopPadding.resolve(screen)
     val useCollapsingBar = !(screen.isLandscape && !screen.isLargeLandscape)
 
@@ -69,7 +69,7 @@ fun ToolDetailScreen(
             return@ProvideLegibleColors
         }
         val page = ToolPages[tool.id]
-        if (page != null) page(tool, onClose, topTransparentModal)
+        if (page != null) page(tool, onClose, screen)
         else PlaceholderToolPage(
             tool = tool,
             onClose = onClose,

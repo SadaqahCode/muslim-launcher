@@ -49,6 +49,7 @@ fun TapCounter(
     onTap: () -> Unit,
     scheme: ColorScheme,
     modifier: Modifier,
+    ringModifier: Modifier = Modifier,
 ) {
     val defaultColors = MaterialTheme.colorScheme
 
@@ -98,7 +99,12 @@ fun TapCounter(
         val stroke = (size.value * 0.022f).coerceIn(5f, 10f).dp
         val countSize = (size.value * 0.30f).coerceIn(56f, 120f).sp
 
-        Box(Modifier.size(size), contentAlignment = Alignment.Center) {
+        Box(
+            Modifier
+                .size(size)
+                .then(ringModifier),
+            contentAlignment = Alignment.Center,
+        ) {
             Canvas(Modifier.matchParentSize()) {
                 val strokePx = stroke.toPx()
                 val inset = strokePx / 2f

@@ -54,6 +54,7 @@ fun ReaderPage(d: Dhikr, language: String) {
                 color = colors.onSurface,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
+
             )
         }
         if (latin.isNotEmpty()) {

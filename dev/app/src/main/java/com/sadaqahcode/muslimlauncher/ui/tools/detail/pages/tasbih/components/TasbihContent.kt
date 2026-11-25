@@ -3,6 +3,7 @@ package com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.components
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
+import com.sadaqahcode.muslimlauncher.ui.common.layout.ScreenLayout
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.Actions
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.TasbihUiState
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.tr
@@ -15,7 +16,8 @@ fun TasbihContent(
     actions: Actions,
     onClose: () -> Unit,
     scheme: ColorScheme,
-    topTransparentModal: Dp,
+    screen: ScreenLayout,
+    onboardingDone: Boolean = false,
 ) {
     when {
         state.items.isEmpty() && state.error != null -> MessagePane(
@@ -43,7 +45,8 @@ fun TasbihContent(
             actions,
             onClose,
             colors = scheme,
-            topTransparentModal = topTransparentModal,
+            screen = screen,
+            onboardingDone = onboardingDone
         )
     }
 }

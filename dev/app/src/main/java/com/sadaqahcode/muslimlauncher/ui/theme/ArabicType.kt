@@ -9,8 +9,8 @@ import androidx.compose.ui.unit.sp
 import com.sadaqahcode.muslimlauncher.R
 
 
-val KfgqpcHafs = FontFamily(
-    Font(R.font.kfgqpc_uthmanic_hafs, FontWeight.Normal),
+val ArabicFont = FontFamily(
+    Font(R.font.amiri_regular, FontWeight.Normal),
 )
 
 private val ArabicLineHeight = LineHeightStyle(
@@ -22,7 +22,7 @@ private const val ARABIC_FEATURES = "\"calt\" 1, \"liga\" 1, \"mark\" 1, \"mkmk\
 
 
 private fun arabic(size: Int, lineHeight: Int): TextStyle = TextStyle(
-    fontFamily = KfgqpcHafs,
+    fontFamily = ArabicFont,
     fontWeight = FontWeight.Normal,
     fontSize = size.sp,
     lineHeight = lineHeight.sp,
@@ -30,30 +30,31 @@ private fun arabic(size: Int, lineHeight: Int): TextStyle = TextStyle(
     lineHeightStyle = ArabicLineHeight,
     fontFeatureSettings = ARABIC_FEATURES,
 )
+
 object ArabicType {
 
     // ── DISPLAY — hero moments ────────────────────────────────────────
-    val displayLarge  = arabic(size = 72, lineHeight = 130)
-    val displayMedium = arabic(size = 64, lineHeight = 116)
-    val displaySmall  = arabic(size = 52, lineHeight = 94)
+    val displayLarge  = arabic(size = 72, lineHeight = 138)
+    val displayMedium = arabic(size = 64, lineHeight = 124)
+    val displaySmall  = arabic(size = 52, lineHeight = 102)
 
     // ── HEADLINE — section ceremony ───────────────────────────────────
-    val headlineLarge  = arabic(size = 44, lineHeight = 80)
-    val headlineMedium = arabic(size = 40, lineHeight = 72)
-    val headlineSmall  = arabic(size = 36, lineHeight = 66)
+    val headlineLarge  = arabic(size = 44, lineHeight = 88)
+    val headlineMedium = arabic(size = 40, lineHeight = 80)
+    val headlineSmall  = arabic(size = 36, lineHeight = 74)
 
     // ── TITLE — card / block titles ───────────────────────────────────
-    val titleLarge  = arabic(size = 32, lineHeight = 60)
-    val titleMedium = arabic(size = 28, lineHeight = 52)
-    val titleSmall  = arabic(size = 26, lineHeight = 48)
+    val titleLarge  = arabic(size = 32, lineHeight = 68)
+    val titleMedium = arabic(size = 28, lineHeight = 60)
+    val titleSmall  = arabic(size = 26, lineHeight = 56)
 
     // ── BODY — running Arabic text ────────────────────────────────────
-    val bodyLarge  = arabic(size = 24, lineHeight = 44)
-    val bodyMedium = arabic(size = 22, lineHeight = 40)
-    val bodySmall  = arabic(size = 20, lineHeight = 36)
+    val bodyLarge  = arabic(size = 24, lineHeight = 52)
+    val bodyMedium = arabic(size = 22, lineHeight = 48)
+    val bodySmall  = arabic(size = 20, lineHeight = 44)
 
     // ── LABEL — smallest functional Arabic ────────────────────────────
-    val labelLarge  = arabic(size = 20, lineHeight = 36)
-    val labelMedium = arabic(size = 18, lineHeight = 32)
-    val labelSmall  = arabic(size = 16, lineHeight = 28)
+    val labelLarge  = arabic(size = 20, lineHeight = 44)
+    val labelMedium = arabic(size = 18, lineHeight = 40)
+    val labelSmall  = arabic(size = 16, lineHeight = 36)
 }

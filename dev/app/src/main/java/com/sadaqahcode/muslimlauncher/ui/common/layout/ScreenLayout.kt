@@ -31,6 +31,8 @@ data class ScreenLayout(
     val shortSide: Float,
     val transparentFraction: Float,
     val topTransparent: Dp,
+    val isTablet: Boolean,
+    val isSplit: Boolean,
 ) {
     companion object {
         fun from(widthDp: Int, heightDp: Int): ScreenLayout {
@@ -49,6 +51,8 @@ data class ScreenLayout(
                 shortSide = shortSide,
                 transparentFraction = transparentFraction,
                 topTransparent = heightDp.dp * transparentFraction,
+                isTablet = widthDp >= 840 && heightDp >= 500,
+                isSplit = isLandscape && widthDp >= 480,
             )
         }
     }

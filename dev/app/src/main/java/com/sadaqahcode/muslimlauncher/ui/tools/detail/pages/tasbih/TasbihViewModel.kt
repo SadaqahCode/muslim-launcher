@@ -62,6 +62,7 @@ data class TasbihUiState(
     val guidedCount: Int = 0,
     val finished: Boolean = false,
     val favoriteGuided: Set<String> = emptySet(),
+    val onboardingDone: Boolean? = null,
 ) {
     val autoRun: Boolean get() = mode == TasbihMode.Guided
     val freeList: List<Dhikr>
@@ -121,6 +122,9 @@ class TasbihViewModel @Inject constructor(
             .launchIn(viewModelScope)
         prefs.hapticMode
             .onEach { mode -> _state.update { it.copy(hapticMode = mode) } }
+            .launchIn(viewModelScope)
+        prefs.onboardingDone
+            .onEach { done -> _state.update { it.copy(onboardingDone = done) } }
             .launchIn(viewModelScope)
 
         viewModelScope.launch {
@@ -353,6 +357,15 @@ class TasbihViewModel @Inject constructor(
             delay(3_000.milliseconds)
             _state.update { it.copy(confirmingReset = false) }
         }
+    }
+    fun completeOnboarding() {
+        _state.update { it.copy(onboardingDone = true) }
+        viewModelScope.launch { prefs.markOnboardingDone() }
+    }
+
+    fun resetOnboarding() {
+        _state.update { it.copy(onboardingDone = false) }
+        viewModelScope.launch { prefs.resetOnboarding() }
     }
 
     private fun TasbihUiState.withCount(n: Int): TasbihUiState {

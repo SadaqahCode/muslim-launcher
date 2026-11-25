@@ -2,6 +2,7 @@ package com.sadaqahcode.muslimlauncher.data.local.store
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -37,6 +38,7 @@ class TasbihDataStore @Inject constructor(
         val LastGuided = stringPreferencesKey("last_guided_key")
         val FreeTarget = intPreferencesKey("free_target")
         val HapticMode = stringPreferencesKey("haptic_mode")
+        val OnboardingDone = booleanPreferencesKey("onboarding_done")
     }
 
     private val prefsFlow: Flow<Preferences> = dataStore.data.catch { e ->
@@ -57,6 +59,12 @@ class TasbihDataStore @Inject constructor(
         }
         .distinctUntilChanged()
 
+    // ── Onboarding ────────────────────────────────────────────────────────
+    val onboardingDone: Flow<Boolean> =
+        prefsFlow.map { it[Keys.OnboardingDone] ?: false }.distinctUntilChanged()
+
+    // ── Reads ─────────────────────────────────────────────────────────────
+
     suspend fun readSaved(): Saved {
         val p = prefsFlow.first()
         return Saved(
@@ -66,6 +74,8 @@ class TasbihDataStore @Inject constructor(
             lastGuidedKey = p[Keys.LastGuided],
         )
     }
+
+    // ── Writes ────────────────────────────────────────────────────────────
 
     suspend fun toggleFavoriteFree(key: String) = toggle(Keys.FavoriteFree, key)
 
@@ -89,6 +99,14 @@ class TasbihDataStore @Inject constructor(
 
     suspend fun saveHapticMode(mode: HapticMode) {
         dataStore.edit { it[Keys.HapticMode] = mode.name }
+    }
+
+    suspend fun markOnboardingDone() {
+        dataStore.edit { it[Keys.OnboardingDone] = true }
+    }
+
+    suspend fun resetOnboarding() {
+        dataStore.edit { it.remove(Keys.OnboardingDone) }
     }
 
     private suspend fun toggle(key: Preferences.Key<Set<String>>, value: String) {

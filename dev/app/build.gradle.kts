@@ -165,6 +165,9 @@ dependencies {
     implementation("com.materialkolor:material-color-utilities:6.0.0")
     implementation("com.materialkolor:material-kolor-material3:6.0.0")
 
+    // Guide UI
+    implementation("io.github.tharukack:guidekit:1.2.0")
+
     // ── Tests ──────────────────────────────────────────────────────────────
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

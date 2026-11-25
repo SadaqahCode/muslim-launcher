@@ -3,6 +3,20 @@
 ### 0.4.3 (2026-11-25)
 
 ##### Added
+- `PT12` feat: common/layout — new reusable `SoftScrollbar`
+- `PT12` feat: project — add root-level `THIRD-PARTY-NOTICES.md`
+
+##### Changed
+- `PT12` changed: typography — Arabic font switched from Uthmani to Amiri
+- `PT12` updated: common/layout — `ScreenLayout` updated to support `SoftScrollbar`
+- `PT12` updated: components — `AdaptiveSidebarLayout` adds `permanentSidebar: Boolean` and `onDrawerOpen`
+
+##### Fixed
+- `PT12` fix: scrolling — fix scroll indicator behavior on scrollable pages
+
+---
+
+##### Added
 - `PT11` feat: common — reusable `AppBarPage`, `ScreenLayout`, `ScreenTopPadding` under `ui/common/layout`
 - `PT11` feat: common — reusable `AdaptiveSidebarLayout` with `sidebarWindowInsets` / `contentWindowInsets` for edge-to-edge sidebar + content panes
 - `PT11` feat: settings — new "Extra space at top" toggle (`paddingTopEnabled`); when off, ignores `paddingTop` **and** forces short `TopAppBar`

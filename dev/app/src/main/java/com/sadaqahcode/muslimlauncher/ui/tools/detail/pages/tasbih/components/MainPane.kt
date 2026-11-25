@@ -1,6 +1,7 @@
 package com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -20,6 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,6 +55,10 @@ fun MainPane(
     onOpenHapticDialog: () -> Unit,
     colors: ColorScheme,
     modifier: Modifier,
+    onPickerBounds: (Rect?) -> Unit = {},
+    onFavoriteBounds: (Rect?) -> Unit = {},
+    onHapticBounds: (Rect?) -> Unit = {},
+    onCounterBounds: (Rect?) -> Unit = {},
 ) {
     val guided = state.autoRun && item != null
     val finished = guided && state.finished
@@ -76,7 +84,8 @@ fun MainPane(
                 modifier = Modifier
                     .weight(1f)
                     .then(pickerModifier)
-                    .padding(horizontal = 8.dp, vertical = 6.dp),
+                    .padding(horizontal = 8.dp, vertical = 6.dp)
+                    .onGloballyPositioned { onPickerBounds(it.boundsInRoot()) },
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -122,16 +131,24 @@ fun MainPane(
                     }
                 }
             }
-            FavoriteButton(
-                favorite = state.isFavoriteCurrent,
-                language = language,
-                scheme = colors,
-                onClick = {
-                    if (guided) item.let { actions.onToggleFavGuided(it.guidedKey()) }
-                    else actions.onToggleFavFree(dhikr.freeKey())
-                },
-            )
-            IconButton(onClick = onOpenHapticDialog) {
+            Box(
+                Modifier.onGloballyPositioned { onFavoriteBounds(it.boundsInRoot()) },
+            ) {
+                FavoriteButton(
+                    favorite = state.isFavoriteCurrent,
+                    language = language,
+                    scheme = colors,
+                    onClick = {
+                        if (guided) item.let { actions.onToggleFavGuided(it.guidedKey()) }
+                        else actions.onToggleFavFree(dhikr.freeKey())
+                    },
+                )
+            }
+
+            IconButton(
+                onClick = onOpenHapticDialog,
+                modifier = Modifier.onGloballyPositioned { onHapticBounds(it.boundsInRoot()) },
+                ) {
                 Icon(
                     imageVector = Icons.Outlined.Vibration,
                     contentDescription = tr(language, "Umpan balik sentuhan", "Touch feedback"),
@@ -184,15 +201,21 @@ fun MainPane(
                 modifier = m,
             )
         }
+
         val counter: @Composable (Modifier) -> Unit = { m ->
             TapCounter(
-                state.count,
-                state.target,
-                language,
-                actions.onTap,
+                count = state.count,
+                target = state.target,
+                language = language,
+                onTap = actions.onTap,
                 scheme = colors,
-                m)
+                modifier = m,
+                ringModifier = Modifier.onGloballyPositioned {
+                    onCounterBounds(it.boundsInRoot())
+                },
+            )
         }
+
         val dock: @Composable () -> Unit = {
             ControlDock(
                 state = state,

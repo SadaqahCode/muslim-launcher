@@ -25,12 +25,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sadaqahcode.muslimlauncher.domain.model.Tool
 import com.sadaqahcode.muslimlauncher.domain.model.tools.HapticMode
+import com.sadaqahcode.muslimlauncher.ui.common.layout.ScreenLayout
 import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.theme.Wallpaper
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.components.TasbihContent
@@ -50,15 +50,17 @@ class Actions(
     val onPrevious: () -> Unit,
     val onRetry: () -> Unit,
     val onSetHapticMode: (HapticMode) -> Unit,
+    val onCompleteOnboarding: () -> Unit
 )
 
 @Composable
 internal fun TasbihPage(
     tool: Tool,
     onClose: () -> Unit,
-    topTransparentModal: Dp,
+    screen: ScreenLayout,
     viewModel: TasbihViewModel = hiltViewModel(),
 ) {
+
     val lc = LocalLegibleColors.current
     val colors = lc.scheme
     val userSettings by viewModel.settings.collectAsStateWithLifecycle()
@@ -94,6 +96,7 @@ internal fun TasbihPage(
             onPrevious = viewModel::previousEntry,
             onRetry = viewModel::retry,
             onSetHapticMode = viewModel::setHapticMode,
+            onCompleteOnboarding = viewModel::completeOnboarding,
         )
     }
 
@@ -113,7 +116,8 @@ internal fun TasbihPage(
                     actions = actions,
                     onClose = onClose,
                     scheme = colors,
-                    topTransparentModal = topTransparentModal,
+                    screen = screen,
+                    onboardingDone = state.onboardingDone == true
                 )
 
                 // Overlay — no reserved space, no layout shift when it shows/hides.

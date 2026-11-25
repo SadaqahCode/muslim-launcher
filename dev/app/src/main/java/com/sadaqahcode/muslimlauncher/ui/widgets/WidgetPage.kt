@@ -51,6 +51,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.flagodna.debugprint.debugPrint
 import com.sadaqahcode.muslimlauncher.ui.common.layout.AppBarPage
 import com.sadaqahcode.muslimlauncher.ui.common.layout.PageMaxWidthScreen
+import com.sadaqahcode.muslimlauncher.ui.common.layout.rememberSoftScrollbarSettings
 import com.sadaqahcode.muslimlauncher.ui.home.helper.doubleTapGesture
 import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.widgets.components.AddWidgetRow
@@ -61,7 +62,6 @@ import com.sadaqahcode.muslimlauncher.ui.widgets.components.ShortcutTile
 import com.sadaqahcode.muslimlauncher.ui.widgets.components.WidgetPickerSheet
 import com.sadaqahcode.muslimlauncher.ui.widgets.components.WidgetRow
 import my.nanihadesuka.compose.LazyColumnScrollbar
-import my.nanihadesuka.compose.ScrollbarSettings
 
 private const val TAG = "WidgetPage"
 
@@ -132,12 +132,7 @@ fun WidgetPage(
         isReorderMode = true
     }
 
-    val softScrollbarSettings = ScrollbarSettings.Default.copy(
-        thumbThickness = 5.dp,
-        thumbUnselectedColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.9f),
-        thumbSelectedColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f),
-        scrollbarPadding = 0.dp,
-    )
+    val softScrollbar = rememberSoftScrollbarSettings()
 
     LaunchedEffect(pageActive) {
         if (!pageActive) {
@@ -317,7 +312,7 @@ fun WidgetPage(
             } else {
                 LazyColumnScrollbar(
                     state = listState,
-                    settings = softScrollbarSettings,
+                    settings = softScrollbar,
                     modifier = Modifier
                         .padding(innerPadding)
                         .fillMaxSize(),

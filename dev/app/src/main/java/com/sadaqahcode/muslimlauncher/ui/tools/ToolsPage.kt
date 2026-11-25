@@ -10,7 +10,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -25,13 +24,13 @@ import com.sadaqahcode.muslimlauncher.domain.model.resolveTools
 import com.sadaqahcode.muslimlauncher.ui.common.layout.AppBarPage
 import com.sadaqahcode.muslimlauncher.ui.common.layout.PageMaxWidthScreen
 import com.sadaqahcode.muslimlauncher.ui.common.layout.ThreeColumnMinWidth
+import com.sadaqahcode.muslimlauncher.ui.common.layout.rememberSoftScrollbarSettings
 import com.sadaqahcode.muslimlauncher.ui.home.helper.doubleTapGesture
 import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.tools.components.ReorderToolsList
 import com.sadaqahcode.muslimlauncher.ui.tools.components.ToolCard
 import kotlinx.coroutines.launch
 import my.nanihadesuka.compose.LazyVerticalGridScrollbar
-import my.nanihadesuka.compose.ScrollbarSettings
 
 @Composable
 fun ToolsPage(
@@ -47,6 +46,8 @@ fun ToolsPage(
 ) {
     val prefs by viewModel.prefs.collectAsStateWithLifecycle()
     val today by viewModel.today.collectAsStateWithLifecycle()
+
+    val softScrollbar = rememberSoftScrollbarSettings()
 
     var isReorderMode by remember { mutableStateOf(false) }
     var latestDraftOrder by remember { mutableStateOf<List<ToolId>?>(null) }
@@ -115,15 +116,6 @@ fun ToolsPage(
 
     val lc = LocalLegibleColors.current
 
-    val scrollbarSettings = remember {
-        ScrollbarSettings.Default.copy(
-            thumbThickness = 5.dp,
-            thumbUnselectedColor = Color.Transparent,
-            thumbSelectedColor = Color.Transparent,
-            scrollbarPadding = 0.dp,
-        )
-    }
-
     AppBarPage(
         title = {
             Text(
@@ -172,7 +164,7 @@ fun ToolsPage(
                 .fillMaxSize()
         ) {
             val columns = if (maxWidth >= ThreeColumnMinWidth) 3 else 2
-            LazyVerticalGridScrollbar(state = gridState, settings = scrollbarSettings) {
+            LazyVerticalGridScrollbar(state = gridState, settings = softScrollbar) {
                 LazyVerticalGrid(
                     state = gridState,
                     columns = GridCells.Fixed(columns),

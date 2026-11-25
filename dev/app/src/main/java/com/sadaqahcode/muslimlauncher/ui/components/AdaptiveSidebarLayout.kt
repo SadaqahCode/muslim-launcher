@@ -22,8 +22,10 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AdaptiveSidebarLayout(
     isTablet: Boolean,
+    permanentSidebar: Boolean,
     drawerOpen: Boolean,
     onDrawerClose: () -> Unit,
+    onDrawerOpen: () -> Unit = {},
     sidebarWidth: Dp = 320.dp,
     sidebarWindowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
     contentWindowInsets: WindowInsets = WindowInsets(0, 0, 0, 0),
@@ -31,8 +33,7 @@ fun AdaptiveSidebarLayout(
     content: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (isTablet) {
-        // Tablet: permanent sidebar
+    if (isTablet && permanentSidebar) {
         Row(modifier.fillMaxSize()) {
             Box(
                 Modifier
@@ -66,14 +67,20 @@ fun AdaptiveSidebarLayout(
         return
     }
 
-    // Phone / small: side drawer
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
+    // Caller → drawer
     LaunchedEffect(drawerOpen) {
         if (drawerOpen) drawerState.open() else drawerState.close()
     }
-    LaunchedEffect(drawerState.isClosed) {
-        if (drawerState.isClosed && drawerOpen) onDrawerClose()
+
+    // Drawer → caller  (handles BOTH manual swipe-open and swipe-close)
+    LaunchedEffect(drawerState.currentValue) {
+        when (drawerState.currentValue) {
+            DrawerValue.Open -> if (!drawerOpen) onDrawerOpen()
+            DrawerValue.Closed -> if (drawerOpen) onDrawerClose()
+            else -> Unit
+        }
     }
 
     ModalNavigationDrawer(

@@ -55,6 +55,7 @@ import com.sadaqahcode.muslimlauncher.domain.model.LauncherApp
 import com.sadaqahcode.muslimlauncher.domain.model.UserSettings
 import com.sadaqahcode.muslimlauncher.domain.model.buildDrawerModel
 import com.sadaqahcode.muslimlauncher.ui.common.layout.PageMaxWidthScreen
+import com.sadaqahcode.muslimlauncher.ui.common.layout.rememberSoftScrollbarSettings
 import com.sadaqahcode.muslimlauncher.ui.drawer.components.DrawerChipsRow
 import com.sadaqahcode.muslimlauncher.ui.drawer.components.DrawerGridContent
 import com.sadaqahcode.muslimlauncher.ui.drawer.components.DrawerHorizontalContent
@@ -62,7 +63,6 @@ import com.sadaqahcode.muslimlauncher.ui.drawer.components.DrawerListContent
 import com.sadaqahcode.muslimlauncher.ui.drawer.components.DrawerSearchField
 import com.sadaqahcode.muslimlauncher.ui.drawer.components.SheetNestedScroll
 import com.sadaqahcode.muslimlauncher.ui.theme.ProvideLegibleColors
-import my.nanihadesuka.compose.ScrollbarSettings
 
 @SuppressLint("ConfigurationScreenWidthHeight")
 @Composable
@@ -117,12 +117,7 @@ fun AppDrawer(
 
     val hideChrome = isImeVisible || isSearching
 
-    val scrollbarSettings = ScrollbarSettings.Default.copy(
-        thumbThickness = 4.dp,
-        thumbUnselectedColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f),
-        thumbSelectedColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.9f),
-        scrollbarPadding = 4.dp,
-    )
+    val softScrollbar = rememberSoftScrollbarSettings()
 
     val onAppClickSafe: (LauncherApp) -> Unit = { app ->
         if (hasWorkProfile && showWork && isWorkPaused) {
@@ -397,7 +392,7 @@ fun AppDrawer(
                                     nested = remember(sheet, listState) {
                                         SheetNestedScroll(sheet) { listState.canScrollBackward }
                                     },
-                                    scrollbarSettings = scrollbarSettings,
+                                    scrollbarSettings = softScrollbar,
                                     topHeaderPadding = if (useHorizontalHeader) 16.dp else 24.dp,
                                     settings = settings,
                                     onAppClick = onAppClickSafe,
@@ -410,7 +405,7 @@ fun AppDrawer(
                                     nested = remember(sheet, gridState) {
                                         SheetNestedScroll(sheet) { gridState.canScrollBackward }
                                     },
-                                    scrollbarSettings = scrollbarSettings,
+                                    scrollbarSettings = softScrollbar,
                                     topHeaderPadding = if (useHorizontalHeader) 16.dp else 24.dp,
                                     columns = settings.drawerColumns,
                                     settings = settings.copy(itemLayout = AppItemLayout.TextBelow),
