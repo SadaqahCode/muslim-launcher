@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.qibla.components
+package com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.qibla.components.dialog
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

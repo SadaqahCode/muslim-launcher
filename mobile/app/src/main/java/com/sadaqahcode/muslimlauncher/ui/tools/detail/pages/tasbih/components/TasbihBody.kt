@@ -211,9 +211,8 @@ fun TasbihBody(
         )
     }
 
-    if (!onboardingDone) {
         TasbihGuide(
-            visible = !onboardingDone,
+            visible = onboardingDone,
             language = language,
             libraryPickerBounds = libraryPickerBounds,
             permanentSidebar = usesPermanentSidebar,
@@ -225,5 +224,4 @@ fun TasbihBody(
             style = rememberTasbihGuideStyle(colors),
             modifier = Modifier.fillMaxSize(),
         )
-    }
 }

@@ -26,8 +26,8 @@ android {
         applicationId = "com.sadaqahcode.muslimlauncher"
         minSdk = 24
         targetSdk = 37
-        versionCode = 261125
-        versionName = "0.26.14"
+        versionCode = 261126
+        versionName = "0.26.16"
 
         val hmacKey = localProperties.getProperty("HMACK")
             ?: "" // empty → fail closed at runtime, don't crash the build
@@ -171,6 +171,9 @@ dependencies {
 
     // Library UI
     implementation(libs.aboutlibraries.compose.m3)
+
+    // Play Services Location (FusedLocationProviderClient)
+    implementation("com.google.android.gms:play-services-location:21.4.0")
 
     // ── Tests ──────────────────────────────────────────────────────────────
     testImplementation(libs.junit)

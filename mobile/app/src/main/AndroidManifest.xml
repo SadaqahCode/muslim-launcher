@@ -16,6 +16,15 @@
     <!-- Primary mechanism for expanding the notification shade -->
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- required=false: devices without a compass / GPS can still install the app -->
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+    <uses-feature android:name="android.hardware.location.network" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.compass" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" />
+
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />

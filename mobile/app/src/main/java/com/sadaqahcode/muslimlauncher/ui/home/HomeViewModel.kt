@@ -73,7 +73,7 @@ data class PrayerHeroState(
     val windowLine: String = "Dhuhr began 3h 03m ago · Surakarta (Solo)",
 )
 
-private const val TAG = "HomeVM"
+private const val TAG = "HomeViewModel"
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(

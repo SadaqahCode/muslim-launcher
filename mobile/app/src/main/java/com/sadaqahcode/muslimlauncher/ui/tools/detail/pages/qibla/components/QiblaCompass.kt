@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.qibla
+package com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.qibla.components
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -9,10 +9,10 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -20,7 +20,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -34,18 +36,10 @@ import com.sadaqahcode.muslimlauncher.ui.theme.glass
 import kotlin.math.cos
 import kotlin.math.sin
 
-/** Huruf arah mata angin sesuai bahasa. */
 data class CompassLabels(val north: String, val east: String, val south: String, val west: String)
 
-/**
- * Kompas Qibla. Piringan berputar mengikuti arah perangkat (utara selalu menunjuk utara),
- * penanda Ka'bah tetap di sudut kiblatnya pada piringan, dan jarum di atas tetap diam.
- * Saat penanda Ka'bah tepat di bawah jarum, perangkat menghadap kiblat.
- *
- * Tanpa warna aksen, tanpa gerak berulang selain putaran piringan itu sendiri.
- *
- * @param dialRotation sudut kumulatif piringan dalam derajat (lihat QiblaUiState.dialRotation).
- */
+private const val DISC_FRACTION = 0.52f
+
 @Composable
 internal fun QiblaCompass(
     dialRotation: Float,
@@ -56,9 +50,10 @@ internal fun QiblaCompass(
     centerSecondary: String?,
     description: String,
     stateText: String,
+    lsScheme: ColorScheme,
+    defaultScheme: ColorScheme,
     modifier: Modifier = Modifier,
 ) {
-    val colors = MaterialTheme.colorScheme
     val rotationState = animateFloatAsState(
         targetValue = dialRotation,
         animationSpec = tween(durationMillis = 110, easing = LinearEasing),
@@ -71,9 +66,6 @@ internal fun QiblaCompass(
     )
     val measurer = rememberTextMeasurer()
     val letterStyle = MaterialTheme.typography.labelLarge
-    val onSurface = colors.onSurface
-    val onSurfaceVariant = colors.onSurfaceVariant
-    val background = colors.background
 
     BoxWithConstraints(
         modifier = modifier.semantics {
@@ -84,10 +76,10 @@ internal fun QiblaCompass(
     ) {
         val bigSize = (maxWidth.value * 0.15f).coerceIn(28f, 64f).sp
 
-        // Cakram kaca di tengah, tempat angka sudut.
+        // Glass disc in the center, where the angle numbers go.
         Box(
             Modifier
-                .fillMaxSize(0.58f)
+                .fillMaxSize(DISC_FRACTION)
                 .glass(CircleShape, if (aligned) GlassEmphasis.Selected else GlassEmphasis.Regular),
             contentAlignment = Alignment.Center,
         ) {
@@ -100,13 +92,13 @@ internal fun QiblaCompass(
                         fontWeight = FontWeight.Light,
                         fontFeatureSettings = "tnum",
                     ),
-                    color = onSurface,
+                    color = defaultScheme.onSurface,
                 )
                 if (centerSecondary != null) {
                     Text(
                         text = centerSecondary,
                         style = MaterialTheme.typography.labelLarge,
-                        color = onSurfaceVariant,
+                        color = defaultScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -117,23 +109,24 @@ internal fun QiblaCompass(
             val e = emphasis.value
             val cx = size.width / 2f
             val cy = size.height / 2f
-            val r = size.minDimension / 2f - 16.dp.toPx()
+            // Leave room outside the ring for the Ka'bah marker and the needle.
+            val r = size.minDimension / 2f - 28.dp.toPx()
 
-            // 0° = atas, searah jarum jam.
+            // 0° = top, clockwise.
             fun polar(radius: Float, deg: Float): Offset {
                 val rad = Math.toRadians(deg.toDouble())
                 return Offset(cx + radius * sin(rad).toFloat(), cy - radius * cos(rad).toFloat())
             }
 
-            // Cincin: lebih tebal dan jelas saat sejajar.
+            // Ring: thicker and brighter when aligned with the Qibla.
             drawCircle(
-                color = onSurface.copy(alpha = 0.18f + 0.62f * e),
+                color = lsScheme.onSurface.copy(alpha = 0.18f + 0.62f * e),
                 radius = r,
                 center = Offset(cx, cy),
                 style = Stroke(width = (1.5f + 1.5f * e).dp.toPx()),
             )
 
-            // Garis skala tiap 5°.
+            // Scale ticks every 5°.
             for (i in 0 until 72) {
                 val base = i * 5f
                 val major = i % 18 == 0
@@ -141,7 +134,7 @@ internal fun QiblaCompass(
                 val length = (if (major) 14.dp else if (mid) 10.dp else 6.dp).toPx()
                 val alpha = if (major) 0.55f else if (mid) 0.35f else 0.20f
                 drawLine(
-                    color = onSurface.copy(alpha = alpha),
+                    color = lsScheme.onSurface.copy(alpha = alpha),
                     start = polar(r, base + rotation),
                     end = polar(r - length, base + rotation),
                     strokeWidth = (if (major) 2.dp else 1.dp).toPx(),
@@ -149,53 +142,74 @@ internal fun QiblaCompass(
                 )
             }
 
-            // Huruf mata angin: ikut berputar posisinya, tetap tegak terbaca.
-            val cardinals = listOf(0f to labels.north, 90f to labels.east, 180f to labels.south, 270f to labels.west)
+            // Cardinal letters: rotate in position but stay upright and readable.
+            val cardinals = listOf(
+                0f to labels.north,
+                90f to labels.east,
+                180f to labels.south,
+                270f to labels.west,
+            )
             for ((deg, text) in cardinals) {
                 val layout = measurer.measure(text, letterStyle)
                 val c = polar(r - 34.dp.toPx(), deg + rotation)
                 drawText(
                     textLayoutResult = layout,
-                    color = if (deg == 0f) onSurface else onSurfaceVariant,
+                    color = if (deg == 0f) lsScheme.onSurface else lsScheme.onSurfaceVariant,
                     topLeft = Offset(c.x - layout.size.width / 2f, c.y - layout.size.height / 2f),
                 )
             }
 
-            // Ka'bah: garis lembut dari tengah dan penanda kotak di cincin.
+            // Ka'bah: soft line from the disc edge plus a marker on the ring.
             if (qiblaBearing != null) {
                 val angle = qiblaBearing + rotation
                 drawLine(
-                    color = onSurface.copy(alpha = 0.22f + 0.2f * e),
-                    start = polar(r * 0.62f, angle),
+                    color = lsScheme.onSurface.copy(alpha = 0.62f + 0.38f * e),
+                    start = polar(size.minDimension * DISC_FRACTION / 2f + 4.dp.toPx(), angle),
                     end = polar(r - 18.dp.toPx(), angle),
                     strokeWidth = 2.dp.toPx(),
                     cap = StrokeCap.Round,
                 )
-                val m = polar(r, angle)
-                val side = 24.dp.toPx()
-                val topLeft = Offset(m.x - side / 2f, m.y - side / 2f)
-                drawRoundRect(
-                    color = onSurface,
-                    topLeft = topLeft,
-                    size = Size(side, side),
-                    cornerRadius = CornerRadius(6.dp.toPx()),
-                )
-                // Pita tipis seperti kiswah.
-                drawRect(
-                    color = background,
-                    topLeft = Offset(topLeft.x, topLeft.y + side * 0.30f),
-                    size = Size(side, 2.5.dp.toPx()),
-                )
+                drawKaaba(center = polar(r, angle), side = 24.dp.toPx(), scheme = lsScheme)
             }
 
-            // Jarum tetap di atas.
+            val needleBase = cy - r - 26.dp.toPx()
             val needle = Path().apply {
-                moveTo(cx - 9.dp.toPx(), cy - r - 14.dp.toPx())
-                lineTo(cx + 9.dp.toPx(), cy - r - 14.dp.toPx())
-                lineTo(cx, cy - r - 2.dp.toPx())
+                moveTo(cx - 9.dp.toPx(), needleBase)
+                lineTo(cx + 9.dp.toPx(), needleBase)
+                lineTo(cx, needleBase + 12.dp.toPx())
                 close()
             }
-            drawPath(needle, color = onSurface.copy(alpha = 0.6f + 0.4f * e))
+            drawPath(needle, color = lsScheme.onSurface.copy(alpha = 0.6f + 0.4f * e))
         }
     }
+}
+
+private fun DrawScope.drawKaaba(center: Offset, side: Float, scheme: ColorScheme) {
+    val surface = scheme.surface.copy(alpha = 1f)
+    val onSurface = scheme.onSurface.copy(alpha = 1f)
+    val surfaceIsDarker = surface.luminance() < onSurface.luminance()
+    val body = if (surfaceIsDarker) surface else onSurface
+    val band = if (surfaceIsDarker) onSurface else surface
+
+    val topLeft = Offset(center.x - side / 2f, center.y - side / 2f)
+    val box = Size(side, side)
+    val corner = CornerRadius(3.dp.toPx())
+
+    drawRoundRect(color = body, topLeft = topLeft, size = box, cornerRadius = corner)
+
+    // Kiswah band across the upper third.
+    drawRect(
+        color = band,
+        topLeft = Offset(topLeft.x, topLeft.y + side * 0.26f),
+        size = Size(side, 3.dp.toPx()),
+    )
+
+    // Outline separates the body from the background.
+    drawRoundRect(
+        color = onSurface,
+        topLeft = topLeft,
+        size = box,
+        cornerRadius = corner,
+        style = Stroke(width = 1.5.dp.toPx()),
+    )
 }

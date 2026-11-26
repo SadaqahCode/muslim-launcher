@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -50,7 +51,7 @@ class Actions(
     val onPrevious: () -> Unit,
     val onRetry: () -> Unit,
     val onSetHapticMode: (HapticMode) -> Unit,
-    val onCompleteOnboarding: () -> Unit
+    val onCompleteOnboarding: () -> Unit,
 )
 
 @Composable
@@ -60,7 +61,6 @@ internal fun TasbihPage(
     screen: ScreenLayout,
     viewModel: TasbihViewModel = hiltViewModel(),
 ) {
-
     val lc = LocalLegibleColors.current
     val colors = lc.scheme
     val userSettings by viewModel.settings.collectAsStateWithLifecycle()
@@ -109,27 +109,34 @@ internal fun TasbihPage(
             contentWindowInsets = WindowInsets(0, 0, 0, 0),
         ) { _ ->
             Box(Modifier.fillMaxSize()) {
-                TasbihContent(
-                    toolTitle = stringResource(tool.titleRes),
-                    state = state,
-                    language = language,
-                    actions = actions,
-                    onClose = onClose,
-                    scheme = colors,
-                    screen = screen,
-                    onboardingDone = state.onboardingDone == true
-                )
-
-                // Overlay — no reserved space, no layout shift when it shows/hides.
-                if (state.isRefreshing) {
-                    LinearProgressIndicator(
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .fillMaxWidth()
-                            .height(2.dp),
-                        color = colors.primary,
-                        trackColor = colors.primary.copy(alpha = 0.15f),
+                if (!state.prefsLoaded) {
+                    Box(
+                        Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(color = colors.primary)
+                    }
+                } else {
+                    TasbihContent(
+                        toolTitle = stringResource(tool.titleRes),
+                        state = state,
+                        language = language,
+                        actions = actions,
+                        onClose = onClose,
+                        scheme = colors,
+                        screen = screen,
                     )
+
+                    if (state.isRefreshing) {
+                        LinearProgressIndicator(
+                            modifier = Modifier
+                                .align(Alignment.TopCenter)
+                                .fillMaxWidth()
+                                .height(2.dp),
+                            color = colors.primary,
+                            trackColor = colors.primary.copy(alpha = 0.15f),
+                        )
+                    }
                 }
             }
         }

@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -62,7 +64,8 @@ data class TasbihUiState(
     val guidedCount: Int = 0,
     val finished: Boolean = false,
     val favoriteGuided: Set<String> = emptySet(),
-    val onboardingDone: Boolean? = null,
+    val onboardingDone: Boolean = false,
+    val prefsLoaded: Boolean = false,
 ) {
     val autoRun: Boolean get() = mode == TasbihMode.Guided
     val freeList: List<Dhikr>
@@ -99,7 +102,7 @@ data class TasbihUiState(
 class TasbihViewModel @Inject constructor(
     private val getDhikrItems: GetDhikrItemsUseCase,
     private val prefs: TasbihDataStore,
-    private val settingsDs: SettingsDataStore,
+    settingsDs: SettingsDataStore,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TasbihUiState())
@@ -114,6 +117,44 @@ class TasbihViewModel @Inject constructor(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), UserSettings())
 
     init {
+        viewModelScope.launch {
+            // All these flows are backed by the same dataStore.data,
+            // so their first emissions come from the same disk read.
+            val initial = combine(
+                prefs.favoriteFree,
+                prefs.favoriteGuided,
+                prefs.hapticMode,
+                prefs.onboardingDone,
+            ) { favFree, favGuided, haptic, onboarding ->
+                InitialPrefs(favFree, favGuided, haptic, onboarding)
+            }.first()
+
+            val saved = prefs.readSaved()
+
+            val savedMode = runCatching { TasbihMode.valueOf(saved.lastMode ?: "Free") }
+                .getOrDefault(TasbihMode.Free)
+            val savedGuidedIndex = DefaultDhikrItems.ALL
+                .indexOfFirst { it.guidedKey() == saved.lastGuidedKey }
+                .takeIf { it >= 0 } ?: 0
+
+            _state.update {
+                it.copy(
+                    mode = savedMode,
+                    selectedFreeKey = saved.freeKey,
+                    freeTarget = saved.freeTarget ?: it.freeTarget,
+                    selectedItemIndex = savedGuidedIndex,
+                    favoriteFree = initial.favoriteFree,
+                    favoriteGuided = initial.favoriteGuided,
+                    hapticMode = initial.hapticMode,
+                    onboardingDone = initial.onboardingDone,
+                    prefsLoaded = true,
+                )
+            }
+
+            load()
+        }
+
+        // Live updates after the initial snapshot.
         prefs.favoriteFree
             .onEach { fav -> _state.update { it.copy(favoriteFree = fav) } }
             .launchIn(viewModelScope)
@@ -126,21 +167,6 @@ class TasbihViewModel @Inject constructor(
         prefs.onboardingDone
             .onEach { done -> _state.update { it.copy(onboardingDone = done) } }
             .launchIn(viewModelScope)
-
-        viewModelScope.launch {
-            val saved = prefs.readSaved()
-            val savedMode = runCatching { TasbihMode.valueOf(saved.lastMode ?: "Free") }.getOrDefault(TasbihMode.Free)
-            val savedGuidedIndex = DefaultDhikrItems.ALL.indexOfFirst { it.guidedKey() == saved.lastGuidedKey }.takeIf { it >= 0 } ?: 0
-            _state.update {
-                it.copy(
-                    mode = savedMode,
-                    selectedFreeKey = saved.freeKey,
-                    freeTarget = saved.freeTarget ?: it.freeTarget,
-                    selectedItemIndex = savedGuidedIndex,
-                )
-            }
-            load()
-        }
     }
 
     fun retry() = load(tryOnlineFirst = true)
@@ -149,7 +175,6 @@ class TasbihViewModel @Inject constructor(
         tryOnlineFirst: Boolean = false,
         cacheValiditySeconds: Long = DhikrRepository.DEFAULT_CACHE_VALIDITY_SECONDS,
     ) {
-        // Show content instantly, refresh in background. No 1600ms forced bar.
         _state.update { it.copy(isRefreshing = true, error = null) }
 
         getDhikrItems(tryOnlineFirst, cacheValiditySeconds)
@@ -358,6 +383,7 @@ class TasbihViewModel @Inject constructor(
             _state.update { it.copy(confirmingReset = false) }
         }
     }
+
     fun completeOnboarding() {
         _state.update { it.copy(onboardingDone = true) }
         viewModelScope.launch { prefs.markOnboardingDone() }
@@ -382,4 +408,11 @@ class TasbihViewModel @Inject constructor(
     override fun onCleared() {
         cancelResetConfirm()
     }
+
+    private data class InitialPrefs(
+        val favoriteFree: Set<String>,
+        val favoriteGuided: Set<String>,
+        val hapticMode: HapticMode,
+        val onboardingDone: Boolean,
+    )
 }

@@ -15,6 +15,7 @@ import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.theme.ProvideLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.components.NotFoundPage
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.components.PlaceholderToolPage
+import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.qibla.QiblaPage
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.TasbihPage
 
 internal typealias ToolPageContent = @Composable (
@@ -26,6 +27,9 @@ internal typealias ToolPageContent = @Composable (
 private val ToolPages: Map<ToolId, ToolPageContent> = mapOf(
     ToolId.Tasbih to { tool, onClose, screenLayout ->
         TasbihPage(tool, onClose, screenLayout)
+    },
+    ToolId.Qibla to { tool, onClose, screenLayout ->
+        QiblaPage(tool, onClose, screenLayout)
     },
     // add more
 )

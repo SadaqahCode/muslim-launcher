@@ -32,11 +32,11 @@
     <string name="tool_qibla_title">Qibla</string>
     <string name="tool_qibla_sub">Direction of the Ka\'bah from where you stand</string>
     <string name="tool_tasbih_title">Tasbih</string>
-    <string name="tool_tasbih_sub">Count dhikr, round by round</string>
+    <string name="tool_tasbih_sub">Count your daily dhikr</string>
     <string name="tool_salawat_title">Salawat</string>
-    <string name="tool_salawat_sub">Send blessings on the Prophet ﷺ</string>
-    <string name="tool_adhkar_title">Adhkar</string>
-    <string name="tool_adhkar_sub">Morning and evening remembrance</string>
+    <string name="tool_salawat_sub">Send blessings upon the Prophet ﷺ</string>
+    <string name="tool_adhkar_title">Morning &amp; Evening Adhkar</string>
+    <string name="tool_adhkar_sub">Your daily remembrance</string>
     <string name="tool_hijri_title">Hijri</string>
     <string name="tool_hijri_sub">Today\'s date in the Islamic calendar</string>
     <string name="tool_fasting_title">Fasting</string>

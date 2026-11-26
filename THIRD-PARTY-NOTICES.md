@@ -88,6 +88,11 @@ This project includes third-party software and assets, each subject to its respe
 - Source: https://github.com/cas8398/debugprint
 - License: https://github.com/cas8398/debugprint/blob/main/LICENSE
 
+### Google Play Services Location
+
+- License: Apache License 2.0
+- Source: https://developers.google.com/android/reference/com/google/android/gms/location
+
 ## Fonts
 
 ### Amiri Quran
