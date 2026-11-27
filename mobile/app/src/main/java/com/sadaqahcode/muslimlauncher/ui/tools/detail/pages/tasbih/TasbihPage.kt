@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sadaqahcode.muslimlauncher.domain.model.Tool
-import com.sadaqahcode.muslimlauncher.domain.model.tools.HapticMode
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.HapticMode
 import com.sadaqahcode.muslimlauncher.ui.common.layout.ScreenLayout
 import com.sadaqahcode.muslimlauncher.ui.theme.LocalLegibleColors
 import com.sadaqahcode.muslimlauncher.ui.theme.Wallpaper

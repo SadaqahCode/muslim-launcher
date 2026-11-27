@@ -68,19 +68,19 @@ object ToolRegistry {
     val all: List<Tool> = listOf(
         Tool(ToolId.Qibla, ToolGroup.Worship, R.string.tool_qibla_title, R.string.tool_qibla_sub),
         Tool(ToolId.Tasbih, ToolGroup.Worship, R.string.tool_tasbih_title, R.string.tool_tasbih_sub),
+        Tool(ToolId.IslamicCountdown, ToolGroup.Seasonal, R.string.tool_islamic_countdown_title, R.string.tool_islamic_countdown_sub),
+        Tool(ToolId.DuaCollection, ToolGroup.Worship, R.string.tool_dua_collection_title, R.string.tool_dua_collection_sub),
         Tool(ToolId.Salawat, ToolGroup.Worship, R.string.tool_salawat_title, R.string.tool_salawat_sub),
         Tool(ToolId.Adhkar, ToolGroup.Worship, R.string.tool_adhkar_title, R.string.tool_adhkar_sub),
-        Tool(ToolId.Hijri, ToolGroup.Seasonal, R.string.tool_hijri_title, R.string.tool_hijri_sub),
-        Tool(ToolId.PrayerTimes, ToolGroup.Worship, R.string.tool_prayer_times_title, R.string.tool_prayer_times_sub),
-        Tool(ToolId.DuaCollection, ToolGroup.Worship, R.string.tool_dua_collection_title, R.string.tool_dua_collection_sub),
         Tool(ToolId.AsmaulHusna, ToolGroup.Knowledge, R.string.tool_asmaul_husna_title, R.string.tool_asmaul_husna_sub),
         Tool(ToolId.PrayerFocus, ToolGroup.Worship, R.string.tool_prayer_focus_title, R.string.tool_prayer_focus_sub),
         Tool(ToolId.IslamicKnowledge, ToolGroup.Knowledge, R.string.tool_islamic_knowledge_title, R.string.tool_islamic_knowledge_sub),
         Tool(ToolId.IslamicEvents, ToolGroup.Seasonal, R.string.tool_islamic_events_title, R.string.tool_islamic_events_sub),
-        Tool(ToolId.MasjidFinder, ToolGroup.Journey, R.string.tool_masjid_finder_title, R.string.tool_masjid_finder_sub),
         Tool(ToolId.IslamCalculator, ToolGroup.Finance, R.string.tool_islam_calculator_title, R.string.tool_islam_calculator_sub),
-        Tool(ToolId.IslamicCountdown, ToolGroup.Seasonal, R.string.tool_islamic_countdown_title, R.string.tool_islamic_countdown_sub),
-        Tool(ToolId.RemindMe, ToolGroup.Worship, R.string.tool_remind_me_title, R.string.tool_remind_me_sub),
+        // Tool(ToolId.Hijri, ToolGroup.Seasonal, R.string.tool_hijri_title, R.string.tool_hijri_sub), //NOTE: (duplicate home?)
+        // Tool(ToolId.PrayerTimes, ToolGroup.Worship, R.string.tool_prayer_times_title, R.string.tool_prayer_times_sub), //NOTE: (duplicate home?)
+        // Tool(ToolId.MasjidFinder, ToolGroup.Journey, R.string.tool_masjid_finder_title, R.string.tool_masjid_finder_sub),
+        // Tool(ToolId.RemindMe, ToolGroup.Worship, R.string.tool_remind_me_title, R.string.tool_remind_me_sub), //NOTE: (not Islamic tools?)
         // Tool(ToolId.Fasting, ToolGroup.Tracking, R.string.tool_fasting_title, R.string.tool_fasting_sub),
         // Tool(ToolId.Sadaqah, ToolGroup.Finance, R.string.tool_sadaqah_title, R.string.tool_sadaqah_sub),
         // Tool(ToolId.Zakat, ToolGroup.Finance, R.string.tool_zakat_title, R.string.tool_zakat_sub),

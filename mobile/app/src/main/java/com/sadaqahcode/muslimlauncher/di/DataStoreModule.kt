@@ -17,6 +17,9 @@ preferencesDataStore(name = "user_settings")
 private val Context.dhikrDataStore: DataStore<Preferences> by
 preferencesDataStore(name = "dhikr_cache")
 
+private val Context.salawatDataStore: DataStore<Preferences> by    // ← NEW
+preferencesDataStore(name = "salawat_cache")                       // ← NEW
+
 private val Context.tasbihDataStore: DataStore<Preferences> by
 preferencesDataStore(name = "tasbih_prefs")
 
@@ -40,6 +43,13 @@ object DataStoreModule {
     fun provideDhikrDataStore(
         @ApplicationContext context: Context,
     ): DataStore<Preferences> = context.dhikrDataStore
+
+    @Provides
+    @Singleton
+    @SalawatDataStore
+    fun provideSalawatDataStore(
+        @ApplicationContext context: Context,
+    ): DataStore<Preferences> = context.salawatDataStore
 
     @Provides
     @Singleton

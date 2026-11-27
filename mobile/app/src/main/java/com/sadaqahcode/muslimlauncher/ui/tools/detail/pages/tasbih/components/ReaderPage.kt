@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
-import com.sadaqahcode.muslimlauncher.domain.model.tools.text
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.Dhikr
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.text
 import com.sadaqahcode.muslimlauncher.ui.theme.ArabicType
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.displayTitle
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.latinText

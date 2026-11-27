@@ -10,9 +10,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
-import com.sadaqahcode.muslimlauncher.domain.model.tools.text
-import com.sadaqahcode.muslimlauncher.domain.model.tools.title
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.Dhikr
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.text
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.title
 import com.sadaqahcode.muslimlauncher.ui.theme.ArabicType
 
 

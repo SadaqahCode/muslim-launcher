@@ -2,5 +2,4 @@
 mobile/.idea
 mobile/.kotlin
 
-data/docs/mockups
-data/docs/DESIGN_AND_FEATURES.md
+data/docs/local/

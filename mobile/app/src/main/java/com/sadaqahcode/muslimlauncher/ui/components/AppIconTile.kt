@@ -22,7 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sadaqahcode.muslimlauncher.data.local.launcher.shapeFor
+import com.sadaqahcode.muslimlauncher.data.local.icon.shapeFor
 import com.sadaqahcode.muslimlauncher.domain.model.AppItemLayout
 import com.sadaqahcode.muslimlauncher.domain.model.LauncherApp
 import com.sadaqahcode.muslimlauncher.domain.model.UserSettings

@@ -1,13 +1,20 @@
-## Contributing
+# Contributing
 
-Contributions are welcome, provided they align with the project's philosophy and technical direction.
+Contributions are welcome, provided they align with Muslim Launcher's philosophy, principles, and technical direction.
 
-Before submitting a pull request, read the [Developer Contract](./DEVELOPER_CONTRACT.md).
+Before contributing, please read:
 
-A few principles:
+- [Developer Contract](./data/docs/en/DEVELOPER_CONTRACT.md) — the project's philosophy, values, and non-negotiable principles.
+- [Contributor Guidelines](./data/docs/en/CONTRIBUTOR_GUIDELINES.md) — practical requirements and procedures for contributing.
+
+All contributions are expected to respect these documents.
+
+In particular:
 
 - Keep implementations focused.
 - Avoid unnecessary complexity.
-- Do not introduce dependencies without clear justification.
-- Respect the project's privacy and offline-first principles.
-- Avoid feature additions that conflict with the project's purpose.
+- Justify new dependencies.
+- Respect privacy and offline-first principles.
+- Do not introduce features that conflict with the project's purpose.
+
+By submitting a contribution, you acknowledge that it may be reviewed against these principles and requirements.

@@ -12,6 +12,10 @@ annotation class DhikrDataStore
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
+annotation class SalawatDataStore
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
 annotation class TasbihDataStore
 
 @Qualifier

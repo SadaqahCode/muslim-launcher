@@ -15,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.sadaqahcode.muslimlauncher.ui.tools.detail.components.PageHeader
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.tr
 
 
@@ -23,14 +24,16 @@ fun MessagePane(
     title: String,
     message: String,
     language: String,
+    showSidebar: Boolean,
     onClose: () -> Unit,
     onRetry: (() -> Unit)?,
     colors: ColorScheme,
 ) {
     Column(Modifier.fillMaxSize()) {
         PageHeader(
-            language,
-            onClose,
+            language = language,
+            onClose = onClose,
+            showSidebar = showSidebar,
             scheme = colors
         ) {
             Text(

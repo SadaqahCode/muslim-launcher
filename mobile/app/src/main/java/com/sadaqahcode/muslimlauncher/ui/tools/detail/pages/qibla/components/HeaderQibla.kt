@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.MyLocation
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -16,14 +16,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.sadaqahcode.muslimlauncher.domain.model.Tool
+import com.sadaqahcode.muslimlauncher.ui.tools.detail.components.PageHeader
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.qibla.tr
-
 @Composable
 fun HeaderQibla(
+    lcScheme: ColorScheme,
     tool: Tool,
     language: String,
+    showSidebar: Boolean,
     onClose: () -> Unit,
     onOpenGuide: (() -> Unit)? = null,
     onOpenPermissionStatus: (() -> Unit)? = null,
@@ -36,33 +39,52 @@ fun HeaderQibla(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // left
-        IconButton(onClick = onClose) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = tr(language, "Kembali", "Back"),
-            )
-        }
-        Text(
-            text = stringResource(tool.titleRes),
-            style = MaterialTheme.typography.titleLarge,
+        Row(
             modifier = Modifier.weight(1f),
-        )
-
-        // right
-        if (onOpenPermissionStatus != null) {
-            IconButton(onClick = onOpenPermissionStatus) {
-                Icon(
-                    imageVector = Icons.Outlined.MyLocation,
-                    contentDescription = tr(language, "Status Izin Lokasi", "Location Permission Status"),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            PageHeader(
+                language = language,
+                onClose = onClose,
+                showSidebar = showSidebar,
+                scheme = lcScheme,
+            ) {
+                Text(
+                    text = stringResource(tool.titleRes),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = lcScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp),
                 )
             }
         }
-        if (onOpenGuide != null) {
-            IconButton(onClick = onOpenGuide) {
-                Icon(
-                    imageVector = Icons.Outlined.HelpOutline,
-                    contentDescription = tr(language, "Panduan", "Guide"),
-                )
+
+        // right
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (onOpenPermissionStatus != null) {
+                IconButton(onClick = onOpenPermissionStatus) {
+                    Icon(
+                        imageVector = Icons.Outlined.MyLocation,
+                        contentDescription = tr(
+                            language,
+                            "Status Izin Lokasi",
+                            "Location Permission Status",
+                        ),
+                        tint = lcScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            if (onOpenGuide != null) {
+                IconButton(onClick = onOpenGuide) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
+                        contentDescription = tr(language, "Panduan", "Guide"),
+                        tint = lcScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
     }

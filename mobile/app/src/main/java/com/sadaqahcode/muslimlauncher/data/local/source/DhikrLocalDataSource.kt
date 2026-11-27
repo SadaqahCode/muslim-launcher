@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.data.local.store
+package com.sadaqahcode.muslimlauncher.data.local.source
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

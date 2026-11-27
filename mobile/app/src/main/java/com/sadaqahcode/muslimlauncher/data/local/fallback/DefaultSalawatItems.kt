@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.data.local.tools.salawat
+package com.sadaqahcode.muslimlauncher.data.local.fallback
 
 import com.sadaqahcode.muslimlauncher.domain.model.tools.salawat.Salawat
 

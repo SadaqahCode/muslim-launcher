@@ -25,10 +25,10 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
-import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
-import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrItem
-import com.sadaqahcode.muslimlauncher.domain.model.tools.name
-import com.sadaqahcode.muslimlauncher.domain.model.tools.text
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.Dhikr
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.DhikrItem
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.name
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.text
 import com.sadaqahcode.muslimlauncher.ui.common.layout.rememberSoftScrollbarSettings
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.TasbihUiState
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.displayTitle

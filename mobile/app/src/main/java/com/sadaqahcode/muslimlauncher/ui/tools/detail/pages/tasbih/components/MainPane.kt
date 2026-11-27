@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Vibration
 import androidx.compose.material3.ColorScheme
@@ -28,9 +29,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
-import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrItem
-import com.sadaqahcode.muslimlauncher.domain.model.tools.name
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.Dhikr
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.DhikrItem
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.name
+import com.sadaqahcode.muslimlauncher.ui.tools.detail.components.PageHeader
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.Actions
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.TasbihUiState
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.displayTitle
@@ -47,6 +49,7 @@ fun MainPane(
     language: String,
     split: Boolean,
     showPicker: Boolean,
+    showSidebar: Boolean,
     actions: Actions,
     onOpenLibrary: () -> Unit,
     onOpenReader: () -> Unit,
@@ -65,8 +68,9 @@ fun MainPane(
 
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         PageHeader(
-            language,
-            onClose,
+            language = language,
+            onClose = onClose,
+            showSidebar = showSidebar,
             scheme = colors
         ) {
             val pickerModifier = if (showPicker) {
@@ -154,6 +158,16 @@ fun MainPane(
                     contentDescription = tr(language, "Umpan balik sentuhan", "Touch feedback"),
                     tint = colors.onSurfaceVariant,
                 )
+            }
+
+            if (!showSidebar) {
+                IconButton(onClick = onOpenLibrary) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.FormatListBulleted,
+                        contentDescription = null,
+                        tint = colors.onSurfaceVariant,
+                    )
+                }
             }
         }
 

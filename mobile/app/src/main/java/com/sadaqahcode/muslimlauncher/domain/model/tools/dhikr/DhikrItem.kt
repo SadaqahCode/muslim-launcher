@@ -1,10 +1,8 @@
-package com.sadaqahcode.muslimlauncher.domain.model.tools
-
-import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.DhikrEntry
+package com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr
 
 /**
  * A group of dhikr ("Daily Istighfar 100x", "Dhikr After Salat (3)", …).
- * Localized fields are maps keyed by language code, same as [com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.Dhikr].
+ * Localized fields are maps keyed by language code, same as [Dhikr].
  */
 data class DhikrItem(
     val id: Long,

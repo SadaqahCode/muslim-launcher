@@ -2,9 +2,9 @@ package com.sadaqahcode.muslimlauncher.data.remote.mapper
 
 import com.sadaqahcode.muslimlauncher.data.remote.dto.DhikrDto
 import com.sadaqahcode.muslimlauncher.data.remote.dto.DhikrResponseDto
-import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
-import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrEntry
-import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrItem
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.Dhikr
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.DhikrEntry
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.DhikrItem
 import javax.inject.Inject
 
 /**

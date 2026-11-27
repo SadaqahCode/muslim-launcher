@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.data.local.tools
+package com.sadaqahcode.muslimlauncher.data.local.icon
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.EventNote

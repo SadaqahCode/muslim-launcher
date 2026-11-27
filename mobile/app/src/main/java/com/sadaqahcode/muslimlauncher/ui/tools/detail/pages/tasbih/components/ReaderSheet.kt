@@ -27,7 +27,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.Dhikr
 import com.sadaqahcode.muslimlauncher.ui.components.ScrimBottomSheet
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.freeKey
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.tr

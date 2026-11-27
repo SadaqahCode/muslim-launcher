@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.sadaqahcode.muslimlauncher.domain.model.tools.HapticMode
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.HapticMode
 import com.sadaqahcode.muslimlauncher.ui.components.ScrimDialog
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.tr
 

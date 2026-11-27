@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.data.local.tools.tasbih
+package com.sadaqahcode.muslimlauncher.data.local.fallback
 
 import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.Dhikr
 import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.DhikrEntry
@@ -7,9 +7,6 @@ import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.DhikrItem
 /**
  * Hardcoded fallback shown immediately when the tasbih page opens — before
  * DataStore or network resolve. Replaced transparently once the real data emits.
- *
- * One routine "Daily Tasbih" (Istighfar ×3 → Tasbih ×33 → Tahmid ×33 → Takbir ×34)
- * keeps guided mode meaningful from the first frame.
  */
 object DefaultDhikrItems {
 

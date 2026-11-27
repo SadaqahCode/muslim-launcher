@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.dp
-import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.Dhikr
 import com.sadaqahcode.muslimlauncher.ui.common.layout.PageMaxWidthLargeScreen
 import com.sadaqahcode.muslimlauncher.ui.common.layout.PageMaxWidthScreen
 import com.sadaqahcode.muslimlauncher.ui.common.layout.ScreenLayout
@@ -79,8 +79,8 @@ fun TasbihBody(
 
     val isTablet = screen.isTablet
     val isSplit = screen.isSplit
-    val isLargeLandscape = screen.isLargeLandscape
-    val contentMaxWidth = if (isLargeLandscape) {
+    val permanentSidebar = screen.isLargeLandscape
+    val contentMaxWidth = if (permanentSidebar) {
         PageMaxWidthLargeScreen
     } else {
         PageMaxWidthScreen
@@ -92,7 +92,7 @@ fun TasbihBody(
     var favoriteBounds by remember { mutableStateOf<Rect?>(null) }
     var hapticBounds by remember { mutableStateOf<Rect?>(null) }
     var counterBounds by remember { mutableStateOf<Rect?>(null) }
-    val usesPermanentSidebar = isTablet && isLargeLandscape
+    val usesPermanentSidebar = isTablet && permanentSidebar
 
     Box(
         Modifier.fillMaxSize(),
@@ -105,7 +105,7 @@ fun TasbihBody(
         ) {
             AdaptiveSidebarLayout(
                 isTablet = isTablet,
-                permanentSidebar = isLargeLandscape,
+                permanentSidebar = permanentSidebar,
                 drawerOpen = showLibrary,
                 onDrawerClose = { showLibrary = false },
                 onDrawerOpen  = { showLibrary = true },
@@ -147,6 +147,7 @@ fun TasbihBody(
                         language = language,
                         split = isTablet || isSplit,
                         showPicker = !isTablet,
+                        showSidebar = permanentSidebar,
                         actions = actions,
                         onOpenLibrary = { showLibrary = true },
                         onOpenReader = { showReader = true },

@@ -26,6 +26,7 @@ fun TasbihContent(
             language = language,
             onClose = onClose,
             onRetry = actions.onRetry,
+            showSidebar = screen.isLargeLandscape,
             colors = scheme,
         )
 
@@ -35,6 +36,7 @@ fun TasbihContent(
             language = language,
             onClose = onClose,
             onRetry = null,
+            showSidebar = screen.isLargeLandscape,
             colors = scheme,
         )
 

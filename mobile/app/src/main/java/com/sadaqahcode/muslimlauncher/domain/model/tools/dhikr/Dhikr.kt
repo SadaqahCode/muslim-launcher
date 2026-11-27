@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.domain.model.tools
+package com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr
 
 /**
  * A single dhikr phrase.

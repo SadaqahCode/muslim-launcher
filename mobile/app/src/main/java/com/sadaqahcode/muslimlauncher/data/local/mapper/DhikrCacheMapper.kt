@@ -4,9 +4,9 @@ import com.sadaqahcode.muslimlauncher.data.local.entity.DhikrCacheEntity
 import com.sadaqahcode.muslimlauncher.data.local.entity.DhikrEntryCache
 import com.sadaqahcode.muslimlauncher.data.local.entity.DhikrItemCache
 import com.sadaqahcode.muslimlauncher.data.local.entity.DhikrPhraseCache
-import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
-import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrEntry
-import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrItem
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.Dhikr
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.DhikrEntry
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.DhikrItem
 import javax.inject.Inject
 
 class DhikrCacheMapper @Inject constructor() {

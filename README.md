@@ -85,25 +85,22 @@ Your smartphone usage should not become another source of data extraction.
 
 ## Documentation
 
-- [Roadmap](./data/docs/ROADMAP.md)
-- [Developer Contract](./data/docs/DEVELOPER_CONTRACT.md)
+- [Roadmap](./ROADMAP.md)
+- [Developer Contract](./data/docs/en/DEVELOPER_CONTRACT.md)
+- [Contributor Guidelines](./data/docs/en/CONTRIBUTOR_GUIDELINES.md)
 - [Changelog](./changelog/)
+
+The Developer Contract defines the project's philosophy, values, and non-negotiable principles. The Contributor Guidelines explain the practical requirements and procedures for contributing.
 
 Changelog uses a PT (Patch) system. Each PT represents a numbered group of development changes, recorded in a separate Markdown file under `changelog/`. The application version follows the `major.year.PT` format (e.g. PT14 = 0.26.14).
 
 ## Contributing
 
-Contributions are welcome, provided they align with the project's philosophy and technical direction.
+Contributions are welcome, provided they align with Muslim Launcher's philosophy, principles, and technical direction.
 
-Before submitting a pull request, read the [Developer Contract](./DEVELOPER_CONTRACT.md).
+Before contributing, please read the [Developer Contract](./data/docs/en/DEVELOPER_CONTRACT.md) and [Contributor Guidelines](./data/docs/en/CONTRIBUTOR_GUIDELINES.md).
 
-A few principles:
-
-- Keep implementations focused.
-- Avoid unnecessary complexity.
-- Do not introduce dependencies without clear justification.
-- Respect the project's privacy and offline-first principles.
-- Avoid feature additions that conflict with the project's purpose.
+For contribution procedures and submission requirements, see [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## License
 

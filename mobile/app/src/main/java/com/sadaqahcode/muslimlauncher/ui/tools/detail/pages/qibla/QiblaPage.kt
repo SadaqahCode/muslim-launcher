@@ -70,7 +70,7 @@ internal fun QiblaPage(
     viewModel: QiblaViewModel = hiltViewModel(),
 ) {
     val lc = LocalLegibleColors.current
-    val lsColors = lc.scheme
+    val lcColors = lc.scheme
     val defaultColors = MaterialTheme.colorScheme
 
     val userSettings by viewModel.settings.collectAsStateWithLifecycle()
@@ -151,7 +151,7 @@ internal fun QiblaPage(
                 centerSecondary = bearing?.let { compassName(language, it) },
                 description = tr(language, "Kompas arah kiblat", "Qibla compass"),
                 stateText = statusText(state, language),
-                lsScheme = lsColors,
+                lsScheme = lcColors,
                 defaultScheme = defaultColors,
                 modifier = Modifier.size(side),
             )
@@ -173,7 +173,7 @@ internal fun QiblaPage(
                 }
             },
             onShowCalibration = viewModel::showCalibrationGuide,
-            lsScheme = lsColors,
+            lsScheme = lcColors,
             defaultScheme = defaultColors,
             modifier = m,
         )
@@ -196,7 +196,7 @@ internal fun QiblaPage(
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 containerColor = Color.Transparent,
-                contentColor = lsColors.onBackground,
+                contentColor = lcColors.onBackground,
                 contentWindowInsets = WindowInsets(0, 0, 0, 0),
             ) { _ ->
                 AdaptiveSidebarLayout(
@@ -226,8 +226,10 @@ internal fun QiblaPage(
                             if (screen.isSplit) {
                                 Column(Modifier.fillMaxSize()) {
                                     HeaderQibla(
+                                        lcScheme = lcColors,
                                         tool = tool,
                                         language = language,
+                                        showSidebar = permanentSidebar,
                                         onClose = onClose,
                                         onOpenGuide = if (!permanentSidebar) ({ showGuide = true }) else null,
                                         onOpenPermissionStatus = (viewModel::showPermissionStatus)
@@ -245,7 +247,9 @@ internal fun QiblaPage(
                             } else {
                                 Column(Modifier.fillMaxSize()) {
                                     HeaderQibla(
+                                        lcScheme = lcColors,
                                         tool = tool,
+                                        showSidebar = permanentSidebar,
                                         language = language,
                                         onClose = onClose,
                                         onOpenGuide = if (!permanentSidebar) ({ showGuide = true }) else null,

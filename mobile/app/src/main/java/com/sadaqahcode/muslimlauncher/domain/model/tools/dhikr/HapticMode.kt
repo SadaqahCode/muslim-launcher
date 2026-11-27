@@ -1,4 +1,4 @@
-package com.sadaqahcode.muslimlauncher.domain.model.tools
+package com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr
 
 /**
  * User's preference for tactile feedback on interactive elements.

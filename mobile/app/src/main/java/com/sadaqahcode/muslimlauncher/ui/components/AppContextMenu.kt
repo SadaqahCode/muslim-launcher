@@ -29,7 +29,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,7 +52,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.sadaqahcode.muslimlauncher.data.local.launcher.shapeFor
+import com.sadaqahcode.muslimlauncher.data.local.icon.shapeFor
 import com.sadaqahcode.muslimlauncher.domain.model.AppCategory
 import com.sadaqahcode.muslimlauncher.domain.model.LauncherApp
 import com.sadaqahcode.muslimlauncher.domain.model.UserSettings

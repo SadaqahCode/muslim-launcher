@@ -1,7 +1,7 @@
 package com.sadaqahcode.muslimlauncher.domain.repository
 
 import com.sadaqahcode.muslimlauncher.domain.model.Result
-import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrItem
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.DhikrItem
 import kotlinx.coroutines.flow.Flow
 
 /**

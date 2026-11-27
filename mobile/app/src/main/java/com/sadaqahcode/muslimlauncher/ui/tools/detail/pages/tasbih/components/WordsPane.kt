@@ -28,8 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
-import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrItem
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.Dhikr
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.DhikrItem
 import com.sadaqahcode.muslimlauncher.ui.theme.glass
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.displayTitle
 import com.sadaqahcode.muslimlauncher.ui.tools.detail.pages.tasbih.swipeNavigate

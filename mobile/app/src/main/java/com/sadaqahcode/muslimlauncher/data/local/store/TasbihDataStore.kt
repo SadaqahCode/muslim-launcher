@@ -9,7 +9,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import com.sadaqahcode.muslimlauncher.di.TasbihDataStore
-import com.sadaqahcode.muslimlauncher.domain.model.tools.HapticMode
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.HapticMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
