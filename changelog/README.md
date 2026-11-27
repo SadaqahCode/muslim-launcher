@@ -1,23 +1,22 @@
 # Changelog
 
-This directory contains the development history of Muslim Launcher, organized by Patch Tracking (PT).
+This directory contains the development history of Muslim Launcher, organized by Patch Tracking (PT) and application version.
 
 Each PT represents a group of related changes accumulated during development. A PT may include multiple commits, pull requests, fixes, improvements, and contributions.
 
 ## Structure
 
-Changelogs are organized into directories containing 100 PT entries each.
+Changelogs are organized by application version. Each version directory contains its associated PT entries.
 
 ```text
 changelog/
 ├── README.md
-├── 1-100/
-│   ├── README.md
+├── 0.26.xx/
 │   ├── PT1.md
 │   ├── PT2.md
 │   └── ...
-├── 101-200/
-│   ├── README.md
+├── 1.26.xx/
+│   ├── PT...
 │   └── ...
 └── ...
 ```
@@ -26,7 +25,8 @@ changelog/
 
 - PT numbers are sequential and never reset.
 - Each PT has its own Markdown file.
-- PT numbers are not tied to a specific release or calendar year.
+- PT numbers are independent of application version numbers.
+- PT entries are grouped by the application version they belong to.
 - A PT can contain changes from multiple commits or contributors.
 - A PT does not necessarily result in a release.
 
