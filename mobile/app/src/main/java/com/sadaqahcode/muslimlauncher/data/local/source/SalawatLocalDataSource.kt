@@ -5,10 +5,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.sadaqahcode.muslimlauncher.data.local.entity.DhikrCacheEntity
-import com.sadaqahcode.muslimlauncher.data.local.mapper.DhikrCacheMapper
-import com.sadaqahcode.muslimlauncher.di.DhikrDataStore
-import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrItem
+import com.sadaqahcode.muslimlauncher.data.local.entity.SalawatCacheEntity
+import com.sadaqahcode.muslimlauncher.data.local.mapper.SalawatCacheMapper
+import com.sadaqahcode.muslimlauncher.di.SalawatDataStore
+import com.sadaqahcode.muslimlauncher.domain.model.tools.salawat.Salawat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -17,30 +17,30 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DhikrLocalDataSource @Inject constructor(
-    @DhikrDataStore private val dataStore: DataStore<Preferences>,
+class SalawatLocalDataSource @Inject constructor(
+    @SalawatDataStore private val dataStore: DataStore<Preferences>,
     private val json: Json,
-    private val cacheMapper: DhikrCacheMapper,
+    private val cacheMapper: SalawatCacheMapper,
 ) {
     companion object {
-        private val CACHE_KEY = stringPreferencesKey("dhikr_cache")
-        private val LAST_UPDATED_KEY = longPreferencesKey("dhikr_cache_last_updated")
+        private val CACHE_KEY = stringPreferencesKey("salawat_cache")
+        private val LAST_UPDATED_KEY = longPreferencesKey("salawat_cache_last_updated")
     }
 
-    fun getCachedContent(): Flow<List<DhikrItem>?> =
+    fun getCachedContent(): Flow<List<Salawat>?> =
         dataStore.data.map { prefs ->
             prefs[CACHE_KEY]?.let { raw ->
                 try {
-                    cacheMapper.toDomain(json.decodeFromString<DhikrCacheEntity>(raw))
+                    cacheMapper.toDomain(json.decodeFromString<SalawatCacheEntity>(raw))
                 } catch (e: Exception) {
                     null
                 }
             }
         }
 
-    suspend fun saveCache(items: List<DhikrItem>) {
+    suspend fun saveCache(items: List<Salawat>) {
         val entity = cacheMapper.toEntity(items)
-        val raw = json.encodeToString(DhikrCacheEntity.serializer(), entity)
+        val raw = json.encodeToString(SalawatCacheEntity.serializer(), entity)
         dataStore.edit { prefs ->
             prefs[CACHE_KEY] = raw
             prefs[LAST_UPDATED_KEY] = entity.lastUpdated

@@ -1,8 +1,8 @@
 package com.sadaqahcode.muslimlauncher.data.local.tools.tasbih
 
-import com.sadaqahcode.muslimlauncher.domain.model.tools.Dhikr
-import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrEntry
-import com.sadaqahcode.muslimlauncher.domain.model.tools.DhikrItem
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.Dhikr
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.DhikrEntry
+import com.sadaqahcode.muslimlauncher.domain.model.tools.dhikr.DhikrItem
 
 /**
  * Hardcoded fallback shown immediately when the tasbih page opens — before
